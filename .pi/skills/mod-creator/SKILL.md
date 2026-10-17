@@ -270,9 +270,10 @@ For the question "does X exist, and what is the vanilla value?", follow the look
 - Mechanics concepts: the official wiki (ck3.paradoxwikis.com). The modding conventions and the
   reason behind them: `docs/ck3-modding-conventions.md`.
 
-For a survey, `entry-scout` runs this search and returns candidates as `file:line`.
-Give it the intent and the planned change list. Its answer is a candidate list, not a decision: read
-its first candidate yourself before you write.
+Locate it with either option, which are peers: dispatch `entry-scout`, or grep yourself. **Prefer the
+scout**, because it runs in parallel and returns candidates as `file:line` without spending your
+context. Give it the intent and the planned change list. Its answer is a candidate list, not a
+decision: read its first candidate yourself before you write.
 When you cannot dispatch, run the search yourself along the same path.
 
 ## Reference
