@@ -12,9 +12,12 @@
  *     `scripts/check-doc-refs.mjs` stays green and a reader can still reach it.
  *   - Adds a two-line provenance header under the title.
  *
+ * It also writes `docs/wiki/INDEX.md`, one row per wiki page: title, whether it is shipped, and a
+ * one-line description. That answers "does a page for X exist" without reading 659 section links.
+ *
  * Usage: node scripts/sync-wiki.mjs [--check]
  *   (no flag)  fetch and write docs/wiki/
- *   --check    fetch and report what would change; exit 1 when a page differs
+ *   --check    fetch and report what would change; exit 1 when a file differs
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -23,8 +26,7 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "docs", "wiki");
 const REPO = "jesec/ck3-modding-wiki";
-// The raw base for a page file is `${REPO_BASE}/wiki_pages/`; fetchRaw takes a repository-relative path.
-const REPO_BASE = `https://raw.githubusercontent.com/${REPO}/master`;
+const RAW = `https://raw.githubusercontent.com/${REPO}/master`;
 
 /**
  * The pages this repository ships. Two groups, and both are needed.
@@ -80,6 +82,17 @@ const PAGES = [
   "Mod_troubleshooting.md", // error.log and common failures
 ];
 
+/** The mirror README leaves these pages out; describe them so every index row has an answer. */
+const FALLBACK_DESCRIPTIONS = {
+  "AI_modding.md": "AI personality, weights, and defines",
+  "Customizable_localization.md": "Customizable localization blocks",
+  "Lifestyles_modding.md": "Lifestyles and perks",
+  "List_of_baronies.md": "Every barony in the game",
+  "Mod_compatibility.md": "Load order and mod conflicts",
+  "Resources_modding.md": "Resources",
+  "Script_values.md": "Script values and their math",
+};
+
 const SHIPPED = new Set(PAGES);
 const imageRe = /!\[[^\]]*\]\(\.\.\/assets\/[^)]*\)/g;
 
@@ -105,18 +118,12 @@ function addHeader(text, page) {
   return lines.join("\n");
 }
 
-async function fetchPage(page) {
-  return fetchRaw(`wiki_pages/${page}`);
-}
-
-/** Fetches a repository file, with a bounded attempt and retries. */
+/** Fetches a repository file. GitHub raw is intermittently reset here, so bound and retry. */
 async function fetchRaw(path) {
-  // GitHub raw is intermittently reset on this network, and fetch has no default timeout, so a
-  // failed connection can hang the whole sync. Bound each attempt and retry twice.
   let last;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      const response = await fetch(`https://raw.githubusercontent.com/${REPO}/master/${path}`, {
+      const response = await fetch(`${RAW}/${path}`, {
         headers: { "user-agent": "ck3-mod-repo-wiki-sync" },
         signal: AbortSignal.timeout(30_000),
       });
@@ -130,6 +137,60 @@ async function fetchRaw(path) {
   throw new Error(`${path}: ${last instanceof Error ? last.message : String(last)}`);
 }
 
+/** Writes one file when its content changed. Returns true when it wrote. */
+function writeIfChanged(target, content, label, check) {
+  const current = existsSync(target) ? readFileSync(target, "utf8") : null;
+  if (current === content) return false;
+  if (check) {
+    console.log(`  DIFF: ${label}`);
+    return true;
+  }
+  writeFileSync(target, content);
+  console.log(`  wrote ${label}`);
+  return true;
+}
+
+/**
+ * docs/wiki/INDEX.md: every wiki page, one row. It replaces the mirror's TABLE_OF_CONTENTS, whose
+ * 659 section links are a map of the wiki; each page already carries its own section list, and an
+ * agent should not read 659 lines to learn whether a page exists.
+ */
+async function buildIndex(check) {
+  const toc = await fetchRaw("TABLE_OF_CONTENTS.md");
+  const readme = await fetchRaw("README.md");
+  const titles = new Map();
+  for (const m of toc.matchAll(/^## \[([^\]]+)\]\(wiki_pages\/([A-Za-z0-9_]+\.md)\)/gm)) {
+    titles.set(m[2], m[1]);
+  }
+  const descriptions = new Map();
+  for (const m of readme.matchAll(/^- \[[^\]]+\]\(wiki_pages\/([A-Za-z0-9_]+\.md)\) - (.+)$/gm)) {
+    descriptions.set(m[1], m[2].trim());
+  }
+  const rows = [...titles.entries()]
+    .map(([page, title]) => ({
+      page,
+      title,
+      description: descriptions.get(page) ?? FALLBACK_DESCRIPTIONS[page] ?? "",
+    }))
+    .sort((a, b) => a.title.localeCompare(b.title))
+    .map(({ page, title, description }) => {
+      const local = SHIPPED.has(page);
+      const link = local
+        ? `[${title}](./${page})`
+        : `[${title}](https://ck3.paradoxwikis.com/${page.replace(/\.md$/, "")})`;
+      return `| ${link} | ${local ? "yes" : "no"} | ${description} |`;
+    });
+  const content =
+    "# Wiki page index\n\n" +
+    "Every page in the wiki mirror (`jesec/ck3-modding-wiki`), one row each. **Local = yes** means the\n" +
+    "page is shipped under `docs/wiki/`; **no** means it exists upstream and is fetched on demand.\n\n" +
+    "Use this to answer \"does a page for X exist?\". What is shipped, and why, is in `README.md`.\n\n" +
+    "| Page | Local | Covers |\n| --- | --- | --- |\n" +
+    rows.join("\n") +
+    "\n";
+  return writeIfChanged(join(outDir, "INDEX.md"), content, "docs/wiki/INDEX.md", check);
+}
+
 async function main() {
   const check = process.argv.includes("--check");
   if (!check) mkdirSync(outDir, { recursive: true });
@@ -137,59 +198,27 @@ async function main() {
   for (const page of PAGES) {
     let text;
     try {
-      text = await fetchPage(page);
+      text = await fetchRaw(`wiki_pages/${page}`);
     } catch (error) {
       console.error(`  FAIL: ${error instanceof Error ? error.message : String(error)}`);
       process.exitCode = 1;
       continue;
     }
     const body = addHeader(rewriteLinks(text.replace(imageRe, "")).replace(/\n{3,}/g, "\n\n"), page);
-    const target = join(outDir, page);
-    const current = existsSync(target) ? readFileSync(target, "utf8") : null;
-    if (current === body) continue;
-    changed += 1;
-    if (check) {
-      console.log(`  DIFF: ${page}`);
-    } else {
-      writeFileSync(target, body);
-      console.log(`  wrote docs/wiki/${page}`);
-    }
+    if (writeIfChanged(join(outDir, page), body, `docs/wiki/${page}`, check)) changed += 1;
+  }
+  try {
+    if (await buildIndex(check)) changed += 1;
+  } catch (error) {
+    console.error(`  FAIL: docs/wiki/INDEX.md: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
   }
   if (check) {
     if (changed > 0) process.exit(1);
-    console.log(`  ok: ${PAGES.length} page(s) match the mirror`);
+    console.log(`  ok: ${PAGES.length + 1} file(s) match the mirror`);
     return;
   }
-  console.log(`  done: ${changed} page(s) updated, ${PAGES.length - changed} unchanged`);
-
-  // The mirror also ships a table of contents for every page, shipped or not. Keep it, so an agent
-  // can see that a page exists before deciding to ask for it. Links to a page we do not ship point
-  // at the wiki instead.
-  try {
-    const toc = await fetchRaw("TABLE_OF_CONTENTS.md");
-    const body = `${toc
-      .split(/\r?\n/)
-      .map((line) => line.replace(/\]\(wiki_pages\/([A-Za-z0-9_]+\.md)(#[^)]*)?\)/g, (whole, page, anchor) =>
-        SHIPPED.has(page)
-          ? `](./${page}${anchor ?? ""})`
-          : `](https://ck3.paradoxwikis.com/${page.replace(/\.md$/, "")}${anchor ?? ""})`,
-      ))
-      .join("\n")}\n`;
-    const header =
-      "> Index of **every** page in the wiki mirror (`jesec/ck3-modding-wiki`), including the pages this\n" +
-      "> workspace does not ship. A relative link opens the local copy; a link to `ck3.paradoxwikis.com`\n" +
-      "> is not shipped, and the reader must fetch it. What is shipped, and why, is in `README.md`.\n";
-    const target = join(outDir, "TABLE_OF_CONTENTS.md");
-    const content = `${body.replace(/^(# .+\n)/, `$1\n${header}`)}`;
-    const current = existsSync(target) ? readFileSync(target, "utf8") : null;
-    if (current !== content) {
-      writeFileSync(target, content);
-      console.log("  wrote docs/wiki/TABLE_OF_CONTENTS.md");
-    }
-  } catch (error) {
-    console.error(`  FAIL: TABLE_OF_CONTENTS.md: ${error instanceof Error ? error.message : String(error)}`);
-    process.exitCode = 1;
-  }
+  console.log(`  done: ${changed} file(s) updated, ${PAGES.length + 1 - changed} unchanged`);
 }
 
 await main();

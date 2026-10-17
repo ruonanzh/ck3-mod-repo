@@ -2,9 +2,9 @@
 
 Two indexes, on purpose:
 
-- **[`TABLE_OF_CONTENTS.md`](TABLE_OF_CONTENTS.md)** — every page and section in the wiki mirror, all
-  **57** pages. A relative link opens the local copy; a `ck3.paradoxwikis.com` link is a page this
-  workspace does **not** ship. Use it when you must know whether a page exists.
+- **[`INDEX.md`](INDEX.md)** — every page in the wiki mirror, all **57**, one row each: title,
+  whether it is shipped locally, and a one-line description. Use it to answer "does a page for X
+  exist".
 - **This file** — what is shipped (36 pages), what is not (21), and why.
 
 ---
@@ -98,8 +98,8 @@ whether the miss matters:
 ## Refreshing
 
 ```bash
-node scripts/sync-wiki.mjs          # fetch and rewrite the pages
-node scripts/sync-wiki.mjs --check  # report drift; exit 1 when a page differs
+node scripts/sync-wiki.mjs          # fetch and rewrite the pages, and rebuild INDEX.md
+node scripts/sync-wiki.mjs --check  # report drift; exit 1 when a file differs
 ```
 
 The script drops `../assets/` image references (8 MB of icons the text does not need) and rewrites a
