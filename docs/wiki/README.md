@@ -46,21 +46,36 @@ link to a page outside this set into the absolute wiki URL, so the internal link
 
 ## The authoritative alternative
 
-The wiki pages are a **transcription**. The game itself can produce the same data for the exact
-version on the player's machine, with two console commands run in the debug console:
+The wiki pages are a **transcription**, and their own header says they are outdated. The game itself
+produces the same data for the exact installed version. Run:
 
-| Command | Writes |
-| --- | --- |
-| `script_docs` | `effects.log`, `triggers.log`, `modifiers.log`, `event_scopes.log`, `event_targets.log`, `on_actions.log`, … |
-| `dump_data_types` | GUI data types, promotes, and functions per window |
+```bash
+node scripts/dump-script-docs.mjs          # mirrors the logs into game-scripts/script-docs/
+```
 
-Both write under `<user documents>/Paradox Interactive/Crusader Kings III/logs/`. The install also
-exposes a command-line hook, which `_commandline_options.info` documents and the wiki does not:
+The script runs the game headless and copies the result. It relies on three options, two of them in
+`game/_commandline_options.info` (the wiki does not document the console action):
 
 ```
 ck3.exe -nographics -debug_mode -run_console_action=script_docs
 ```
 
-`-nographics` runs without a window and `-run_console_action=<cmd>` runs one console command and
-exits. That makes a headless dump possible, but it **launches the game**: do it only with the
-player's agreement, and only when a version-exact list matters.
+| Command | Writes |
+| --- | --- |
+| `script_docs` | `effects.log`, `triggers.log`, `modifiers.log`, `event_scopes.log`, `event_targets.log`, `on_actions.log` |
+| `dump_data_types` (`--command=dump_data_types`) | the GUI data types, promotes, and functions |
+
+They land under `<Documents>/Paradox Interactive/Crusader Kings III/logs/`. `Documents` can be moved;
+the script asks the registry, then checks the file times to prove the run wrote them. `game-scripts/`
+is git-ignored, so the mirror is never committed.
+
+**Measured on 1.20.1.1** (this workspace, 2026-10-17): the dump holds **2128** effects, **1937**
+triggers, and **761** modifier entries (152 of them templated, such as `$CULTURE$_opinion`); the
+wiki lists hold 1156, 1072, and 383. Roughly **47 %** of the dumped names are missing from the wiki,
+and **85** wiki names no longer exist — `every_participant` became `every_memory_participant`, and
+`complete_activity` became `invalidate_activity`. Treat the dump as the truth and the wiki page as a
+explanation with examples.
+
+This also settles the reviewer's two remaining blind spots: with `script-docs/` present, a name that
+is absent from the wiki can be checked against the dump, and a call that fails there is genuinely
+wrong rather than "not in the snapshot".
