@@ -22,6 +22,22 @@ task needs, instead of pulling the whole `docs/` directory into context.
   the entry mechanisms. It answers most modding questions on its own. Read the pages below only when
   you need more depth.
 
+## How a player request becomes a mod
+
+A feature request is a route through this knowledge layer, not a guess. The stages are the same every
+time; only the page changes.
+
+| # | Stage | Read or run |
+| --- | --- | --- |
+| 1 | **Map the request to one page** | [`wiki/INDEX.md`](wiki/INDEX.md), one row per page with `Local = yes/no` |
+| 2 | **Read that page's mechanism** | The one section the request needs, not the whole page |
+| 3 | **Locate the entry in vanilla** | `game-scripts/` by grep, or `entry-scout` for a survey |
+| 4 | **Check the call form** | `wiki/Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md`; `script-docs/*.log` when present |
+| 5 | **Agree, write, verify** | The player, then `validate_mod` |
+
+The `mod-creator` skill states the same pipeline with its rules. Stage 1 belongs to the main agent:
+choosing the mechanism is a decision, and `entry-scout` only locates a name.
+
 > `validate_mod` checks **syntax and conventions** only: balanced braces and quotes, the
 > localization format, and the `descriptor.mod` fields. It does **not** check effect, trigger, or
 > modifier names, and it is not a scope or type validator. Use `game-scripts/` and the official wiki

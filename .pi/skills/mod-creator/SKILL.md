@@ -21,36 +21,52 @@ and its bound directory gate those actions.
   create files or prepare the environment, unless the player explicitly asks about their
   environment. Preparing the environment means locating paths and mirroring the scripts into
   `game-scripts/`.
-- **Writing or modifying the mod.** Do these steps in this order.
-  1. **Research the real values first.** CK3 is pure PDXScript, with no self-describing API and no
-     framework. Run `sync_game_scripts` to load the modding context into `game-scripts/`. Then grep
-     that directory carefully to pin down the real vanilla values and their connections: which
-     traits, buildings, and modifiers exist, and what consumes or produces what. Do not guess from
-     names alone. Three hard ordering rules:
-     1. For a player-worded feature request, name the question shape first. For a lookup of a name
-        that you already know, grep vanilla yourself, within calls 2 to 4:
-        `grep -rln <keyword> game-scripts/`. For a survey of what vanilla already has for a feature,
-        dispatch `entry-scout` and read its first candidate. The `## Survey before you research`
-        section below has the details.
-     2. Read in this fixed order: `docs/ck3-modding-conventions.md` (the single source of truth),
-        then `reference/example_mod`, then write.
-     3. Decide the screen first, then research how to mount on that one screen. Where a mechanism
-        lives and where to attach something inside an existing screen are two different questions.
-        Section 7 of the conventions answers the first. For the second, read that screen's own
-        `.gui` file and find the block to override.
-  2. **Agree with the player before you write.** Give a short description of the mod content: what it
-     modifies, its scope, and the shape of the mod. Then wait for the player's confirmation. Do this
-     **even when the request looks specific**. Skip it only when the player explicitly says to start,
-     for example "start now, no confirmation".
-  3. **Then write.** Produce or modify a mod under `your_mods/<ModName>/`. Reuse
-     `reference/example_mod/`. You may write only inside the bound mod directory. With no binding,
-     call `create_mod_folder` with a `lower_snake_case` name, as the **Directory name** rule below
-     defines it. Do not create a second binding when one already exists.
-  4. **Then check the UI side.** A mod here is mostly PDXScript code, but an in-game check often
-     fails without the UI part. Before you finish, ask: does this modification need an icon, a UI
-     label (localization), a menu entry, a column, a filter, or a panel? Add what is missing. Reuse
-     an existing in-game icon or asset when one fits, because you do not have to create new art. Do
-     not wait for the player to ask about the icon.
+- **Writing or modifying the mod.** Run this pipeline, in this order. It exists because CK3 is pure
+  PDXScript with no self-describing API: the mechanism is documented, the entry is in the vanilla
+  scripts, and the call form is in the lists. Skipping a stage produces a plausible file that fails in
+  the game.
+
+  | # | Stage | What you read or run | Output |
+  | --- | --- | --- | --- |
+  | 1 | **Map the request to a page** | `docs/wiki/INDEX.md` — one row per wiki page, with `Local yes/no` | The one page that covers "how do I add X" (`Holdings_modding` for a building, `Event_modding` for an event, …) |
+  | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
+  | 3 | **Locate the entry in vanilla** | `game-scripts/` by grep, or `entry-scout` for a survey; `reference/example_mod` for a whole shape | Real object names, real field values, and the file to mirror |
+  | 4 | **Check the call form** | `docs/wiki/Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md`; `game-scripts/script-docs/*.log` when it exists | The parameters and the scope of every call you are about to write |
+  | 5 | **Agree, write, verify** | The player, then `validate_mod` | A mod that passes, and a plain report of what was not checked |
+
+  Stage 1 is yours, not the scout's: choosing the mechanism is a decision, and `entry-scout` answers
+  "where is this name" only. When the request spans two kinds (a decision plus its event), run stages
+  1–2 once per kind and stage 3 once for all of them.
+
+  Three hard ordering rules inside stages 3–5:
+  1. For a player-worded feature request, name the question shape first. For a lookup of a name
+     that you already know, grep vanilla yourself, within calls 2 to 4:
+     `grep -rln <keyword> game-scripts/`. For a survey of what vanilla already has for a feature,
+     dispatch `entry-scout` and read its first candidate. The `## Survey before you research`
+     section below has the details.
+  2. Read in this fixed order: `docs/ck3-modding-conventions.md` (the single source of truth),
+     then `reference/example_mod`, then write. A stage-2 wiki page explains a mechanism; the
+     conventions decide how the result may override vanilla.
+  3. Decide the screen first, then research how to mount on that one screen. Where a mechanism
+     lives and where to attach something inside an existing screen are two different questions.
+     Section 7 of the conventions answers the first. For the second, read that screen's own
+     `.gui` file and find the block to override.
+
+  **Agree with the player before you write.** Give a short description of the mod content: what it
+  modifies, its scope, and the shape of the mod. Then wait for the player's confirmation. Do this
+  **even when the request looks specific**. Skip it only when the player explicitly says to start,
+  for example "start now, no confirmation".
+
+  **Then write.** Produce or modify a mod under `your_mods/<ModName>/`. Reuse
+  `reference/example_mod/`. You may write only inside the bound mod directory. With no binding,
+  call `create_mod_folder` with a `lower_snake_case` name, as the **Directory name** rule below
+  defines it. Do not create a second binding when one already exists.
+
+  **Then check the UI side.** A mod here is mostly PDXScript code, but an in-game check often
+  fails without the UI part. Before you finish, ask: does this modification need an icon, a UI
+  label (localization), a menu entry, a column, a filter, or a panel? Add what is missing. Reuse
+  an existing in-game icon or asset when one fits, because you do not have to create new art. Do
+  not wait for the player to ask about the icon.
 - **Directory name** (this repository's rule, enforced by `create_mod_folder`). The name is
   `lower_snake_case`: it starts with a lowercase letter, then holds only lowercase letters, digits,
   and underscores, at most 40 characters. Do **not** use hyphens: `fix_inheritance`, not
