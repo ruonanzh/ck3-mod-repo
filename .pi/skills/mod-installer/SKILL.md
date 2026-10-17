@@ -54,7 +54,7 @@ When the `subagent` tool is not available, apply the six review classes in
 
 An `install_mod` success does not mean the game loaded or enabled the mod. Report the three states
 separately: copied into the mod directory, visible in the launcher, and active in the game.
-The player must enable the mod in the launcher **playlist**. The three steps are in
+The player must enable the mod in the launcher **playset**. The three steps are in
 `docs/game.md`, section "How the player enables a mod".
 
 ## Related skills

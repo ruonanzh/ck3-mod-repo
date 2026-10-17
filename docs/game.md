@@ -22,7 +22,7 @@ v1 of this workspace targets **Windows only**.
 
 ## How the player enables a mod
 
-`install_mod` copies the files. The launcher playlist is a separate step, and only the player can do
+`install_mod` copies the files. The active playset is a separate step, and only the player can do
 it.
 
 1. Start CK3 and open the **Paradox Launcher**.
