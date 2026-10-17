@@ -25,11 +25,13 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   of `docs/ck3-modding-conventions.md`).
 - **Two read-only subagents ship with this repository.** `.pi/settings.json` declares the vendored
   `pi-subagents` package at `.pi/vendor/pi-subagents/`, so the `subagent` tool is available in a
-  trusted project. Prefer `entry-scout` over your own grep of `game-scripts/`. It runs in parallel,
-  one per question, and its searches stay in the child session, so your context holds answers, not
-  greps. Read its first candidate yourself. `mod-reviewer` checks the semantics that `validate_mod`
-  cannot see, before you install: it resolves effect, trigger, and modifier names and their scopes
-  against `docs/wiki/`. Neither writes, so you apply every change. When you cannot
+  trusted project. Grepping `game-scripts/` yourself and dispatching `entry-scout` are **peer
+  options** for locating an entry. **Prefer `entry-scout`**, because it runs in parallel, one per
+  question, and its searches stay in the child session, so your context holds answers, not greps.
+  Grep yourself when you already know the exact name and one or two calls settle it, or when you
+  cannot dispatch. Read its first candidate yourself. `mod-reviewer` checks the semantics that
+  `validate_mod` cannot see, before you install: it resolves effect, trigger, and modifier names and
+  their scopes against `docs/wiki/`. Neither writes, so you apply every change. When you cannot
   dispatch, run the search yourself, and work through the last section of
   `docs/ck3-modding-conventions.md` by hand.
 

@@ -30,23 +30,26 @@ and its bound directory gate those actions.
   | --- | --- | --- | --- |
   | 1 | **Map the request to a page** | `docs/wiki/INDEX.md` — one row per wiki page, with `Local yes/no` | The one page that covers "how do I add X" (`Holdings_modding` for a building, `Event_modding` for an event, …) |
   | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
-  | 3 | **Locate the entry in vanilla** | `game-scripts/` by grep, or `entry-scout` for a survey; `reference/example_mod` for a whole shape | Real object names, real field values, and the file to mirror |
+  | 3 | **Locate the entry in vanilla** | Two **peer** options: grep `game-scripts/` yourself, or dispatch `entry-scout`. Prefer `entry-scout`: it runs in parallel and its greps stay in the child session. Add `reference/example_mod` for a whole shape. | Real object names, real field values, and the file to mirror |
   | 4 | **Check the call form** | `docs/wiki/Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md`; `game-scripts/script-docs/*.log` when it exists | The parameters and the scope of every call you are about to write |
-  | 5 | **Agree, write, verify** | The player, then `validate_mod` | A mod that passes, and a plain report of what was not checked |
+  | 5 | **Agree, then read the conventions, then write, then verify** | The player; `docs/ck3-modding-conventions.md` (section 1 and section 2 of that file: override form and load order); then `validate_mod` | A mod that passes, and a plain report of what was not checked |
 
   Stage 1 is yours, not the scout's: choosing the mechanism is a decision, and `entry-scout` answers
   "where is this name" only. When the request spans two kinds (a decision plus its event), run stages
-  1–2 once per kind and stage 3 once for all of them.
+  1–2 once per kind and stage 3 once for all of them: send all the scouts at once.
 
   Three hard ordering rules inside stages 3–5:
-  1. For a player-worded feature request, name the question shape first. For a lookup of a name
-     that you already know, grep vanilla yourself, within calls 2 to 4:
-     `grep -rln <keyword> game-scripts/`. For a survey of what vanilla already has for a feature,
-     dispatch `entry-scout` and read its first candidate. The `## Survey before you research`
-     section below has the details.
+  1. For a player-worded feature request, name the question shape first. Then locate the entry with
+     either option: a grep of `game-scripts/` or a dispatched `entry-scout`. **The two are peers,
+     and `entry-scout` is preferred**, because it runs in parallel, one per question, and its searches
+     stay in the child session, so your context holds answers, not greps. Grep yourself when you
+     already know the exact name and one or two calls settle it (`grep -rln <keyword> game-scripts/`),
+     or when you cannot dispatch. Always read the scout's first candidate yourself. The
+     `## Locate the entry: scout or grep` section below has the details.
   2. Read in this fixed order: `docs/ck3-modding-conventions.md` (the single source of truth),
-     then `reference/example_mod`, then write. A stage-2 wiki page explains a mechanism; the
-     conventions decide how the result may override vanilla.
+     then `reference/example_mod`, then write. **This is a gate, not a suggestion:** a stage-2 wiki
+     page explains a mechanism, and the conventions decide how the result may override vanilla. A
+     correct block attached the wrong way still fails in the game, and `validate_mod` cannot see it.
   3. Decide the screen first, then research how to mount on that one screen. Where a mechanism
      lives and where to attach something inside an existing screen are two different questions.
      Section 7 of the conventions answers the first. For the second, read that screen's own
@@ -73,19 +76,20 @@ and its bound directory gate those actions.
   `fix-inheritance`. It must not be a Windows reserved device name: `con`, `prn`, `aux`,
   `nul`, `com1` to `com9`, and `lpt1` to `lpt9`.
 
-## Survey before you research
+## Locate the entry: scout or grep
 
-A survey answers "what does vanilla already have for this feature?". A lookup answers "where is this
-name defined?". The two questions need different work.
+Stage 3 asks one question: where does vanilla already do this? Two tools answer it, and they are
+peers.
 
-For a survey, try `entry-scout` first. It runs in parallel, one per question, and its greps stay in
-the child session, so your context holds the answers, not the searches. Its answer is a candidate
-list, not a decision: read its first candidate yourself before you write.
+**Prefer `entry-scout`.** It runs in parallel, one per question, and its greps stay in the child
+session, so your context holds the answers, not the searches. Its answer is a candidate list, not a
+decision: read its first candidate yourself before you write.
 
-You choose. Run a lookup yourself when you know the name: `grep -rln <keyword> game-scripts/` finds it
-within a few calls.
+**Grep yourself** when you already know the exact name and one or two calls settle it:
+`grep -rln <keyword> game-scripts/`. Also grep yourself when you cannot dispatch, for example when
+the subagent tool is unavailable.
 
-When the change has two or three independent parts, send all the surveys at once, one per part.
+When the change has two or three independent parts, send all the scouts at once, one per part.
 
 Skip this step when the task only changes values inside an existing block.
 

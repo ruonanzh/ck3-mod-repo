@@ -31,7 +31,7 @@ time; only the page changes.
 | --- | --- | --- |
 | 1 | **Map the request to one page** | [`wiki/INDEX.md`](wiki/INDEX.md), one row per page with `Local = yes/no` |
 | 2 | **Read that page's mechanism** | The one section the request needs, not the whole page |
-| 3 | **Locate the entry in vanilla** | `game-scripts/` by grep, or `entry-scout` for a survey |
+| 3 | **Locate the entry in vanilla** | `game-scripts/` by grep, or `entry-scout` — peers, and the scout is preferred because it runs in parallel |
 | 4 | **Check the call form** | `wiki/Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md`; `script-docs/*.log` when present |
 | 5 | **Agree, write, verify** | The player, then `validate_mod` |
 
