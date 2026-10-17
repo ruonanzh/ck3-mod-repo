@@ -131,6 +131,26 @@ root referenced by `picture="thumbnail.png"`.
 - Do not leave scratch files or backup files under `your_mods/<name>/`. Examples: `temp_*`,
   `_tmp_*`, and editor backups.
 
+### The mod install path must be ASCII
+
+The engine reads a mod whose path contains a non-ASCII character as having **no files inside**. The
+mod then loads with nothing in it, and no mod content change repairs that: the character is in the
+path, not in the mod.
+
+- The usual cause is a Windows user profile whose name is not ASCII, because the Paradox mod folder
+  sits under `Documents`: `%USERPROFILE%\Documents\Paradox Interactive\Crusader Kings III\mod`.
+- The rule covers the whole path to the mod folder, so it also covers every parent directory.
+- **Where this is stated:** the Paradox forum thread "Non-ASCII path to the folder breaks mods and
+  opening the error log" (CK3) and "Vic3 doesn't support loading mods from paths containing non-ASCII
+  characters" (the same engine). The wiki pages `Modding`, `Mod_structure`, and `Mod_troubleshooting`
+  give the default path but do **not** state the rule as a separate entry, so treat the forum report
+  and the engine behaviour as the source.
+- **What the tools do:** `check_game_paths` and `install_mod` reject such a path with
+  `TARGET_NOT_ASCII`, name the offending characters, and change nothing. `get_game_info` adds a NOTE.
+- **What the player must do:** move the mod install directory to an ASCII path, for example by
+  relocating the Windows `Documents` folder, then run `try_set_game_dir` with no arguments. Do not
+  rename the mod.
+
 ## 7. Choosing an entry mechanism
 
 CK3 hooks new content into the game through a small number of **entry points**. They are not

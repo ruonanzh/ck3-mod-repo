@@ -110,8 +110,7 @@ export function writeState(cwd: string, patch: RuntimeState): RuntimeState {
   return next;
 }
 
-/** Expands `~` and `~/...`. An older `.gamer-agent.local.json` or a hint can hold them, and the tool can never check an unexpanded path. */
-export const expandHome = (p: string): string => {
+/** Expands `~` and `~/...`. An older `.gamer-agent.local.json` or a hint can hold them, and the tool can never check an unexpanded path. */export const expandHome = (p: string): string => {
   const t = p.trim();
   if (t !== "~" && !t.startsWith("~/")) return t;
   return join(os.homedir(), t.slice(2));
@@ -208,6 +207,23 @@ export function effectiveModInstallDir(
 const NEXT_SKILL =
   "The 'setup-workspace' skill has the full procedure: the automatic search, the player's hints, and what to ask when nothing works.";
 
+/**
+ * The distinct non-ASCII characters in a path, in order of first appearance. Empty means ASCII only.
+ *
+ * Engine rule: the game reads a mod at a path with a non-ASCII character as having no files inside.
+ * A Windows user profile whose name is not ASCII is the usual cause, because the Paradox mod folder
+ * sits under Documents. One copy of this rule lives here, so check_game_paths and install_mod cannot
+ * disagree.
+ */
+export function nonAsciiCharsInPath(p: string): string[] {
+  const seen = new Set<string>();
+  for (const ch of p) {
+    const code = ch.codePointAt(0);
+    if (code !== undefined && code > 0x7f) seen.add(ch);
+  }
+  return [...seen];
+}
+
 /** Check 1: is this directory the CK3 install directory. The check reads the main executable, binaries/ck3.exe. */
 export function checkGameDir(dir: string | null | undefined): PathVerdict {
   const p = dir ? expandHome(dir) : null;
@@ -231,6 +247,19 @@ export function checkModInstallDir(dir: string | null | undefined, cfg?: ModRepo
     return { ok: false, path: null, code: "TARGET_NOT_FOUND", reason: "no mod install directory was given", next: `Run try_set_game_dir with no arguments. It records the game directory and the derived mod install directory. ${NEXT_SKILL}` };
   if (!isAbsolute(p))
     return { ok: false, path: p, code: "TARGET_INVALID", reason: "not an absolute path", next: `Run try_set_game_dir with no arguments to record the conventional mod install directory. ${NEXT_SKILL}` };
+  // The engine rule: a non-ASCII character anywhere in the path of the mod folder makes the game
+  // read the mod as having no files inside. This happens with a Windows user profile whose name is
+  // not ASCII, because the mod folder sits under Documents. Nothing in the mod can repair it, so
+  // reject the path here, before install_mod creates any directory or copies any file.
+  const badChars = nonAsciiCharsInPath(p);
+  if (badChars.length > 0)
+    return {
+      ok: false,
+      path: p,
+      code: "TARGET_NOT_ASCII",
+      reason: `the path has non-ASCII character(s) ${badChars.map((c) => `'${c}'`).join(", ")}, and the game reads a mod at such a path as having no files inside`,
+      next: `The player must move the mod install directory to a path that is pure ASCII, for example by relocating the Windows Documents folder, or by pointing the Paradox mod directory at an ASCII path. Then run try_set_game_dir with no arguments to record it. Do not rename or edit the mod: the character is in the path, not in the mod content. ${NEXT_SKILL}`,
+    };
   // Run the checks that do not need the configuration first. The order matters, because these must
   // still run when the shape check is skipped.
   const st = statSync(p, { throwIfNoEntry: false });

@@ -22,8 +22,13 @@ creates it.
 - **A re-install updates in place.** The tool identifies its own previous install through the
   workspace-side record `your_mods/<mod name>/.pi-mod.json`, which holds `name` and `installedDir`.
 - **Another mod owns the target directory.** The tool does not overwrite it. It installs as
-  `<directory name>_pimod` and adds a marker. It does not modify that copy's `descriptor.mod`. Tell
-  the player the directory name that the tool used. The in-game title `name` stays the same.
+  `<directory name>_pimod` instead. It does not modify that copy's `descriptor.mod`. Tell the player
+  the directory name that the tool used. The in-game title `name` stays the same.
+- **The install path must be ASCII.** The engine reads a mod at a path with a non-ASCII character as
+  having no files inside. `install_mod` therefore refuses such a path with `TARGET_NOT_ASCII` and
+  changes nothing. Tell the player to move the mod install directory to an ASCII path, for example by
+  relocating the Windows `Documents` folder, then run `try_set_game_dir` with no arguments. Do not
+  rename the mod. The rule is in `docs/ck3-modding-conventions.md` section 6.
 - **The replace is transactional.** The tool moves the old copy aside instead of deleting it, and it
   deletes that copy only after the new copy lands. If the new copy fails, the old version is still
   there.

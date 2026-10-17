@@ -24,7 +24,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { checkGameDir, pathsFor, readModRepoConfig, readState } from "../lib/game-paths";
+import { checkGameDir, nonAsciiCharsInPath, pathsFor, readModRepoConfig, readState } from "../lib/game-paths";
 
 /** The label column width of the report. */
 const LABEL_WIDTH = 22;
@@ -100,7 +100,7 @@ export default function (pi: ExtensionAPI) {
         row(
           "supportedGameVersion",
           version
-            ? `${version}    (write this value into the mod metadata. Do not gather the version yourself)`
+            ? `${version}    (write this value into supported_version. Do not gather the version yourself)`
             : "(none - no build tag is recorded, so the version cannot be derived)",
         ),
         row("layout", `install: ${gameDir}/game/...`),
@@ -117,6 +117,15 @@ export default function (pi: ExtensionAPI) {
         lines.push(
           "NOTE: no build tag is recorded for the game, so supportedGameVersion cannot be derived.",
           "NEXT: do not fall back to `1.*` - mod-lint warns on that loose form. Ask the player which game version the mod must support, and write a patch-level wildcard such as `1.20.*` only when the version is known.",
+        );
+      }
+      // Engine rule: a mod at a path with a non-ASCII character is read as having no files inside.
+      // Report it here, because every later step inherits the path.
+      const badPathChars = modInstallDir ? nonAsciiCharsInPath(modInstallDir) : [];
+      if (badPathChars.length > 0) {
+        lines.push(
+          `NOTE: modInstallDir has non-ASCII character(s) ${badPathChars.map((c) => `'${c}'`).join(", ")}. The game reads a mod at such a path as having no files inside, so install_mod will refuse it.`,
+          "NEXT: tell the player to move the mod install directory to an ASCII path (for example relocate the Windows Documents folder), then run try_set_game_dir with no arguments.",
         );
       }
       return {
