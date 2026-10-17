@@ -71,7 +71,9 @@ function walkFiles(root: string): Array<{ abs: string; rel: string }> {
 
 function isLocalizationYml(rel: string): boolean {
   const r = rel.toLowerCase();
-  return r.endsWith(".yml") && r.includes("/localization/");
+  // walkFiles gives a path relative to the mod root, so CK3's own layout has no leading segment:
+  // `localization/english/x_l_english.yml`. Accept a nested one too, for an old-style tree.
+  return r.endsWith(".yml") && (r.startsWith("localization/") || r.includes("/localization/"));
 }
 
 // The languages CK3 ships. A localization file names its language with the `_l_<lang>` filename
@@ -316,6 +318,24 @@ function checkLocalization(modRoot: string): Finding[] {
 
 // ---- descriptor.mod ----
 
+/** The image files directly in the mod root, as base names. Empty when there are none. */
+function rootImages(modRoot: string): string[] {
+  try {
+    return readdirSync(modRoot)
+      .filter((name) => {
+        const dot = name.lastIndexOf(".");
+        return (
+          dot >= 0 &&
+          IMAGE_EXTS.has(name.slice(dot).toLowerCase()) &&
+          statSync(join(modRoot, name), { throwIfNoEntry: false })?.isFile() === true
+        );
+      })
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
 function checkMetadata(modRoot: string): Finding[] {
   const findings: Finding[] = [];
   const meta = join(modRoot, "descriptor.mod");
@@ -354,7 +374,7 @@ function checkMetadata(modRoot: string): Finding[] {
   if (!bal.ok && bal.message)
     findings.push({ severity: "error", rel, message: bal.message });
 
-  const { scalars } = parseDescriptorMod(text);
+  const { scalars, tagsMalformed } = parseDescriptorMod(text);
 
   // The name is the directory name by convention, but the engine only requires a non-empty value.
   const name = scalars.get("name");
@@ -395,35 +415,34 @@ function checkMetadata(modRoot: string): Finding[] {
     });
   }
 
-  // picture is optional, but when it names a file, the file must exist in the mod root.
+  // tags is optional. When it is present it must be a list of quoted strings; the multiline form
+  // `tags={\n "Gameplay"\n "Balance"\n}` is valid and common in real workshop mods.
+  if (tagsMalformed) {
+    findings.push({
+      severity: "error",
+      rel,
+      message:
+        'tags must be a list of quoted strings that closes, for example tags={ "Gameplay" "Balance" }',
+    });
+  }
+
+  // picture is optional. Warn only when the mod does have an image in the root but the key is
+  // absent, which is the forgetful case; a mod with no image at all stays silent.
   const picture = scalars.get("picture");
   if (!picture) {
-    findings.push({
-      severity: "warn",
-      rel,
-      message: "missing 'picture' entry (the value is for example \"thumbnail.png\")",
-    });
+    const images = rootImages(modRoot);
+    if (images.length > 0) {
+      findings.push({
+        severity: "warn",
+        rel,
+        message: `missing 'picture' entry, but the mod root has image file(s) ${images.join(", ")}. The launcher shows a default image until you name one, for example picture="thumbnail.png".`,
+      });
+    }
   } else if (
     !existsSync(join(modRoot, picture)) ||
     !statSync(join(modRoot, picture), { throwIfNoEntry: false })?.isFile()
   ) {
-    let versioned: string[] = [];
-    if (existsSync(modRoot)) {
-      try {
-        versioned = readdirSync(modRoot)
-          .map((f) => join(modRoot, f))
-          .filter((f) => {
-            const dot = f.lastIndexOf(".");
-            if (dot < 0) return false;
-            return (
-              IMAGE_EXTS.has(f.slice(dot).toLowerCase()) &&
-              statSync(f, { throwIfNoEntry: false })?.isFile()
-            );
-          });
-      } catch {
-        versioned = [];
-      }
-    }
+    const versioned = rootImages(modRoot);
     findings.push({
       severity: "warn",
       rel,

@@ -6,6 +6,16 @@
  * `descriptor.mod`, and `version` is a required string. The `<name>.mod` file alongside the mod
  * directory holds the same keys plus `path`. This file reads `descriptor.mod`, the copy inside the
  * mod folder.
+ *
+ * Format: `key="value"` for a scalar, and `key={ "a" "b" }` for a list. A list may span several
+ * lines, which real workshop mods do:
+ *
+ *     tags={
+ *     	"Gameplay"
+ *     	"Balance"
+ *     }
+ *
+ * A `#` starts a comment outside a string.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -22,11 +32,15 @@ export interface ModIdentity {
 export interface DescriptorMod {
   /** The `key="value"` scalar entries, keyed by the key name. */
   scalars: Map<string, string>;
-  /** The `tags={ "a" "b" }` list entries. */
+  /** The list entries, keyed by the key name: `tags`, and any other `key={ ... }` block. */
+  lists: Map<string, string[]>;
+  /** The entries of the `tags` list, or an empty array. */
   tags: string[];
+  /** True when the text declares `tags=` but the value does not parse as a list of quoted strings. */
+  tagsMalformed: boolean;
 }
 
-/** Strips a `#` line comment that is outside a quoted string. Keeps the rest of the line. */
+/** Strips a `#` line comment that is outside a quoted string. Comments do not span lines. */
 function stripComment(line: string): string {
   let out = "";
   let inString = false;
@@ -46,34 +60,46 @@ function stripComment(line: string): string {
 
 /**
  * Parses a `descriptor.mod` (or `<name>.mod`) text into its scalar and list entries. It strips a
- * `#` comment outside quotes first, so `name="X" # note` parses the same as `name="X"`. A line that
- * is neither `key="value"` nor `key={ ... }` is skipped, so a malformed line is simply absent from
- * the result; the caller decides whether that is an error.
+ * `#` comment outside quotes first, so `name="X" # note` parses the same as `name="X"`. An entry it
+ * cannot parse is simply absent from the result, except `tags`, where `tagsMalformed` records the
+ * problem; the caller decides whether that is an error.
  */
 export function parseDescriptorMod(text: string): DescriptorMod {
+  const cleaned = text
+    .split(/\r?\n/)
+    .map(stripComment)
+    .join("\n");
   const scalars = new Map<string, string>();
-  const tags: string[] = [];
-  for (const rawLine of text.split(/\r?\n/)) {
-    const line = stripComment(rawLine).trim();
-    if (!line) continue;
-    const kv = /^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"\s*$/.exec(line);
-    if (kv) {
-      scalars.set(kv[1], kv[2]);
-      continue;
-    }
-    const list = /^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\{\s*(.*?)\s*\}\s*$/.exec(line);
-    if (list && list[1] === "tags") {
-      for (const m of list[2].matchAll(/"([^"]*)"/g)) tags.push(m[1]);
-    }
+  const lists = new Map<string, string[]>();
+
+  // Collect the list entries first, then blank them out, so a scalar scan cannot read a line that
+  // sits inside a multi-line list.
+  let rest = cleaned;
+  const listRe = /([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\{([^{}]*)\}/g;
+  for (const m of cleaned.matchAll(listRe)) {
+    const entries: string[] = [];
+    for (const q of m[2].matchAll(/"([^"]*)"/g)) entries.push(q[1]);
+    lists.set(m[1], entries);
+    const span = m[0].length;
+    const start = m.index ?? 0;
+    rest = `${rest.slice(0, start)}${" ".repeat(span)}${rest.slice(start + span)}`;
   }
-  return { scalars, tags };
+
+  const scalarRe = /^[ \t]*([A-Za-z_][A-Za-z0-9_]*)[ \t]*=[ \t]*"([^"]*)"[ \t]*$/gm;
+  for (const m of rest.matchAll(scalarRe)) scalars.set(m[1], m[2]);
+
+  const tags = lists.get("tags") ?? [];
+  const declaresTags = /^[ \t]*tags[ \t]*=[ \t]*\{/m.test(cleaned);
+  // A declared but empty `tags` list is malformed too: every tag is a quoted string, so a list with
+  // no quoted entry (`tags={ Gameplay }`, `tags={ }`) does not parse.
+  return { scalars, lists, tags, tagsMalformed: declaresTags && tags.length === 0 };
 }
 
 /**
  * Read the name, the version, and the supported_version from `descriptor.mod` (the CK3 key=value
  * descriptor inside the mod folder). Returns null when the file is absent, unreadable, or the
  * `name` key is missing or empty. `version` and `supported_version` may be absent and are then the
- * empty string; the linter enforces them.
+ * empty string; the linter enforces `version`.
  */
 export function readModIdentity(modDir: string): ModIdentity | null {
   const descriptorPath = join(modDir, "descriptor.mod");

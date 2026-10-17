@@ -12,7 +12,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { basename, join, resolve } from "node:path";
-import { checkModInstallDir, effectiveModInstallDir, readModRepoConfig, writeState } from "../lib/game-paths";
+import { checkModInstallDir, effectiveModInstallDir, readModRepoConfig, readState, supportedGameVersion, writeState } from "../lib/game-paths";
 import { readModIdentity } from "../lib/mod-identity";
 
 /**
@@ -349,36 +349,59 @@ export default function (pi: ExtensionAPI) {
           throw error;
         }
         if (hadPrevious) rmSync(previous, { recursive: true, force: true });
-      // Write the record only after a successful install. The record does not take part in the
-      // "is it installed" decision.
-      writeInstallRecord(modDir, identity.name, basename(installDir));
-      // Delete the old marker from the installed copy, for compatibility with earlier versions.
-      rmSync(join(installDir, ".pi-mod.json"), { force: true });
-      // Write the launcher pointer file `<installedName>.mod` next to the installed directory. The
-      // CK3 launcher lists mods from these files, not from descriptor.mod alone, and it resolves
-      // `path` relative to the game's user directory, so the standard form is `mod/<installedName>`.
-      // The file holds every descriptor.mod key (name, version, supported_version, tags, picture,
-      // replace_path, ...) plus `path`. Copy the descriptor text, drop any `path=` line the mod may
-      // already declare, then append the new one, so no key is lost.
-      const installedName = basename(installDir);
-      const pointerPath = join(modRoot, `${installedName}.mod`);
-      const descriptorLines = readFileSync(join(modDir, "descriptor.mod"), "utf8")
-        .split(/\r?\n/)
-        .filter((line) => !/^\s*path\s*=/.test(line));
-      const pointerText = `${descriptorLines.join("\n").replace(/\s*$/, "")}\npath="mod/${installedName}"\n`;
-      writeFileSync(pointerPath, pointerText);
+        // Write the record only after a successful install. The record does not take part in the
+        // "is it installed" decision.
+        writeInstallRecord(modDir, identity.name, basename(installDir));
+        // Delete the old marker from the installed copy, for compatibility with earlier versions.
+        rmSync(join(installDir, ".pi-mod.json"), { force: true });
       } catch (error) {
         rmSync(staging, { recursive: true, force: true });
         return {
           content: [
             {
               type: "text",
-              text: `FAIL: copy failed: ${error instanceof Error ? error.message : String(error)}\nNEXT: check write permission on ${modRoot}. The previously installed copy (if any) was left in place.`,
+              text: `FAIL: copy failed: ${error instanceof Error ? error.message : String(error)}\nNEXT: check write permission on ${modRoot}. The previously installed copy, if any, is still in place, and the workspace record was not updated.`,
             },
           ],
           details: { ok: false, reason: "COPY_FAILED" },
         };
       }
+
+      // Write the launcher pointer file `<installedName>.mod` next to the installed directory. The
+      // CK3 launcher lists mods from these files, not from descriptor.mod alone, and it resolves
+      // `path` relative to the game's user directory, so the standard form is `mod/<installedName>`.
+      // The file holds every descriptor.mod key (name, version, supported_version, tags, picture,
+      // replace_path, ...) plus `path`. Copy the descriptor text, drop any `path=` line the mod may
+      // already declare, then append the new one, so no key is lost.
+      //
+      // This step is separate from the copy transaction, and its failure is reported as its own
+      // failure. The files are already installed and the record is already updated at this point, so
+      // a "copy failed" message here would be false.
+      const installedName = basename(installDir);
+      const pointerPath = join(modRoot, `${installedName}.mod`);
+      let pointerWarning: string | null = null;
+      try {
+        const descriptorLines = readFileSync(join(modDir, "descriptor.mod"), "utf8")
+          .split(/\r?\n/)
+          .filter((line) => !/^\s*path\s*=/.test(line));
+        // The launcher wants `supported_version` in the pointer file. The descriptor may omit it, so
+        // take it from the recorded game build when it is missing. The conversion lives in
+        // lib/game-paths, next to the build reader, so the two tools cannot drift apart.
+        const hasSupported = descriptorLines.some((line) => /^\s*supported_version\s*=/.test(line));
+        if (!hasSupported) {
+          const derived = supportedGameVersion(readState(ctx.cwd).gameBuild as string | undefined);
+          if (derived) descriptorLines.push(`supported_version="${derived}"`);
+        }
+        const body = descriptorLines.join("\n").replace(/\s*$/, "");
+        const pointerText = `${body}\npath="mod/${installedName}"\n`;
+        // Atomic: write a temporary file beside the target, then rename it over the target.
+        const tmpPointer = `${pointerPath}.tmp-${process.pid}`;
+        writeFileSync(tmpPointer, pointerText);
+        renameSync(tmpPointer, pointerPath);
+      } catch (error) {
+        pointerWarning = `the mod files are installed at ${installDir} and the workspace record was updated, but the launcher pointer file ${pointerPath} could not be written (${error instanceof Error ? error.message : String(error)}), so the Paradox launcher will not list the mod`;
+      }
+
 
       const mismatched = identity.name !== modName;
       const notes: string[] = [];
@@ -404,6 +427,27 @@ export default function (pi: ExtensionAPI) {
           `\nNEXT: tell the player it installs as ${basename(installDir)}, then let them enable it in the launcher.`
         : `\nNEXT: ask the player to enable the mod in the Paradox launcher (and restart the game if it was running).`;
       const noteWithExtras = `${extraNotes}${note}`;
+
+      // The files are in place and the workspace record is updated, but the launcher cannot see the
+      // mod. That is a partial install, and it gets its own result, not a copy failure.
+      if (pointerWarning) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `PARTIAL: ${identity.name}${identity.version ? ` ${identity.version}` : ""} - ${pointerWarning}.\nNEXT: the mod files and the workspace record are correct. Fix the pointer file problem, then run install_mod again; a re-install updates in place.`,
+            },
+          ],
+          details: {
+            ok: false,
+            reason: "POINTER_WRITE_FAILED",
+            modName: identity.name,
+            targetDir: installDir,
+            files,
+            pointerPath,
+          },
+        };
+      }
 
       return {
         content: [

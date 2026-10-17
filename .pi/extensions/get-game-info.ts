@@ -24,21 +24,11 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { checkGameDir, nonAsciiCharsInPath, pathsFor, readModRepoConfig, readState } from "../lib/game-paths";
+import { checkGameDir, nonAsciiCharsInPath, pathsFor, readModRepoConfig, readState, supportedGameVersion } from "../lib/game-paths";
 
 /** The label column width of the report. */
 const LABEL_WIDTH = 22;
 const row = (label: string, value: string): string => `${label.padEnd(LABEL_WIDTH)}${value}`;
-
-/**
- * Turns the recorded build tag into the version value for the mod metadata: `1.20.1` becomes
- * `1.20.*`. It returns null when no tag is recorded, and it never returns the exact build.
- */
-export function supportedGameVersion(build: string | null | undefined): string | null {
-  if (typeof build !== "string") return null;
-  const m = build.trim().match(/^(\d+)\.(\d+)\./);
-  return m ? `${m[1]}.${m[2]}.*` : null;
-}
 
 export default function (pi: ExtensionAPI) {
   pi.registerTool({

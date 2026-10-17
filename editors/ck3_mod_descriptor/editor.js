@@ -6,7 +6,6 @@
  * (`.pi/extensions/mod-lint.ts`): errors block saving, warnings do not.
  */
 const TEXT_FIELDS = ["name", "version", "supported_version", "picture"];
-const SEMVER_RE = /^\d+\.\d+(\.\d+)?$/;
 
 let writable = false;
 let revision = null;
@@ -60,9 +59,11 @@ function parseList(rest) {
 }
 
 function parseDescriptor(text) {
+  const lines = text.split("\n");
   const model = {};
   const otherLines = [];
-  for (const raw of text.split("\n")) {
+  for (let i = 0; i < lines.length; i += 1) {
+    const raw = lines[i];
     const line = raw.trim();
     if (!line || line.startsWith("#")) {
       otherLines.push(raw);
@@ -71,6 +72,23 @@ function parseDescriptor(text) {
     const p = parseLine(line);
     if (!p) {
       otherLines.push(raw);
+      continue;
+    }
+    // A list may span several lines, which real workshop mods use:
+    //   tags={
+    //   	"Gameplay"
+    //   }
+    // Collect the block first, so its inner lines are never mistaken for unknown keys.
+    if (p.rest.startsWith("{") && !p.rest.trim().endsWith("}")) {
+      let block = p.rest;
+      let j = i;
+      while (!block.trim().endsWith("}") && j + 1 < lines.length) {
+        j += 1;
+        block += `\n${lines[j]}`;
+      }
+      if (p.key === "tags") model.tags = parseList(block);
+      else otherLines.push(...lines.slice(i, j + 1));
+      i = j;
       continue;
     }
     if (p.key === "tags") model.tags = parseList(p.rest);
@@ -93,16 +111,13 @@ function serialize(model, otherLines) {
   return out.join("\n") + (out.length ? "\n" : "");
 }
 
-/** Mirror mod-lint: `name` non-empty; `version` semver x.x / x.x.x. */
+/** Mirror mod-lint: `name` non-empty; `version` a non-empty string (any value is legal). */
 function validate(value) {
   const errors = [];
   const warnings = [];
   if (!String(value.name || "").trim()) errors.push("name must be a non-empty string");
-  if (typeof value.version === "string" && value.version !== "" && !SEMVER_RE.test(value.version)) {
-    errors.push(`version '${value.version}' is not semver x.x or x.x.x`);
-  }
   if (typeof value.version !== "string" || String(value.version).trim() === "") {
-    errors.push("version is required");
+    errors.push("version is required (a non-empty string)");
   }
   if (!String(value.supported_version || "").trim()) warnings.push('missing "supported_version" (e.g. "1.20.*")');
   if (!value.picture) warnings.push('missing "picture" (e.g. "thumbnail.png")');

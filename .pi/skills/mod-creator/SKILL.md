@@ -100,9 +100,9 @@ Standard keys:
 | Key | Rule |
 |---|---|
 | `name` | A non-empty string: the mod title that the player reads. |
-| `version` | `x.x` or `x.x.x`, two or three parts. |
+| `version` | A non-empty string. `x.x` or `x.x.x` is a good habit, and the game accepts `1` as well. |
 | `supported_version` | A patch-level wildcard, for example `1.20.*`. An exact version such as `1.20.1` goes stale: this game updates its minor version often, and the game then flags the mod outdated. A loose `1.*` is a WARN. |
-| `tags` | A list: `tags={ "Gameplay" "Balance" }`. |
+| `tags` | A list of quoted strings: `tags={ "Gameplay" "Balance" }`. It may span several lines. |
 | `picture` | `"thumbnail.png"`, pointing at the image at the mod root. |
 | `replace_path` | Optional: skips the vanilla files at a path. |
 
@@ -115,7 +115,8 @@ picture="thumbnail.png"
 ```
 
 Syntax: `key="value"` for scalars, `key={ "a" "b" }` for lists, and `#` starts a single-line
-comment. `install_mod` uses the `your_mods/` directory name as the install directory name; keep
+comment. A list may span several lines, and real workshop mods write `tags` that way. `install_mod`
+uses the `your_mods/` directory name as the install directory name; keep
 `name` readable but it need not match the directory name.
 
 ## Localization YAML

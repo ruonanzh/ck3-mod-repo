@@ -114,14 +114,30 @@ Keys table (per `Mod_structure`):
 | `name` | yes | The launcher display name. |
 | `supported_version` | in `<name>.mod` | Latest game version the mod supports; `MAJOR.MINOR.PATCH` with `*` wildcards, e.g. `1.20.*`. |
 | `path` | in `<name>.mod` | Where the mod folder lives. |
-| `tags` | no | A list, `tags={ "a" "b" }`. |
+| `tags` | no | A list of quoted strings, `tags={ "a" "b" }`. A list may span several lines. |
 | `picture` | no | The thumbnail image file, e.g. `"thumbnail.png"`. |
 | `remote_file_id` | Workshop only | The Steam Workshop item id. |
 | `replace_path` | no | Skips the vanilla files at a path. |
 
 Syntax: `key="value"` for scalars, `key={ "a" "b" }` for lists, and `#` starts a single-line
-comment. The `.metadata` directory does not exist; the mod image is a `thumbnail.png` at the mod
-root referenced by `picture="thumbnail.png"`.
+comment. A list may span several lines; real workshop mods write `tags` that way:
+
+```txt
+tags={
+	"Gameplay"
+	"Balance"
+}
+```
+
+The `.metadata` directory does not exist; the mod image is a `thumbnail.png` at the mod
+root referenced by `picture="thumbnail.png"`. `picture` is optional, and `validate_mod` warns only
+when the mod root holds an image but the key is absent.
+
+**Who writes `supported_version`.** The game needs it in `<name>.mod`. This repository keeps the
+value in `descriptor.mod` (so `validate_mod` can check it, and the mod is self-describing), and
+`install_mod` copies every descriptor key into the generated `<name>.mod`. When the descriptor
+omits it, `install_mod` derives `MAJOR.MINOR.*` from the recorded game build and writes that, so the
+pointer file is complete either way.
 
 ## 6. Housekeeping
 

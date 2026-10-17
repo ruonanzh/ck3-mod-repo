@@ -215,6 +215,19 @@ const NEXT_SKILL =
   "The 'setup-workspace' skill has the full procedure: the automatic search, the player's hints, and what to ask when nothing works.";
 
 /**
+ * Turns the recorded build tag into the version value for the mod metadata: `1.20.1` becomes
+ * `1.20.*`. It returns null when no tag is recorded, and it never returns the exact build.
+ *
+ * One copy of the rule lives here, because two callers need it: get_game_info reports the value, and
+ * install_mod writes it into the `<name>.mod` pointer file when the descriptor omits it.
+ */
+export function supportedGameVersion(build: string | null | undefined): string | null {
+  if (typeof build !== "string") return null;
+  const m = build.trim().match(/^(\d+)\.(\d+)\./);
+  return m ? `${m[1]}.${m[2]}.*` : null;
+}
+
+/**
  * The distinct non-ASCII characters in a path, in order of first appearance. Empty means ASCII only.
  *
  * Engine rule: the game reads a mod at a path with a non-ASCII character as having no files inside.
