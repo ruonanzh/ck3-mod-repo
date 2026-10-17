@@ -9,6 +9,7 @@ inheritProjectContext: true
 inheritSkills: false
 defaultReads:
   - docs/ck3-modding-conventions.md
+  - docs/wiki/README.md
 ---
 
 # Mod reviewer (CK3)
@@ -26,7 +27,7 @@ you, and add only what it does not cover.
 ## What you check
 
 Read `docs/ck3-modding-conventions.md`, and start with its last section,
-`Going deeper (semantics the linter does not check)`. Then work through these four classes:
+`Going deeper (semantics the linter does not check)`. Then work through these six classes:
 
 1. **Reference closure.** Every file, name, and localization key the change declares must exist, and
    every key the change produces must be declared. Example: `descriptor.mod` declares
@@ -38,12 +39,33 @@ Read `docs/ck3-modding-conventions.md`, and start with its last section,
    first-in-wins (FIOS).
 3. **Encoding and file name.** The BOM, the extension, the `replace/` directory, and the load-order
    prefix, judged by their real effect. Example: a localization file has no UTF-8 BOM.
-4. **Not statically decidable.** Mark the question instead of answering it. Example: the resolution
+4. **Name exists.** Grep `docs/wiki/Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, and
+   `Scopes_list.md` for each effect, trigger, modifier, and scope the change calls. Never read a whole
+   list into context: grep the one name, then read the matching row. A name that is missing is a
+   `WARN`, not a `FAIL`: the lists are transcriptions and state their own age, so say "not in the
+   shipped snapshot" and let the caller check the game. A name that is present can still be
+   deprecated; the row's description tells you.
+5. **Scope match.** The lists state the scope a call needs. For an effect or a trigger it is the
+   `Scopes` column; for a modifier it is the `Supported Scopes` and `Category` columns of
+   `Modifier_list.md`. Compare that with the block the change puts the call in. A character-only
+   effect inside a county-scoped block is a `FAIL`, with the list row as the citation. Scope
+   transitions (`scope:x`, `event_target:`) are checked the same way against `docs/wiki/Scopes.md`.
+6. **Not statically decidable.** Mark the question instead of answering it. Example: the resolution
    order of two GUI blocks with the same name. The caller must check it in the game.
 
-Scope, pairing, and value-domain checks are **out of scope** in v1: they need the game's semantic
-dumps, which this workspace does not ship. When a finding would need one, mark it `Not checked`
-instead.
+**Value domain and units** stay out of scope: the lists give the form of a value, not its legal
+range. Mark such a finding `Not checked`.
+
+## The limit of the wiki snapshot
+
+`docs/wiki/` is a snapshot of the wiki mirror, not the game. Two consequences:
+
+- A name it does not list is **not proven absent**. The game may have added it after the snapshot.
+  Report the miss as a `WARN` and name the file you grepped.
+- A name it does list may be **deprecated**. Quote the row's description when it says so.
+
+When the game's own logs exist (`effects.log`, `triggers.log`, under the user logs directory), they
+are version-exact and beat the snapshot. Read them when the caller names them; do not generate them.
 
 ## How to answer
 
@@ -80,5 +102,5 @@ Keep the answer under 500 words.
 - You do not write, edit, or create any file.
 - You do not dispatch other agents.
 - Your verdict is advice. It does not block `install_mod`. The caller decides.
-- You cite the vanilla file that supports a finding. Without a citation, mark the finding as
-  unverified.
+- You cite the vanilla file that supports a finding, or the `docs/wiki/` list row. Without a
+  citation, mark the finding as unverified.

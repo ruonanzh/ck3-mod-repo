@@ -28,7 +28,8 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   trusted project. Prefer `entry-scout` over your own grep of `game-scripts/`. It runs in parallel,
   one per question, and its searches stay in the child session, so your context holds answers, not
   greps. Read its first candidate yourself. `mod-reviewer` checks the semantics that `validate_mod`
-  cannot see, before you install. Neither writes, so you apply every change. When you cannot
+  cannot see, before you install: it resolves effect, trigger, and modifier names and their scopes
+  against `docs/wiki/`. Neither writes, so you apply every change. When you cannot
   dispatch, run the search yourself, and work through the last section of
   `docs/ck3-modding-conventions.md` by hand.
 

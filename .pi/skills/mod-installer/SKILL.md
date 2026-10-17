@@ -38,7 +38,8 @@ creates it.
 ## Review before the install
 
 Run `validate_mod` first, and clear every ERROR. Then dispatch `mod-reviewer` with the planned files
-and the `validate_mod` receipt. It reports the semantics that `validate_mod` does not check.
+and the `validate_mod` receipt. It reports the semantics that `validate_mod` does not check, including
+the effect, trigger, and modifier names and their scopes, which it resolves against `docs/wiki/`.
 
 - `PASS`: install.
 - `WARN`: tell the player the risk, then install.
