@@ -112,10 +112,10 @@ Keys table (per `Mod_structure`):
 | --- | --- | --- |
 | `version` | yes | The mod version, a string. |
 | `name` | yes | The launcher display name. |
-| `supported_version` | in `<name>.mod` | Latest game version the mod supports; `MAJOR.MINOR.PATCH` with `*` wildcards, e.g. `1.20.*`. |
-| `path` | in `<name>.mod` | Where the mod folder lives. |
+| `supported_version` | in `<name>.mod` | Latest game version the mod supports; the game uses semantic versioning `MAJOR.MINOR.PATCH`, and `*` wildcards define a range, e.g. `1.20.*`. |
+| `path` | in `<name>.mod` | Where the mod folder lives. Relative to the Paradox user folder (`path="mod/my_mod"`) **or an absolute path** (`path="C:/Mods/my_mod"`). |
 | `tags` | no | A list of quoted strings, `tags={ "a" "b" }`. A list may span several lines. |
-| `picture` | no | The thumbnail image file, e.g. `"thumbnail.png"`. |
+| `picture` | no | The thumbnail image file, e.g. `"thumbnail.png"`. Steam ignores this key and always looks for `thumbnail.png` in the mod root. |
 | `remote_file_id` | Workshop only | The Steam Workshop item id. |
 | `replace_path` | no | Skips the vanilla files at a path. |
 
@@ -158,11 +158,15 @@ path, not in the mod.
 - The rule covers the whole path to the mod folder, so it also covers every parent directory. The
   directory this repository names itself is `lower_snake_case`, so it is ASCII; only the parent path
   can carry the non-ASCII character.
-- **Where this is stated:** the Paradox forum thread "Non-ASCII path to the folder breaks mods and
-  opening the error log" (CK3) and "Vic3 doesn't support loading mods from paths containing non-ASCII
-  characters" (the same engine). The wiki pages `Modding`, `Mod_structure`, and `Mod_troubleshooting`
-  give the default path but do **not** state the rule as a separate entry, so treat the forum report
-  and the engine behaviour as the source.
+- **Where this is stated:** the wiki states it too, in `Mod_structure` under "Creating initial files", as a
+  launcher constraint on the Create-a-Mod directory: *"Directory cannot include non English
+  characters. If your Windows account name have such characters you must use a directory outside
+  your Documents folder."* The Paradox forum thread "Non-ASCII path to the folder breaks mods and
+  opening the error log" reports the engine side effect (the mod loads with no files).
+- **The escape hatch the wiki gives:** `path` may be an **absolute path**, not only
+  `path="mod/<name>"` (wiki `Mod_structure`, keys table: *"Alternatively, one can use the entire
+  path"*). So the mod folder can live outside `Documents` under an ASCII path, and the pointer file
+  points at it. A mod folder that stays under a non-ASCII `Documents` path cannot be repaired.
 - **What the tools do:** `check_game_paths` and `install_mod` both report a **WARN** and list the
   offending characters. Neither refuses: the player may not be able to change the directory, and the
   mod itself cannot repair it. `install_mod` installs anyway and says that the game may load the mod
