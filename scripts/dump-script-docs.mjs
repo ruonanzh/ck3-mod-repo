@@ -86,15 +86,17 @@ async function main() {
   console.log(`logs:  ${logsDir}`);
   console.log(`run:   ${exe} -nographics -debug_mode -run_console_action=${command}`);
 
-  // The dump lists code-level effects, triggers, and modifiers. Mods cannot add those: PDXScript has
-  // no compile step, and a mod's scripted_effects and scripted_triggers are script objects. Verified
-  // on 1.20.1.1: a vanilla scripted effect is absent from effects.log, and so is a workshop mod's
-  // scripted trigger. So an enabled mod does not pollute the list. A clean playset is still the
-  // better baseline, because a mod can raise errors during startup; say which state this run used.
+  // The dump lists code-level effects, triggers, and modifiers, plus the on_action list, which is
+  // script-level. Measured on 1.20.1.1 with one workshop mod enabled:
+  //   effects, triggers, modifiers, event_scopes, event_targets  -> identical
+  //   on_actions                                                 -> +60 entries from the mod
+  // So a mod **does** show up, in on_actions.log. Dump with an empty playset for a vanilla baseline.
   try {
     const enabled = JSON.parse(readFileSync(dlcLoadPath, "utf8"))?.enabled_mods;
     if (Array.isArray(enabled) && enabled.length > 0) {
-      console.log(`NOTE: ${enabled.length} mod(s) are enabled in the playset. The code lists are unaffected, but an empty playset is a cleaner baseline.`);
+      console.log(
+        `NOTE: ${enabled.length} mod(s) are enabled. on_actions.log WILL include their on_actions (measured +60 entries for one mod); the other logs stay code-only. Disable the mods for a vanilla baseline.`,
+      );
     } else {
       console.log("playset: no mods enabled (vanilla baseline)");
     }
