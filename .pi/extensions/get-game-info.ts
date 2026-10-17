@@ -114,7 +114,7 @@ export default function (pi: ExtensionAPI) {
       const badPathChars = modInstallDir ? nonAsciiCharsInPath(modInstallDir) : [];
       if (badPathChars.length > 0) {
         lines.push(
-          `NOTE: modInstallDir has non-ASCII character(s) ${badPathChars.map((c) => `'${c}'`).join(", ")}. The game reads a mod at such a path as having no files inside, so install_mod will refuse it.`,
+          `NOTE: modInstallDir has non-ASCII character(s) ${badPathChars.map((c) => `'${c}'`).join(", ")}. The game reads a mod at such a path as having no files inside, so install_mod reports a WARN and the game may load the mod empty.`,
           "NEXT: tell the player to move the mod install directory to an ASCII path (for example relocate the Windows Documents folder), then run try_set_game_dir with no arguments.",
         );
       }

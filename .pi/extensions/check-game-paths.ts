@@ -40,7 +40,7 @@ export default function (pi: ExtensionAPI) {
     name: "check_game_paths",
     label: "Check Game Paths",
     description:
-      "Check three directories: the game directory, the Steam Workshop directory, and the mod install directory. This tool is read-only. It never writes .gamer-agent.local.json, never scans Steam, and never creates a directory. Pass any of gameDir, workshopDir, or modInstallDir to check those paths. Omit all three to check the paths in .gamer-agent.local.json. A mod install path with a non-ASCII character passes with a WARN, because the game reads a mod at such a path as having no files inside; install_mod refuses such a path with TARGET_NOT_ASCII. Use it when the player gives you a path, or to check a remembered path. Use try_set_game_dir when the location is unknown.",
+      "Check three directories: the game directory, the Steam Workshop directory, and the mod install directory. This tool is read-only. It never writes .gamer-agent.local.json, never scans Steam, and never creates a directory. Pass any of gameDir, workshopDir, or modInstallDir to check those paths. Omit all three to check the paths in .gamer-agent.local.json. A mod install path with a non-ASCII character passes with a WARN, because the game reads a mod at such a path as having no files inside. Use it when the player gives you a path, or to check a remembered path. Use try_set_game_dir when the location is unknown.",
     promptSnippet: "Check game and mod paths without scanning or writing",
     promptGuidelines: [
       "Use check_game_paths when the player gives you a path, or to check a remembered path. It checks a path without scanning Steam and without writing state.",

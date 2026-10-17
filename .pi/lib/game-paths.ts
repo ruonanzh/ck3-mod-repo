@@ -263,10 +263,10 @@ export function checkGameDir(dir: string | null | undefined): PathVerdict {
 /** Check 2: the mod install target. It is the fixed Paradox location, checked by shape, because there is no sentinel to read. */
 /**
  * How a caller treats a non-ASCII mod install path.
- *   - "error" (default): reject it. A caller that creates the directory uses this: a directory we
- *     create ourselves must be ASCII.
- *   - "warn": pass it, and report a warning. A read-only check uses this, because the path may be
- *     the player's own Documents folder, and the check must not turn into a failure.
+ *   - "warn" (default): pass it, and report a warning. This is the repository policy: the player may
+ *     not be able to change the directory, and the mod cannot repair it, so a failure would only
+ *     leave the player with nothing.
+ *   - "error": reject it. Pass this only when a caller must not proceed at all.
  */
 export type AsciiPathMode = "error" | "warn";
 
@@ -298,7 +298,7 @@ export function checkModInstallDir(
           warningNext: `The player must move the mod install directory to a path that is pure ASCII, for example by relocating the Windows Documents folder, or by pointing the Paradox mod directory at an ASCII path. Then run try_set_game_dir with no arguments to record it. Do not rename or edit the mod: the character is in the path, not in the mod content. ${NEXT_SKILL}`,
         }
       : null;
-  if (asciiWarning && (opts?.ascii ?? "error") === "error")
+  if (asciiWarning && (opts?.ascii ?? "warn") === "error")
     return {
       ok: false,
       path: p,

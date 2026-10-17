@@ -194,6 +194,7 @@ export default function (pi: ExtensionAPI) {
     promptGuidelines: [
       "Use install_mod after validate_mod passes, so the player can enable the mod in the launcher.",
       "If install_mod reports the mod as <directory name>_pimod, tell the player two facts. The other mod in that directory was left untouched. This mod's files, including its descriptor.mod name, are unchanged.",
+      "If install_mod returns a WARN about a non-ASCII install path, read it to the player: the install succeeded and the launcher will list the mod, but the game may load it with no files. Give the path fix from the WARN, and do not claim the mod works in the game.",
     ],
     parameters: Type.Object({
       modDir: Type.String({
@@ -256,7 +257,10 @@ export default function (pi: ExtensionAPI) {
       } catch {
         cfgForPaths = undefined;
       }
-      const targetVerdict = checkModInstallDir(modRoot, cfgForPaths);
+      // The non-ASCII path is reported, not refused. The player may not be able to change the
+      // directory, and the launcher still lists the mod through the pointer file; only the game may
+      // read it as empty. Refusing would leave the player with nothing, so install and say so.
+      const targetVerdict = checkModInstallDir(modRoot, cfgForPaths, { ascii: "warn" });
       if (!targetVerdict.ok) {
         const code = targetVerdict.code ?? "TARGET_INVALID";
         return {
@@ -266,6 +270,7 @@ export default function (pi: ExtensionAPI) {
           details: { ok: false, reason: code },
         };
       }
+      const asciiWarning = targetVerdict.warning ?? null;
       const targetWasMissing = !statSync(modRoot, { throwIfNoEntry: false });
 
       const identity = readModIdentity(modDir);
@@ -405,6 +410,12 @@ export default function (pi: ExtensionAPI) {
 
       const mismatched = identity.name !== modName;
       const notes: string[] = [];
+      if (asciiWarning) {
+        notes.push(
+          `\nWARN: ${asciiWarning}. The install went ahead, and the launcher will list the mod, but the game may load it with no files.\n` +
+            `NEXT: tell the player this exactly. If the mod shows up but does nothing in the game, this path is the cause, and the fix is to move the mod install directory to an ASCII path, then run try_set_game_dir and install_mod again. ${targetVerdict.warningNext ?? ""}`,
+        );
+      }
       if (targetWasMissing) {
         notes.push(
           `\nNOTE: the mod install directory ${modRoot} did not exist and was created. That is normal on a first install, because the Paradox launcher had not created it yet. If the player expected mods somewhere else, for example after moving their Documents directory, tell them where this mod actually landed: ${installDir}.`,
@@ -466,6 +477,7 @@ export default function (pi: ExtensionAPI) {
           files,
           targetCreated: targetWasMissing,
           modInstallDirCorrected: target.corrected,
+          warnings: asciiWarning ? ["TARGET_NOT_ASCII"] : [],
         },
       };
     },

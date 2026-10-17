@@ -155,19 +155,21 @@ path, not in the mod.
 
 - The usual cause is a Windows user profile whose name is not ASCII, because the Paradox mod folder
   sits under `Documents`: `%USERPROFILE%\Documents\Paradox Interactive\Crusader Kings III\mod`.
-- The rule covers the whole path to the mod folder, so it also covers every parent directory.
+- The rule covers the whole path to the mod folder, so it also covers every parent directory. The
+  directory this repository names itself is `lower_snake_case`, so it is ASCII; only the parent path
+  can carry the non-ASCII character.
 - **Where this is stated:** the Paradox forum thread "Non-ASCII path to the folder breaks mods and
   opening the error log" (CK3) and "Vic3 doesn't support loading mods from paths containing non-ASCII
   characters" (the same engine). The wiki pages `Modding`, `Mod_structure`, and `Mod_troubleshooting`
   give the default path but do **not** state the rule as a separate entry, so treat the forum report
   and the engine behaviour as the source.
-- **What the tools do:** `check_game_paths` reports a **WARN** and lists the offending characters, because it
-  is read-only and the path may be the player's own `Documents` folder. `install_mod` **refuses** the
-  path with `TARGET_NOT_ASCII` and changes nothing, because it is the tool that creates the directory:
-  **a directory we create ourselves must be ASCII.** `get_game_info` adds a NOTE.
-- **What the player must do:** move the mod install directory to an ASCII path, for example by
-  relocating the Windows `Documents` folder, then run `try_set_game_dir` with no arguments. Do not
-  rename the mod.
+- **What the tools do:** `check_game_paths` and `install_mod` both report a **WARN** and list the
+  offending characters. Neither refuses: the player may not be able to change the directory, and the
+  mod itself cannot repair it. `install_mod` installs anyway and says that the game may load the mod
+  with no files. `get_game_info` adds a NOTE.
+- **What the player must do:** when the mod shows up but does nothing in the game, move the mod
+  install directory to an ASCII path, for example by relocating the Windows `Documents` folder, then
+  run `try_set_game_dir` with no arguments and install again. Do not rename the mod.
 
 ## 7. Choosing an entry mechanism
 
