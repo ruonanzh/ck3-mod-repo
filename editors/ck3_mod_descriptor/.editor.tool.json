@@ -1,0 +1,9 @@
+{
+  "apiVersion": 1,
+  "id": "ck3_mod_descriptor",
+  "name": "CK3 mod descriptor",
+  "match": ["your_mods/*/descriptor.mod"],
+  "entry": "index.html",
+  "mode": "edit",
+  "description": "View/edit a mod's descriptor.mod (form, Ctrl+S to save)"
+}

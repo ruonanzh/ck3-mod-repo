@@ -1,0 +1,9 @@
+{
+  "apiVersion": 1,
+  "id": "ck3_mod_page",
+  "name": "CK3 mod page",
+  "match": ["your_mods/*/.preview/*.modpage.html"],
+  "entry": "index.html",
+  "mode": "edit",
+  "description": "Show the generated mod page, let the player mark it, and save the marks."
+}

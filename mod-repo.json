@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "modType": "pdx-script",
+  "game": {
+    "name": "Crusader Kings III",
+    "steamAppId": 1158310,
+    "platforms": ["windows"],
+    "installDirHint": {
+      "windows": [
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Crusader Kings III",
+        "E:\\SteamLibrary\\steamapps\\common\\Crusader Kings III",
+        "D:\\SteamLibrary\\steamapps\\common\\Crusader Kings III"
+      ]
+    }
+  },
+  "modInstall": {
+    "relativeTo": "userDocuments",
+    "path": "Paradox Interactive/Crusader Kings III/mod"
+  },
+  "compile": null,
+  "workshop": { "supported": true }
+}

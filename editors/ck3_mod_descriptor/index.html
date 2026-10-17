@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>CK3 mod descriptor</title>
+    <!--
+      Editor tool for `descriptor.mod`.
+      Talks to the host only through the postMessage bridge; no network, no extra permissions.
+      The script must stay external (the CSP frame does not allow inline scripts).
+    -->
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #1b1b1f;
+        --panel: #232327;
+        --text: #e6e6e6;
+        --muted: #9a9aa2;
+        --border: #3a3a42;
+        --accent: #6ea8fe;
+        --danger: #ff6b6b;
+        --warn: #e0a94a;
+      }
+      [data-theme="light"] {
+        color-scheme: light;
+        --bg: #ffffff;
+        --panel: #f6f6f8;
+        --text: #1d1d20;
+        --muted: #666670;
+        --border: #d9d9e0;
+        --accent: #2f6fdd;
+        --danger: #c62828;
+        --warn: #9a6b12;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font: 13px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+      header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--panel); position: sticky; top: 0; }
+      header strong { margin-right: auto; }
+      #status { font-size: 12px; color: var(--muted); }
+      #status[data-state="dirty"] { color: var(--accent); }
+      #status[data-state="error"] { color: var(--danger); }
+      button { font: inherit; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); cursor: pointer; }
+      button:disabled { opacity: 0.5; cursor: default; }
+      main { padding: 14px 12px; display: grid; gap: 10px; max-width: 640px; }
+      label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+      input { font: inherit; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      #issues { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 12px; }
+      #issues li.error { color: var(--danger); }
+      #issues li.warn { color: var(--warn); }
+      .hint { font-size: 11px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong id="file">descriptor.mod</strong>
+      <span id="status" data-state="clean">saved</span>
+      <button id="reload" type="button">Reload</button>
+      <button id="save" type="button">Save (Ctrl+S)</button>
+    </header>
+    <main>
+      <ul id="issues" hidden></ul>
+      <label>name<input id="f-name" autocomplete="off" /></label>
+      <div class="row">
+        <label>version<input id="f-version" autocomplete="off" spellcheck="false" /></label>
+        <label>supported_version<input id="f-supported_version" autocomplete="off" spellcheck="false" /></label>
+      </div>
+      <label>tags (comma separated)<input id="f-tags" autocomplete="off" /></label>
+      <label>picture<input id="f-picture" autocomplete="off" spellcheck="false" /></label>
+      <p class="hint">Other keys in the file (remote_file_id, replace_path, comments) are preserved on save.</p>
+    </main>
+    <script src="editor.js"></script>
+  </body>
+</html>

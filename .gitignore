@@ -1,0 +1,12 @@
+# Python 编译缓存
+__pycache__/
+*.pyc
+
+# check_runtime 的运行时状态文件（机器特定，不进 git）
+.gamer-agent.local.json
+
+# sync_game_scripts 复制的 vanilla 脚本镜像（只读参考，不进 git）
+game-scripts/
+
+# 需求讨论的预览网页（玩家自己看，不进游戏、不进 git）
+.preview/

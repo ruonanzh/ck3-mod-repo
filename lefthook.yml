@@ -1,0 +1,5 @@
+# mod repo 维护者 hooks：只校验环境自身，绝不引用 your_mods/
+#
+# 注意：mod 校验逻辑已迁到 .pi/extensions/mod-lint.ts（validate_mod 工具，agent 用）。
+# 维护者校验 reference/example_mod 的方式：在 pi agent 里调 validate_mod 工具。
+# 如需恢复自动 pre-commit 校验，后续设计维护者脚本（复用校验核心，避免两套逻辑）。

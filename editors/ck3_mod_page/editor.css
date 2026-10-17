@@ -1,0 +1,262 @@
+/* CK3 mod page editor. Follows the host theme through body[data-theme]. */
+:root {
+  /* 宿主会在 editor:init / editor:theme 里用行内样式覆盖它（当前生效的界面字体栈，
+     皮肤不同可能不同）。这里的值是没有宿主消息时的兜底。 */
+  --app-font: "Departure Mono", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace;
+  --bg: #ffffff;
+  --fg: #1c1c1e;
+  --muted: #6b6b70;
+  --border: #d8d8dc;
+  --panel: #f6f6f8;
+  --accent: #ff8a00;
+  /* 工具栏／顶部栏／弹框：鲜艳的橘色，与页面内容明显区分 */
+  --chrome: #ffb547;
+  --chrome-fg: #3a2400;
+  --chrome-border: #d98400;
+  --field: #fffdf7;
+  --field-border: #d98400;
+  --mark-comment: #ffd54a;
+  --mark-delete: #ff9c9c;
+  --mark-replace: #8ecbff;
+}
+body[data-theme="dark"] {
+  --bg: #1b1b1d;
+  --fg: #e8e8ea;
+  --muted: #9a9aa0;
+  --border: #34343a;
+  --panel: #232327;
+  --accent: #ffa733;
+  --chrome: #ff9f45;
+  --chrome-fg: #241300;
+  --chrome-border: #c96f00;
+  --field: #2a1b06;
+  --field-border: #ff9f45;
+  --mark-comment: #a37b12;
+  --mark-delete: #8a3a3a;
+  --mark-replace: #2f5b85;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.6 var(--app-font);
+}
+
+#bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--chrome-border);
+  background: var(--chrome);
+  color: var(--chrome-fg);
+  flex: 0 0 auto;
+}
+
+.spacer {
+  flex: 1;
+}
+
+#state,
+#count {
+  color: var(--chrome-fg);
+  font-weight: 600;
+}
+
+button {
+  font: inherit;
+  color: var(--fg);
+  background: var(--field);
+  border: 1px solid var(--chrome-border);
+  border-radius: 5px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+/* 次要按钮（刷新、取消、移除这条批注）：满色橘 + 深字，在任何底色上都看得见。 */
+#reload,
+#remove,
+#promptCancel {
+  background: var(--accent);
+  border-color: var(--chrome-border);
+  color: #1a1000;
+  font-weight: 700;
+}
+
+#reload:hover,
+#remove:hover,
+#promptCancel:hover {
+  filter: brightness(1.08);
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#scroll {
+  position: relative; /* the mark toolbar is positioned against this box, and scrolls with it */
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 24px 32px 96px;
+}
+
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.page :is(h1, h2, h3) {
+  line-height: 1.25;
+}
+
+.page :is(img, svg) {
+  max-width: 100%;
+  height: auto;
+}
+
+.page table {
+  border-collapse: collapse;
+}
+
+.page :is(th, td) {
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+}
+
+.page mark[data-comment] {
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+.page mark[data-kind="comment"] {
+  background: var(--mark-comment);
+}
+
+.page mark[data-kind="delete"] {
+  background: var(--mark-delete);
+  text-decoration: line-through;
+}
+
+.page mark[data-kind="replace"] {
+  background: var(--mark-replace);
+}
+
+#toolbar button[data-kind="comment"] {
+  background: #ff9d00;
+  border-color: #b26a00;
+  color: #1a0f00;
+  font-weight: 700;
+}
+
+#toolbar button[data-kind="delete"] {
+  background: #ff4d4d;
+  border-color: #b32b2b;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+#toolbar button[data-kind="replace"] {
+  background: #2f9bff;
+  border-color: #1a6bb5;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* 主操作（保存批注、添加批注）：深橘底白字，与次要按钮区分开 */
+#save:not(:disabled),
+#promptAdd {
+  background: #c25d00;
+  border-color: #8a4200;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* 页面里的“写下来”区域给足地方：多行框满宽，单行文本框给一个最小宽度。
+   页面自己的 <style> 仍可覆盖（它注入得晚、优先级更高）。 */
+.page textarea {
+  width: 100%;
+  min-height: 4.5em;
+  resize: vertical;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+.page input[type="text"],
+.page input:not([type]) {
+  min-width: 28ch;
+}
+
+#toolbar {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--chrome);
+  color: var(--chrome-fg);
+  border: 1px solid var(--chrome-border);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 32%);
+}
+
+#prompt {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  min-width: 380px;
+  padding: 10px 12px;
+  background: var(--chrome);
+  color: var(--chrome-fg);
+  border: 2px solid var(--chrome-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 26px rgb(0 0 0 / 34%);
+}
+
+#prompt label {
+  color: var(--chrome-fg);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#promptButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+#prompt input {
+  font: inherit;
+  color: var(--fg);
+  background: var(--field);
+  border: 2px solid var(--chrome-border);
+  border-radius: 5px;
+  padding: 5px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}

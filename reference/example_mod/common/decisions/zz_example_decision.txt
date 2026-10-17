@@ -1,0 +1,28 @@
+# Example decision: gain 100 gold. This is a NEW object, so it is additive and safe: a new file
+# with a new key cannot clash with vanilla. The zz_ prefix only matters when you override an
+# existing key (LIOS; see docs/ck3-modding-conventions.md §1), where a later ASCIIbetical filename
+# wins.
+example_gain_gold_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_misc.dds"
+	}
+	sort_order = 60
+
+	desc = example_gain_gold_decision_desc
+
+	is_shown = {
+		is_ai = no
+	}
+
+	is_valid = {
+		is_ai = no
+	}
+
+	effect = {
+		add_gold = 100
+	}
+
+	ai_potential = {
+		always = no
+	}
+}

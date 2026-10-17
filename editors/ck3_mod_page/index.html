@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mod 页面</title>
+    <link rel="stylesheet" href="editor.css" />
+  </head>
+  <body data-theme="dark">
+    <header id="bar">
+      <span id="state" role="status">正在加载页面…</span>
+      <span class="spacer"></span>
+      <span id="count"></span>
+      <button id="reload" type="button">刷新</button>
+      <button id="remove" type="button" hidden>移除这条批注</button>
+      <button id="save" type="button" disabled>发送给 Agent</button>
+    </header>
+
+    <main id="scroll">
+      <article id="page" class="page"></article>
+
+      <div id="toolbar" hidden>
+        <button type="button" data-kind="comment">批注</button>
+        <button type="button" data-kind="delete">删除</button>
+        <button type="button" data-kind="replace">替换</button>
+      </div>
+    </main>
+
+    <div id="prompt" hidden>
+      <label id="promptLabel" for="promptText">批注内容</label>
+      <input id="promptText" type="text" autocomplete="off" />
+      <div id="promptButtons">
+        <button type="button" id="promptAdd">添加批注</button>
+        <button type="button" id="promptCancel">取消</button>
+      </div>
+    </div>
+
+    <script src="editor.js"></script>
+  </body>
+</html>
