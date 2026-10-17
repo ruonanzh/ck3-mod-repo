@@ -145,8 +145,10 @@ path, not in the mod.
   characters" (the same engine). The wiki pages `Modding`, `Mod_structure`, and `Mod_troubleshooting`
   give the default path but do **not** state the rule as a separate entry, so treat the forum report
   and the engine behaviour as the source.
-- **What the tools do:** `check_game_paths` and `install_mod` reject such a path with
-  `TARGET_NOT_ASCII`, name the offending characters, and change nothing. `get_game_info` adds a NOTE.
+- **What the tools do:** `check_game_paths` reports a **WARN** and lists the offending characters, because it
+  is read-only and the path may be the player's own `Documents` folder. `install_mod` **refuses** the
+  path with `TARGET_NOT_ASCII` and changes nothing, because it is the tool that creates the directory:
+  **a directory we create ourselves must be ASCII.** `get_game_info` adds a NOTE.
 - **What the player must do:** move the mod install directory to an ASCII path, for example by
   relocating the Windows `Documents` folder, then run `try_set_game_dir` with no arguments. Do not
   rename the mod.

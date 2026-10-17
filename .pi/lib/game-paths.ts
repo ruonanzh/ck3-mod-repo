@@ -77,6 +77,13 @@ export interface PathVerdict {
   reason?: string;
   /** The next step for the agent. It is actionable, and the player can read it. */
   next?: string;
+  /**
+   * A problem that does not fail the check, but that the caller must report as a WARN. It is set only
+   * when ok is true. A read-only check sets it; a check that gates a write does not.
+   */
+  warning?: string;
+  /** The next step for the agent, for the warning. */
+  warningNext?: string;
 }
 
 export const platformKey = (): string =>
@@ -241,7 +248,24 @@ export function checkGameDir(dir: string | null | undefined): PathVerdict {
 }
 
 /** Check 2: the mod install target. It is the fixed Paradox location, checked by shape, because there is no sentinel to read. */
-export function checkModInstallDir(dir: string | null | undefined, cfg?: ModRepoConfig): PathVerdict {
+/**
+ * How a caller treats a non-ASCII mod install path.
+ *   - "error" (default): reject it. A caller that creates the directory uses this: a directory we
+ *     create ourselves must be ASCII.
+ *   - "warn": pass it, and report a warning. A read-only check uses this, because the path may be
+ *     the player's own Documents folder, and the check must not turn into a failure.
+ */
+export type AsciiPathMode = "error" | "warn";
+
+export interface ModInstallDirOptions {
+  ascii?: AsciiPathMode;
+}
+
+export function checkModInstallDir(
+  dir: string | null | undefined,
+  cfg?: ModRepoConfig,
+  opts?: ModInstallDirOptions,
+): PathVerdict {
   const p = dir ? expandHome(dir) : null;
   if (!p)
     return { ok: false, path: null, code: "TARGET_NOT_FOUND", reason: "no mod install directory was given", next: `Run try_set_game_dir with no arguments. It records the game directory and the derived mod install directory. ${NEXT_SKILL}` };
@@ -249,17 +273,31 @@ export function checkModInstallDir(dir: string | null | undefined, cfg?: ModRepo
     return { ok: false, path: p, code: "TARGET_INVALID", reason: "not an absolute path", next: `Run try_set_game_dir with no arguments to record the conventional mod install directory. ${NEXT_SKILL}` };
   // The engine rule: a non-ASCII character anywhere in the path of the mod folder makes the game
   // read the mod as having no files inside. This happens with a Windows user profile whose name is
-  // not ASCII, because the mod folder sits under Documents. Nothing in the mod can repair it, so
-  // reject the path here, before install_mod creates any directory or copies any file.
+  // not ASCII, because the mod folder sits under Documents. Nothing in the mod can repair it.
+  // The severity depends on the caller, not on the path: a caller that creates the directory must
+  // refuse it, and a read-only check only warns.
   const badChars = nonAsciiCharsInPath(p);
-  if (badChars.length > 0)
+  const asciiWarning =
+    badChars.length > 0
+      ? {
+          code: "TARGET_NOT_ASCII",
+          warning: `the path has non-ASCII character(s) ${badChars.map((c) => `'${c}'`).join(", ")}, and the game reads a mod at such a path as having no files inside`,
+          warningNext: `The player must move the mod install directory to a path that is pure ASCII, for example by relocating the Windows Documents folder, or by pointing the Paradox mod directory at an ASCII path. Then run try_set_game_dir with no arguments to record it. Do not rename or edit the mod: the character is in the path, not in the mod content. ${NEXT_SKILL}`,
+        }
+      : null;
+  if (asciiWarning && (opts?.ascii ?? "error") === "error")
     return {
       ok: false,
       path: p,
-      code: "TARGET_NOT_ASCII",
-      reason: `the path has non-ASCII character(s) ${badChars.map((c) => `'${c}'`).join(", ")}, and the game reads a mod at such a path as having no files inside`,
-      next: `The player must move the mod install directory to a path that is pure ASCII, for example by relocating the Windows Documents folder, or by pointing the Paradox mod directory at an ASCII path. Then run try_set_game_dir with no arguments to record it. Do not rename or edit the mod: the character is in the path, not in the mod content. ${NEXT_SKILL}`,
+      code: asciiWarning.code,
+      reason: asciiWarning.warning,
+      next: asciiWarning.warningNext,
     };
+  // The check passes with a warning. Every ok return below carries it.
+  const pass = (): PathVerdict =>
+    asciiWarning
+      ? { ok: true, path: p, code: asciiWarning.code, warning: asciiWarning.warning, warningNext: asciiWarning.warningNext }
+      : { ok: true, path: p };
   // Run the checks that do not need the configuration first. The order matters, because these must
   // still run when the shape check is skipped.
   const st = statSync(p, { throwIfNoEntry: false });
@@ -269,7 +307,7 @@ export function checkModInstallDir(dir: string | null | undefined, cfg?: ModRepo
   // The shape check is our opinion about the Paradox directory convention, and it is not a hard game
   // rule. Skip it when the configuration is unreadable or has no modInstall.path, because
   // try_set_game_dir reports a missing field.
-  if (typeof rel !== "string" || !rel.trim()) return { ok: true, path: p };
+  if (typeof rel !== "string" || !rel.trim()) return pass();
   const norm = (v: string) => v.replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
   if (!norm(p).endsWith(norm(rel)))
     return {
@@ -280,7 +318,7 @@ export function checkModInstallDir(dir: string | null | undefined, cfg?: ModRepo
       next: `Run try_set_game_dir with no arguments to record the conventional mod install directory. ${NEXT_SKILL}`,
     };
   // A missing directory is the normal state on a new machine, and the install creates it.
-  return { ok: true, path: p };
+  return pass();
 }
 
 /** Check 3: the Steam Workshop directory. It is a read-only reference, and it must be `.../steamapps/workshop/content/<appId>`. */
