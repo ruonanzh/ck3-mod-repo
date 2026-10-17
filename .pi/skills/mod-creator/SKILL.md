@@ -31,8 +31,8 @@ and its bound directory gate those actions.
   | 1 | **Map the request to a page** | `docs/wiki/INDEX.md` — one row per wiki page, with `Local yes/no` | The one page that covers "how do I add X" (`Holdings_modding` for a building, `Event_modding` for an event, …) |
   | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
   | 3 | **Locate the entry in vanilla** | Two **peer** options: grep `game-scripts/` yourself, or dispatch `entry-scout`. Prefer `entry-scout`: it runs in parallel and its greps stay in the child session. Add `reference/example_mod` for a whole shape. | Real object names, real field values, and the file to mirror |
-  | 4 | **Check the call form** | `docs/wiki/Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md`; `game-scripts/script-docs/*.log` when it exists | The parameters and the scope of every call you are about to write |
-  | 5 | **Agree, then read the conventions, then write, then verify** | The player; `docs/ck3-modding-conventions.md` (section 1 and section 2 of that file: override form and load order); then `validate_mod` | A mod that passes, and a plain report of what was not checked |
+  | 4 | **Check the call form** | `docs/wiki/Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md`, and `game-scripts/script-docs/*.log` when it exists | The parameters and the scope of every call you are about to write |
+  | 5 | **Agree, then read the conventions, then write, then verify** | The player. Then `docs/ck3-modding-conventions.md`, section 1 and section 2 of that file: override form and load order. Then `validate_mod`. | A mod that passes, and a plain report of what was not checked |
 
   Stage 1 is yours, not the scout's: choosing the mechanism is a decision, and `entry-scout` answers
   "where is this name" only. When the request spans two kinds (a decision plus its event), run stages
@@ -106,14 +106,14 @@ Skip this step when the task only changes values inside an existing block.
 └── gui/                    # interface
 ```
 
-There is no `.metadata/` directory and no `in_game/`/`main_menu/` split: the content folders sit
-directly at the mod root, mirroring the game's own `game/` folder.
+There is no `.metadata/` directory and no `in_game/`/`main_menu/` split: the content directories sit
+directly at the mod root, mirroring the game's own `game/` directory.
 
 ## descriptor.mod
 
-`descriptor.mod` is a **key=value text file** (not JSON), inside the mod folder. The launcher
+`descriptor.mod` is a **key=value text file** (not JSON), inside the mod directory. The launcher
 discovers the mod through a separate `<name>.mod` pointer file that `install_mod` writes alongside
-the folder; that file holds the same keys plus `path`.
+the directory. That file holds the same keys plus `path`.
 
 Standard keys:
 
@@ -136,7 +136,7 @@ picture="thumbnail.png"
 
 Syntax: `key="value"` for scalars, `key={ "a" "b" }` for lists, and `#` starts a single-line
 comment. A list may span several lines, and real workshop mods write `tags` that way. `install_mod`
-uses the `your_mods/` directory name as the install directory name; keep
+uses the `your_mods/` directory name as the install directory name. Keep
 `name` readable but it need not match the directory name.
 
 ## Localization YAML
@@ -178,12 +178,12 @@ reason and the edge cases are in `docs/ck3-modding-conventions.md`
 
 1. **Full file overwrite.** A file with the same path and filename replaces the vanilla file
    entirely. This is brittle.
-2. **Single-object override (script data).** A new file in the same folder with a later
+2. **Single-object override (script data).** A new file in the same directory with a later
    ASCIIbetical name redefines an object — "Last In Only Served" (LIOS): `01_defines.txt` wins over
    `00_defines.txt`.
 3. **GUI `type`/`template` is the opposite — First In Only Served (FIOS).** Name the file to sort
    first, e.g. `00_my_buttons.gui`.
-4. **`on_actions`:** `events`, `random_events`, and `on_actions` append; `trigger`/`effect`
+4. **`on_actions`:** `events`, `random_events`, and `on_actions` append. A `trigger` or `effect`
    overwrite (and produce errors).
 5. **Only a top-level declaration can be overridden:** it starts at the beginning of a line and is not
    inside a block. A nested field is not a target.
@@ -223,12 +223,12 @@ Each `ERROR` line reads `ERROR: <file>: <message>`. The common ones, and the fix
 
 - `descriptor.mod: missing descriptor.mod`: create the file with the standard keys above.
 - `descriptor.mod: name must be a non-empty string`: add `name="..."`.
-- `descriptor.mod: version is required (a non-empty string)`: add `version="..."` (any string works;
-  `x.x` or `x.x.x` is a suggestion, not a rule).
+- `descriptor.mod: version is required (a non-empty string)`: add `version="..."`. Any string works.
+  `x.x` or `x.x.x` is a suggestion, not a rule.
 - `missing UTF-8 BOM (game ignores localization files without a BOM)`: save the file as UTF-8
   **with BOM** (`EF BB BF`).
 - `filename must end with '_l_<language>.yml'`: rename the file to `<name>_l_<language>.yml`.
-- `unsupported localization language '<x>'; accepted: ...`: the game does not ship that language. Use
+- `unsupported localization language '<x>'. Accepted: ...`: the game does not ship that language. Use
   one of the nine, or accept that the game ignores the file. Renaming it does not help.
 - `expected a language header 'l_<lang>:' as the first content line`: the first content line must be
   `l_<lang>:`.
@@ -239,7 +239,7 @@ Each `ERROR` line reads `ERROR: <file>: <message>`. The common ones, and the fix
 ## Entry mechanisms and data kinds (what to add, and where it lives)
 
 Pick the entry mechanism from the table in `docs/ck3-modding-conventions.md` section 7, then open the
-folder it names and read one of the examples there. Send the intent to `entry-scout` first and read
+directory it names and read one of the examples there. Send the intent to `entry-scout` first and read
 the candidate it returns, in two cases: when you are unsure which mechanism fits, and when you must
 survey the mechanisms that the game already has for a feature.
 
@@ -260,7 +260,7 @@ A mod can also add its own content to one of the game's own data folders. The co
 | activities | `common/activities/` |
 | schemes | `common/schemes/` |
 
-Open a vanilla file in that folder and read one real block's fields before you write. When a task
+Open a vanilla file in that directory and read one real block's fields before you write. When a task
 only changes values inside an existing block, there is no new definition to place.
 
 ## Vanilla lookup path
@@ -272,7 +272,7 @@ For the question "does X exist, and what is the vanilla value?", follow the look
   `sync_game_scripts` generates. This path has two `game/` levels, because the mirror copies the
   whole install directory. Do not grep the install directory itself.
 - **The parameters and the scope of one effect, trigger, modifier, or scope:** `docs/wiki/`. The
-  vanilla scripts show **usage** (a name appears somewhere); `docs/wiki/Effects_list.md`,
+  vanilla scripts show **usage**, which means the name appears somewhere. `docs/wiki/Effects_list.md`,
   `Triggers_list.md`, `Modifier_list.md`, and `Scopes_list.md` show the **fields and the scope they
   need**. Read the list entry before you write a call you have not seen in vanilla. `docs/wiki/` is
   a snapshot: it states its own age, so check the vanilla file when the two disagree.

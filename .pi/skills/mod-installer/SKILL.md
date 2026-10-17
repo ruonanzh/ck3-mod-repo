@@ -28,7 +28,7 @@ creates it.
   as having no files inside. `install_mod` does **not** refuse such a path: it installs, then returns a
   `WARN` that says the game may load the mod with no files. Report that warning to the player exactly
   as written. If the mod shows up but does nothing in the game, the fix is to move the mod install
-  directory to an ASCII path (for example by relocating the Windows `Documents` folder), then run
+  directory to an ASCII path (for example by relocating the Windows `Documents` directory), then run
   `try_set_game_dir` with no arguments and install again. Do not rename the mod. The rule is in
   `docs/ck3-modding-conventions.md` section 6.
 - **The replace is transactional.** The tool moves the old copy aside instead of deleting it, and it

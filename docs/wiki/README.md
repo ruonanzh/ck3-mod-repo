@@ -80,7 +80,7 @@ whether the miss matters:
 | Page | Why it is not here |
 | --- | --- |
 | `Modding`, `Mod_structure`, `Localization`, `Effects`, `Triggers` | The workspace already covers these: `docs/game.md`, `docs/ck3-modding-conventions.md` (sections 3 and 5), `docs/wiki/Scripting.md`, and the two lists |
-| `Map_modding`, `Terrain_modding`, `Coat_of_arms_modding`, `3D_models`, `Sound_modding`, `Music_modding`, `Fonts`, `Graphical_assets` | The graphics and audio pipeline. Needed only for an asset mod; fetch the one page then |
+| `Map_modding`, `Terrain_modding`, `Coat_of_arms_modding`, `3D_models`, `Sound_modding`, `Music_modding`, `Fonts`, `Graphical_assets` | The graphics and audio pipeline. Needed only for an asset mod. Fetch the one page, then |
 | `Console_commands`, `Commands` | Console and debug commands. Not part of writing a mod |
 | `Defines`, `Lists`, `List_of_baronies`, `Exporters` | Data tables and tools. `common/defines/` in the vanilla scripts answers the first |
 | `Data_types` | `scripts/dump-script-docs.mjs --command=dump_data_types` regenerates it version-exact |
@@ -126,8 +126,8 @@ ck3.exe -nographics -debug_mode -run_console_action=script_docs
 | `script_docs` | `effects.log`, `triggers.log`, `modifiers.log`, `event_scopes.log`, `event_targets.log`, `on_actions.log` |
 | `dump_data_types` (`--command=dump_data_types`) | the GUI data types, promotes, and functions |
 
-They land under `<Documents>/Paradox Interactive/Crusader Kings III/logs/`. `Documents` can be moved;
-the script asks the registry, then checks the file times to prove the run wrote them. `game-scripts/`
+They land under `<Documents>/Paradox Interactive/Crusader Kings III/logs/`. `Documents` can be moved.
+The script asks the registry, then checks the file times to prove the run wrote them. `game-scripts/`
 is git-ignored, so the mirror is never committed.
 
 **No game session is needed.** The command runs at the `application initialized` stage, before any
@@ -141,7 +141,7 @@ menu or save is loaded, and the lists are complete there. Measured on 1.20.1.1:
   `add_animate_domicile_building`, `accolade_*`), so the dump is not a base-game subset.
 - The **wrong** init stage fails loudly: `-run_console_action_clausewitz` returns
   `Project does not have modifier documentation function pointer set`. That error is the CK3 analogue
-  of "the docs are incomplete because the game has not started"; the fix is the documented stage, not
+  of "the docs are incomplete because the game has not started". The fix is the documented stage, not
   starting a session.
 - A name used in vanilla but absent from a list is a **script object**, not a missing entry:
   `can_be_knight` lives in `common/scripted_rules`, and `scripted_effects`/`scripted_triggers` names
@@ -159,16 +159,16 @@ renderer, while the headless path exits cleanly.
 | `on_actions.log` | **+60 entries** — the mod's own `timurid_invasion_on_action`, `fatimid_invasion_on_action`, … |
 
 The split is not arbitrary. Effects, triggers, and modifiers are **code** objects, and PDXScript has
-no compile step, so a mod cannot add one; its `scripted_effects` and `scripted_triggers` never enter
+no compile step, so a mod cannot add one. Its `scripted_effects` and `scripted_triggers` never enter
 those logs (verified: a vanilla scripted effect is absent too). `on_actions` are **script** objects,
-so anything a mod declares appears. **Dump with an empty playset** for a vanilla baseline; the script
+so anything a mod declares appears. **Dump with an empty playset** for a vanilla baseline. The script
 says `playset: no mods enabled`, or prints a NOTE that on_actions will include the mods' entries.
 
-`modifiers.log` also varies in **line order** between runs with the same content; compare name sets,
+`modifiers.log` also varies in **line order** between runs with the same content. Compare name sets,
 not the raw file.
 
 **Measured on 1.20.1.1** (this workspace, 2026-10-17): the dump holds **2128** effects, **1937**
-triggers, and **761** modifier entries (152 of them templated, such as `$CULTURE$_opinion`); the
+triggers, and **761** modifier entries (152 of them templated, such as `$CULTURE$_opinion`). The
 wiki lists hold 1156, 1072, and 383. Roughly **47 %** of the dumped names are missing from the wiki,
 and **85** wiki names no longer exist — `every_participant` became `every_memory_participant`, and
 `complete_activity` became `invalidate_activity`. Treat the dump as the truth and the wiki page as a

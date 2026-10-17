@@ -41,6 +41,8 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   The modding conventions live **only** in
   [`docs/ck3-modding-conventions.md`](docs/ck3-modding-conventions.md). They cover override,
   load order, localization, and metadata.
+  Every English text that an agent reads follows
+  [`docs/writing-standard.md`](docs/writing-standard.md). Read it before you change such a text.
 - `game-scripts/` — the vanilla scripts. `sync_game_scripts` copies them and the
   `workshop/` scripts into it, and git ignores it. This is the modding context you must load
   before writing mods. PDXScript has no self-describing API, so you cannot write a correct override
@@ -103,14 +105,17 @@ Keep these in mind while you write a mod. They prevent most `validate_mod` failu
 
 - Keep `{` and `}` balanced. Keep `"` balanced. A `#` starts a line comment, and `#` is literal
   inside a string.
+- Only a top-level declaration can be overridden. A single-object override changes an object. It
+  cannot delete one.
 - To override a vanilla file, use the same path and filename. To override one object, put a new
-  file in the same folder with a later ASCIIbetical name (`01_defines.txt` wins over `00_defines.txt`).
+  file in the same directory with a later ASCIIbetical name (`01_defines.txt` wins over `00_defines.txt`).
   GUI `type`/`template` clashes resolve in the opposite order (first in wins), so name the file early
   (`00_my_buttons.gui`).
 - Use load-order prefixes so an override loads after its target: `00_` early, and `zz_`, `98_`, or
   `99_` late.
 - Localization YAML must be UTF-8 **with BOM**. The filename must end with `_l_<language>`. The
-  first line must be `l_<lang>:`. Each entry is `key: "value"`.
+  first line must be `l_<lang>:`. Each entry is `key: "value"`. The game ships nine languages, and
+  the list is in `docs/ck3-modding-conventions.md` section 3.
 - Do not leave `temp_*` or `_tmp_*` scratch files, or editor backups, in the mod directory.
 
 ## Validation

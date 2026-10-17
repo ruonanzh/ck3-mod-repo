@@ -11,13 +11,13 @@ v1 of this workspace targets **Windows only**.
   `<the player's Documents directory>\Paradox Interactive\Crusader Kings III\mod\<name>\`.
   The player can move the Documents directory, so the tools read it from Windows.
   The Paradox launcher discovers the mod through a `<name>.mod` pointer file **alongside** the mod
-  directory; the mod's own identity lives in `descriptor.mod` inside the directory.
+  directory. The mod's own identity lives in `descriptor.mod` inside the directory.
 - The mod directory holds `descriptor.mod` (key=value identity) and the classic content folders
   directly at its root: `common/`, `events/`, `history/`, `localization/`, `gfx/`, `gui/`,
   `map_data/`, `music/`, and `sound/`. There is no `in_game/`/`main_menu/` split.
 - At load time, the game layers the mod files on top of the vanilla files. A file with the same
   name overwrites the vanilla file. A single object is overridden by a later ASCIIbetical filename
-  ("Last In Only Served"); GUI `type`/`template` is the opposite ("First In Only Served"). Files
+  ("Last In Only Served"). GUI `type`/`template` is the opposite ("First In Only Served"). Files
   load in ASCIIbetical order by filename.
 
 ## How the player enables a mod

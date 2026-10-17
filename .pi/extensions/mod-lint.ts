@@ -253,7 +253,7 @@ function checkLocalization(modRoot: string): Finding[] {
         rel,
         message:
           declared !== null && !LOC_LANGUAGES.has(declared)
-            ? `unsupported localization language '${declared}'; accepted: ${[...LOC_LANGUAGES].join(", ")}`
+            ? `unsupported localization language '${declared}'. Accepted: ${[...LOC_LANGUAGES].join(", ")}`
             : "filename must end with '_l_<language>.yml'",
       });
     } else if (!stem.endsWith(`_l_${expectedLang}`)) {
