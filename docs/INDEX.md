@@ -9,7 +9,9 @@ task needs, instead of pulling the whole `docs/` directory into context.
 | You need | Source |
 |---|---|
 | Exact vanilla object definitions, field values, and loc keys | `game-scripts/` (the script mirror that `sync_game_scripts` generates), or the local game directory recorded by `try_set_game_dir` |
-| Mechanics concepts and how-to method (mod API) | the official wiki (ck3.paradoxwikis.com) |
+| The parameters and the scope of one effect, trigger, modifier, or scope | [`wiki/`](wiki/README.md), the shipped snapshot of the wiki reference lists |
+| Script language rules (syntax, scopes, variables, iterators, templates) | [`wiki/Scripting.md`](wiki/Scripting.md) |
+| Mechanics concepts and how-to method (mod API) | the official wiki (ck3.paradoxwikis.com). When it is unreachable, the snapshot under `wiki/` is the offline substitute |
 | The modding conventions and the reason behind them | [`ck3-modding-conventions.md`](ck3-modding-conventions.md) |
 
 - **Start here:** [`ck3-modding-conventions.md`](ck3-modding-conventions.md). This cheat-sheet
@@ -28,3 +30,4 @@ task needs, instead of pulling the whole `docs/` directory into context.
 |------|------------------------|
 | [`game.md`](game.md) | The game overview and the mod loading mechanics. |
 | [`ck3-modding-conventions.md`](ck3-modding-conventions.md) | The reason behind the override, load-order, localization, and metadata rules. |
+| [`wiki/README.md`](wiki/README.md) | What the wiki snapshot covers, its license, how to refresh it, and how to generate version-exact lists from the game itself. |

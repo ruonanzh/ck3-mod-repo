@@ -241,6 +241,12 @@ For the question "does X exist, and what is the vanilla value?", follow the look
 
 - Exact vanilla object definitions, field values, and loc keys: `game-scripts/game/`, which
   `sync_game_scripts` generates, or the local game directory.
+- **The parameters and the scope of one effect, trigger, modifier, or scope:** `docs/wiki/`. The
+  vanilla scripts show **usage** (a name appears somewhere); `docs/wiki/Effects_list.md`,
+  `Triggers_list.md`, `Modifier_list.md`, and `Scopes_list.md` show the **fields and the scope they
+  need**. Read the list entry before you write a call you have not seen in vanilla. `docs/wiki/` is
+  a snapshot: it states its own age, so check the vanilla file when the two disagree.
+- Script language rules (syntax, scopes, variables, iterators, templates): `docs/wiki/Scripting.md`.
 - Mechanics concepts: the official wiki (ck3.paradoxwikis.com). The modding conventions and the
   reason behind them: `docs/ck3-modding-conventions.md`.
 

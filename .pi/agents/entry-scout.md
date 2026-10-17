@@ -34,15 +34,18 @@ Use the layers in this order. Stop when the first layer answers the question.
 1. `game-scripts/game/` — the vanilla scripts. This layer is the strongest evidence for a concrete
    object, a field value, or a localization key, because the engine already accepts these files.
    Remember the two `game/` levels.
-2. `reference/` — the pattern mod (`example_mod`).
-3. The session records of this workspace. They live in the product data directory, in
+2. `docs/wiki/` — the wiki reference lists. Use it when the question is about the *form* of a call,
+   not its existence: `Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md`
+   give the parameters and the scope. `Scripting.md` gives the language rules.
+3. `reference/` — the pattern mod (`example_mod`).
+4. The session records of this workspace. They live in the product data directory, in
    `~/.gamer-agent-pi/sessions/<encoded workspace path>/`, as `.jsonl` files. The directory name
    encodes the workspace path: replace each `:` and each path separator with `-`, and wrap the whole
    string in `--`. Match the name in the directory listing, and do not build the path yourself. One
    line is one message. Search them for the same kind of change.
-4. Nothing else. Do not use `your_mods/`. The caller owns that directory.
+5. Nothing else. Do not use `your_mods/`. The caller owns that directory.
 
-A hit in layer 3 is weak evidence. It records what an earlier session did, not what the engine
+A hit in layer 4 is weak evidence. It records what an earlier session did, not what the engine
 accepts. Label it as weak, and prefer layer 1 whenever the two disagree.
 
 ## How to answer
@@ -55,7 +58,7 @@ Return a short list of candidates, best first. Each candidate carries:
 - Mechanism family — the wording from `docs/ck3-modding-conventions.md` section 7.
 - Evidence — the line or the block that supports the candidate.
 - Confidence — high, medium, or low.
-- Layer — 1, 2, or 3.
+- Layer — 1, 2, 3, 4, or 5.
 
 After the list, add these three lines:
 
