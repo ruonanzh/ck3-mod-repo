@@ -130,6 +130,26 @@ They land under `<Documents>/Paradox Interactive/Crusader Kings III/logs/`. `Doc
 the script asks the registry, then checks the file times to prove the run wrote them. `game-scripts/`
 is git-ignored, so the mirror is never committed.
 
+**No game session is needed.** The command runs at the `application initialized` stage, before any
+menu or save is loaded, and the lists are complete there. Measured on 1.20.1.1:
+
+- A **headless** run and a **graphical** run of the same command produced logs that are
+  **byte-identical** for `effects`, `triggers`, `event_scopes`, `event_targets`, `on_actions`, and an
+  identical name set for `modifiers` (that file only varies in line order). Rendering and session
+  state do not feed the lists.
+- DLC-gated names are present (`add_amenity_level`, `add_barter_goods`,
+  `add_animate_domicile_building`, `accolade_*`), so the dump is not a base-game subset.
+- The **wrong** init stage fails loudly: `-run_console_action_clausewitz` returns
+  `Project does not have modifier documentation function pointer set`. That error is the CK3 analogue
+  of "the docs are incomplete because the game has not started"; the fix is the documented stage, not
+  starting a session.
+- A name used in vanilla but absent from a list is a **script object**, not a missing entry:
+  `can_be_knight` lives in `common/scripted_rules`, and `scripted_effects`/`scripted_triggers` names
+  never appear either.
+
+The graphical path is not recommended: on this machine it wrote the logs and then crashed in the
+renderer, while the headless path exits cleanly.
+
 **Mods show up in one log, not the rest.** Measured on 1.20.1.1, with one workshop mod enabled
 (`enabled_mods: ["mod/ugc_2837398670.mod"]`) and the same command:
 
