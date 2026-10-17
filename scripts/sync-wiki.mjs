@@ -26,11 +26,19 @@ const REPO = "jesec/ck3-modding-wiki";
 const RAW = `https://raw.githubusercontent.com/${REPO}/master/wiki_pages`;
 
 /**
- * The pages this repository ships. Every page here answers a question the mod scripts cannot:
- * the exact name, parameters and scope of an effect, trigger, modifier or scope, and the language
- * rules behind them. Feature guides that only restate what vanilla files show stay out.
+ * The pages this repository ships. Two groups, and both are needed.
+ *
+ * 1. Reference: the exact name, parameters, and scope of an effect, trigger, modifier, or scope, and
+ *    the language rules behind them. The vanilla scripts show usage; these show the form.
+ * 2. How-to coverage: one page per thing a player can ask "how do I add X" about. A player question
+ *    arrives without warning, and a subagent cannot fetch, so the answer must already be here.
+ *    Buildings, for example, have no page of their own; `Holdings_modding.md` carries them.
+ *    Deliberately left out, and fetched on demand: the graphics pipeline (Map, Terrain,
+ *    Coat of arms, 3D models, Sound, Music, Fonts), the console and data tables, and Data_types,
+ *    which `dump_data_types` regenerates version-exact.
  */
 const PAGES = [
+  // Reference
   "Scripting.md", // syntax, scopes, operators, variables, iterators, templates
   "Effects_list.md", // every code effect: parameters and scopes
   "Triggers_list.md", // every trigger: parameters and scopes
@@ -41,7 +49,30 @@ const PAGES = [
   "Script_values.md", // script values and math
   "Weight_modifier.md", // weight blocks for random lists
   "Scripted_effects.md", // reusable effect blocks
-  "Event_modding.md", // the most common entry point: events, options, portraits
+  // How-to coverage: one page per "how do I add X"
+  "Event_modding.md", // events, options, portraits
+  "Decisions_modding.md", // decisions
+  "Interactions_modding.md", // character interactions
+  "Holdings_modding.md", // holdings and buildings
+  "Trait_modding.md", // traits
+  "Culture_modding.md", // cultures and traditions
+  "Religions_modding.md", // faiths, doctrines, holy orders
+  "Governments_modding.md", // government types
+  "Title_modding.md", // titles and succession
+  "Dynasties_modding.md", // dynasties and houses
+  "Artifact_modding.md", // artifacts and relics
+  "Regiments_modding.md", // men-at-arms and units
+  "Council_modding.md", // council positions and tasks
+  "Struggle_modding.md", // regional struggles
+  "Story_cycles_modding.md", // story cycles
+  "History_modding.md", // historical setup and start dates
+  "Bookmarks_modding.md", // bookmarks and start dates
+  "Interface.md", // the GUI system, needed for any .gui override
+  // Localization features and operations
+  "Flavorization.md", // dynamic text and name generation
+  "Customizable_localization.md", // customizable localization blocks
+  "Mod_compatibility.md", // load order and conflicts
+  "Mod_troubleshooting.md", // error.log and common failures
 ];
 
 const SHIPPED = new Set(PAGES);
@@ -70,11 +101,23 @@ function addHeader(text, page) {
 }
 
 async function fetchPage(page) {
-  const response = await fetch(`${RAW}/${page}`, {
-    headers: { "user-agent": "ck3-mod-repo-wiki-sync" },
-  });
-  if (!response.ok) throw new Error(`${page}: HTTP ${response.status}`);
-  return response.text();
+  // GitHub raw is intermittently reset on this network, and fetch has no default timeout, so a
+  // failed connection can hang the whole sync. Bound each attempt and retry once.
+  let last;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const response = await fetch(`${RAW}/${page}`, {
+        headers: { "user-agent": "ck3-mod-repo-wiki-sync" },
+        signal: AbortSignal.timeout(30_000),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.text();
+    } catch (error) {
+      last = error;
+      if (attempt < 3) await new Promise((r) => setTimeout(r, 1500 * attempt));
+    }
+  }
+  throw new Error(`${page}: ${last instanceof Error ? last.message : String(last)}`);
 }
 
 async function main() {

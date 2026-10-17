@@ -211,7 +211,7 @@ A large list of complex script values can cause massive lag.
 
 In that situation, consider setting variables equal to said script value and displaying them instead.
 
-For more, see [Interface/Displaying_a_variable_or_script_value](https://ck3.paradoxwikis.com/Interface#displaying-a-variable-or-script-value)
+For more, see [Interface/Displaying_a_variable_or_script_value](Interface.md#displaying-a-variable-or-script-value)
 
 Category:Modding
 

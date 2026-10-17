@@ -16,9 +16,9 @@ What isn't script:
 
 - Most of AI or army behavior is done in game code, which is inaccessible to modders. We call such features "hardcoded".
 
-- [UI](https://ck3.paradoxwikis.com/Interface) is a separate system, and with a few exceptions, we cannot use script in UI or UI functions in script. Use [Scripted GUIs](https://ck3.paradoxwikis.com/Interface#scripted-guis) to execute script in UI.
+- [UI](Interface.md) is a separate system, and with a few exceptions, we cannot use script in UI or UI functions in script. Use [Scripted GUIs](Interface.md#scripted-guis) to execute script in UI.
 
-- [History modding](https://ck3.paradoxwikis.com/History_modding) also uses a slightly different static system, but allows to use effects from script.
+- [History modding](History_modding.md) also uses a slightly different static system, but allows to use effects from script.
 
 - [Basics](#basics)
     - [Documentation](#documentation)
@@ -447,7 +447,7 @@ A global variable is displayed like this:
 
 We can check that it is set with ``"[GetPlayer.MakeScope.Var('test').IsSet]"``
 
-For more see [Variables](Variables.md) and [Displaying a variable in UI](https://ck3.paradoxwikis.com/Interface#displaying-a-variable-or-script-value)
+For more see [Variables](Variables.md) and [Displaying a variable in UI](Interface.md#displaying-a-variable-or-script-value)
 
 ## Statements
 
@@ -600,7 +600,7 @@ Lists cannot hold other lists.
 
 There are two types of lists: temporary and permanent.
 
-UI can display permanent lists, like variable and global variable lists. See [Interface/Displaying_data_lists](https://ck3.paradoxwikis.com/Interface#displaying-data-lists)
+UI can display permanent lists, like variable and global variable lists. See [Interface/Displaying_data_lists](Interface.md#displaying-data-lists)
 
 Confusingly, a local variable list isn't permanent.
 
@@ -866,7 +866,7 @@ However, console commands disable achievements, so warn players about it!
 We can create a list with "containers" that would hold multiple values for us, using either:
 
 - provinces
-- [story cycles](https://ck3.paradoxwikis.com/Story_cycles_modding)
+- [story cycles](Story_cycles_modding.md)
 
 Provinces don't require any extra setup and since there are 9000 of them, you can safely create large lists without worrying about running out of "containers".
 

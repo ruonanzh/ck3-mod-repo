@@ -9,6 +9,11 @@ scripts show **usage**, and these pages show **fields and scope**.
 
 ## What is here
 
+Two groups. **Both are needed**: the first answers "what is the exact form of this call", the second
+answers "how do I add X" before the player asks.
+
+### Reference (the form of a call)
+
 | Page | Answers |
 | --- | --- |
 | `Scripting.md` | Syntax, scopes, operators, saved scopes, variables, iterators, templates |
@@ -21,9 +26,47 @@ scripts show **usage**, and these pages show **fields and scope**.
 | `Script_values.md` | Script values and their math |
 | `Weight_modifier.md` | Weight blocks for random lists |
 | `Scripted_effects.md` | Reusable effect blocks |
-| `Event_modding.md` | The most common entry point: events, options, portraits |
 
-Feature guides that only restate what a vanilla file shows are **not** here. Read the vanilla file.
+### How-to coverage (one page per "how do I add X")
+
+| Page | Covers |
+| --- | --- |
+| `Event_modding.md` | Events, options, portraits |
+| `Decisions_modding.md` | Decisions |
+| `Interactions_modding.md` | Character interactions |
+| `Holdings_modding.md` | Holdings **and buildings** (there is no separate building page) |
+| `Trait_modding.md` | Traits |
+| `Culture_modding.md` | Cultures and traditions |
+| `Religions_modding.md` | Faiths, doctrines, holy orders |
+| `Governments_modding.md` | Government types |
+| `Title_modding.md` | Titles and succession |
+| `Dynasties_modding.md` | Dynasties and houses |
+| `Artifact_modding.md` | Artifacts and relics |
+| `Regiments_modding.md` | Men-at-arms and units |
+| `Council_modding.md` | Council positions and tasks |
+| `Struggle_modding.md` | Regional struggles |
+| `Story_cycles_modding.md` | Story cycles |
+| `History_modding.md` | Historical setup |
+| `Bookmarks_modding.md` | Bookmarks and start dates |
+| `Interface.md` | The GUI system, for any `.gui` override |
+| `Flavorization.md` | Dynamic text and name generation |
+| `Customizable_localization.md` | Customizable localization blocks |
+| `Mod_compatibility.md` | Load order and conflicts |
+| `Mod_troubleshooting.md` | `error.log` and common failures |
+
+### The selection rule
+
+**Cover the questions, not the pages.** A player question arrives without warning, and a subagent
+cannot fetch, so every "how do I add X" that the game supports needs one page here. That is why the
+feature guides are in, even though some restate what a vanilla file shows: the vanilla file shows
+*one example*, the guide explains *every field*.
+
+Excluded on purpose, and fetched on demand:
+
+- the graphics pipeline: `Map_modding`, `Terrain_modding`, `Coat_of_arms_modding`, `3D_models`,
+  `Sound_modding`, `Music_modding`, `Fonts`, `Graphical_assets`;
+- the console and data tables: `Console_commands`, `Commands`, `Defines`, `List_of_baronies`;
+- `Data_types`: `scripts/dump-script-docs.mjs --command=dump_data_types` regenerates it version-exact.
 
 ## Source and license
 

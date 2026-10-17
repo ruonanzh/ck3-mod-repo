@@ -833,8 +833,8 @@ This table uses contents from */common/on_action/on_actions.info* file.
 <!-- Template: Expand‎ -->Events do not fire automatically, they have to be fired by something in the script, for example:
 
 - [on_actions](#on-actions-(on-action))
-- [story cycles](https://ck3.paradoxwikis.com/Story_cycles_modding)
-- [decisions](https://ck3.paradoxwikis.com/Decisions_modding)
+- [story cycles](Story_cycles_modding.md)
+- [decisions](Decisions_modding.md)
 - character interactions
 
 etc.

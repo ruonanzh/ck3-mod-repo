@@ -198,7 +198,7 @@ Unlike in CK2, ``prev`` cannot be chained to go back several steps.
 
 A saved scope is an arbitrarily-named pointer to a specific scope, using the syntax ``scope:&lt;scope name&gt;``.
 
-Saved scopes can be saved in and provided by code. For example, in [character interactions](https://ck3.paradoxwikis.com/Interactions_modding), ``scope:actor`` is the character sending the interaction, and ``scope:recipient`` the character receiving the interaction.
+Saved scopes can be saved in and provided by code. For example, in [character interactions](Interactions_modding.md), ``scope:actor`` is the character sending the interaction, and ``scope:recipient`` the character receiving the interaction.
 
 Some on_actions also provide pre-saved scopes. Check the comments in the files to see which scopes are available.
 
