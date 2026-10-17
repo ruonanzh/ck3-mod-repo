@@ -69,6 +69,14 @@ They land under `<Documents>/Paradox Interactive/Crusader Kings III/logs/`. `Doc
 the script asks the registry, then checks the file times to prove the run wrote them. `game-scripts/`
 is git-ignored, so the mirror is never committed.
 
+**Mods are not a risk for these lists, and the script says whether the playset was clean.** The dump
+lists **code** effects, triggers, and modifiers. PDXScript has no compile step, so a mod cannot add
+one; its `scripted_effects` and `scripted_triggers` are script objects that the dump never lists.
+Verified on 1.20.1.1: a vanilla scripted effect (`accolades_development_growth_for_least_developed_county_effect`)
+and a workshop mod's scripted trigger are both absent from the logs. Still prefer an empty playset,
+because a mod can raise startup errors; the script prints `playset: no mods enabled` or a NOTE with
+the count.
+
 **Measured on 1.20.1.1** (this workspace, 2026-10-17): the dump holds **2128** effects, **1937**
 triggers, and **761** modifier entries (152 of them templated, such as `$CULTURE$_opinion`); the
 wiki lists hold 1156, 1072, and 383. Roughly **47 %** of the dumped names are missing from the wiki,

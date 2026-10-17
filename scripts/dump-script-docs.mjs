@@ -81,9 +81,26 @@ async function main() {
   }
   const exe = join(gameDir, "binaries", "ck3.exe");
   const logsDir = join(userDocuments(), "Paradox Interactive", "Crusader Kings III", "logs");
+  const dlcLoadPath = join(userDocuments(), "Paradox Interactive", "Crusader Kings III", "dlc_load.json");
   console.log(`game:  ${gameDir}`);
   console.log(`logs:  ${logsDir}`);
   console.log(`run:   ${exe} -nographics -debug_mode -run_console_action=${command}`);
+
+  // The dump lists code-level effects, triggers, and modifiers. Mods cannot add those: PDXScript has
+  // no compile step, and a mod's scripted_effects and scripted_triggers are script objects. Verified
+  // on 1.20.1.1: a vanilla scripted effect is absent from effects.log, and so is a workshop mod's
+  // scripted trigger. So an enabled mod does not pollute the list. A clean playset is still the
+  // better baseline, because a mod can raise errors during startup; say which state this run used.
+  try {
+    const enabled = JSON.parse(readFileSync(dlcLoadPath, "utf8"))?.enabled_mods;
+    if (Array.isArray(enabled) && enabled.length > 0) {
+      console.log(`NOTE: ${enabled.length} mod(s) are enabled in the playset. The code lists are unaffected, but an empty playset is a cleaner baseline.`);
+    } else {
+      console.log("playset: no mods enabled (vanilla baseline)");
+    }
+  } catch {
+    console.log("playset: unknown (dlc_load.json is absent or unreadable)");
+  }
 
   const startedAt = Date.now();
   const child = spawn(exe, ["-nographics", "-debug_mode", `-run_console_action=${command}`], {
