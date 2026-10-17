@@ -260,7 +260,7 @@ export default function (pi: ExtensionAPI) {
       // The non-ASCII path is reported, not refused. The player may not be able to change the
       // directory, and the launcher still lists the mod through the pointer file; only the game may
       // read it as empty. Refusing would leave the player with nothing, so install and say so.
-      const targetVerdict = checkModInstallDir(modRoot, cfgForPaths, { ascii: "warn" });
+      const targetVerdict = checkModInstallDir(modRoot, cfgForPaths);
       if (!targetVerdict.ok) {
         const code = targetVerdict.code ?? "TARGET_INVALID";
         return {

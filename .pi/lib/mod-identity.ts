@@ -76,10 +76,12 @@ export function parseDescriptorMod(text: string): DescriptorMod {
   // sits inside a multi-line list.
   let rest = cleaned;
   const listRe = /([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\{([^{}]*)\}/g;
+  let tagsInner: string | null = null;
   for (const m of cleaned.matchAll(listRe)) {
     const entries: string[] = [];
     for (const q of m[2].matchAll(/"([^"]*)"/g)) entries.push(q[1]);
     lists.set(m[1], entries);
+    if (m[1] === "tags") tagsInner = m[2];
     const span = m[0].length;
     const start = m.index ?? 0;
     rest = `${rest.slice(0, start)}${" ".repeat(span)}${rest.slice(start + span)}`;
@@ -89,10 +91,11 @@ export function parseDescriptorMod(text: string): DescriptorMod {
   for (const m of rest.matchAll(scalarRe)) scalars.set(m[1], m[2]);
 
   const tags = lists.get("tags") ?? [];
-  const declaresTags = /^[ \t]*tags[ \t]*=[ \t]*\{/m.test(cleaned);
-  // A declared but empty `tags` list is malformed too: every tag is a quoted string, so a list with
-  // no quoted entry (`tags={ Gameplay }`, `tags={ }`) does not parse.
-  return { scalars, lists, tags, tagsMalformed: declaresTags && tags.length === 0 };
+  // `tags={}` is valid (an empty list). Only a block with content that holds no quoted string is
+  // malformed, as in `tags={ Gameplay }`. An unclosed block (`tags={ "A"`) never matches the list
+  // pattern, and the brace balance check already reports it.
+  const tagsMalformed = tagsInner !== null && tagsInner.trim() !== "" && tags.length === 0;
+  return { scalars, lists, tags, tagsMalformed };
 }
 
 /**

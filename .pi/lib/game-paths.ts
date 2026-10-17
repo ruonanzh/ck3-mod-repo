@@ -262,22 +262,13 @@ export function checkGameDir(dir: string | null | undefined): PathVerdict {
 
 /** Check 2: the mod install target. It is the fixed Paradox location, checked by shape, because there is no sentinel to read. */
 /**
- * How a caller treats a non-ASCII mod install path.
- *   - "warn" (default): pass it, and report a warning. This is the repository policy: the player may
- *     not be able to change the directory, and the mod cannot repair it, so a failure would only
- *     leave the player with nothing.
- *   - "error": reject it. Pass this only when a caller must not proceed at all.
+ * The check for the mod install directory. A non-ASCII path is a warning, never a failure: the
+ * player may not be able to change the directory, and the mod cannot repair it, so refusing would
+ * only leave the player with nothing.
  */
-export type AsciiPathMode = "error" | "warn";
-
-export interface ModInstallDirOptions {
-  ascii?: AsciiPathMode;
-}
-
 export function checkModInstallDir(
   dir: string | null | undefined,
   cfg?: ModRepoConfig,
-  opts?: ModInstallDirOptions,
 ): PathVerdict {
   const p = dir ? expandHome(dir) : null;
   if (!p)
@@ -286,26 +277,18 @@ export function checkModInstallDir(
     return { ok: false, path: p, code: "TARGET_INVALID", reason: "not an absolute path", next: `Run try_set_game_dir with no arguments to record the conventional mod install directory. ${NEXT_SKILL}` };
   // The engine rule: a non-ASCII character anywhere in the path of the mod folder makes the game
   // read the mod as having no files inside. This happens with a Windows user profile whose name is
-  // not ASCII, because the mod folder sits under Documents. Nothing in the mod can repair it.
-  // The severity depends on the caller, not on the path: a caller that creates the directory must
-  // refuse it, and a read-only check only warns.
+  // not ASCII, because the mod folder sits under Documents. Nothing in the mod can repair it, so the
+  // check reports it and never fails it. The directory this repository names itself is
+  // lower_snake_case, hence ASCII; only a parent path can carry the character.
   const badChars = nonAsciiCharsInPath(p);
   const asciiWarning =
     badChars.length > 0
       ? {
           code: "TARGET_NOT_ASCII",
           warning: `the path has non-ASCII character(s) ${badChars.map((c) => `'${c}'`).join(", ")}, and the game reads a mod at such a path as having no files inside`,
-          warningNext: `The player must move the mod install directory to a path that is pure ASCII, for example by relocating the Windows Documents folder, or by pointing the Paradox mod directory at an ASCII path. Then run try_set_game_dir with no arguments to record it. Do not rename or edit the mod: the character is in the path, not in the mod content. ${NEXT_SKILL}`,
+          warningNext: `The player must move the mod install directory to a path that is pure ASCII, for example by relocating the Windows Documents folder. Then run try_set_game_dir with no arguments to record it. Do not rename or edit the mod: the character is in the path, not in the mod content. ${NEXT_SKILL}`,
         }
       : null;
-  if (asciiWarning && (opts?.ascii ?? "warn") === "error")
-    return {
-      ok: false,
-      path: p,
-      code: asciiWarning.code,
-      reason: asciiWarning.warning,
-      next: asciiWarning.warningNext,
-    };
   // The check passes with a warning. Every ok return below carries it.
   const pass = (): PathVerdict =>
     asciiWarning

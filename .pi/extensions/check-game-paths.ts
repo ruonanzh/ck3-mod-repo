@@ -125,7 +125,7 @@ export default function (pi: ExtensionAPI) {
         if (path === null) continue;
         if (key === "gameDir") verdicts[key] = checkGameDir(path);
         else if (key === "workshopDir") verdicts[key] = checkWorkshopDir(path, appId);
-        else verdicts[key] = checkModInstallDir(path, cfg, { ascii: "warn" });
+        else verdicts[key] = checkModInstallDir(path, cfg);
       }
 
       // A recorded mod install directory can contradict mod-repo.json. That happens when the player
@@ -142,16 +142,21 @@ export default function (pi: ExtensionAPI) {
       const warnings: string[] = [];
       for (const [key, v] of Object.entries(verdicts)) {
         if (v.ok) {
+          // Collect every warning for this key first. Two can apply at once - a stale recorded
+          // directory and a non-ASCII path - and the first one must not hide the second.
+          let warned = false;
           if (key === "modInstallDir" && record?.corrected && record.derived) {
             lines.push(`WARN: modInstallDir ${v.path} - this is not the path that mod-repo.json gives.`);
             lines.push(`  mod-repo.json gives: ${record.derived}`);
             lines.push("  NEXT: run try_set_game_dir with no arguments. It records the path that mod-repo.json gives.");
-            warnings.push(key);
-            continue;
+            warned = true;
           }
           if (v.warning) {
             lines.push(`WARN: ${key} ${v.path} - ${v.warning}`);
             if (v.warningNext) lines.push(`  NEXT: ${v.warningNext}`);
+            warned = true;
+          }
+          if (warned) {
             warnings.push(key);
             continue;
           }
