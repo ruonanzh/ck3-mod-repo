@@ -8,7 +8,7 @@ task needs, instead of pulling the whole `docs/` directory into context.
 
 | You need | Source |
 |---|---|
-| Exact vanilla object definitions, field values, and loc keys | `game-scripts/` (the script mirror that `sync_game_scripts` generates), or the local game directory recorded by `try_set_game_dir` |
+| Exact vanilla object definitions, field values, and loc keys | `game-scripts/game/game/` — the script mirror that `sync_game_scripts` generates (two `game/` levels). Never grep the install directory instead |
 | The parameters and the scope of one effect, trigger, modifier, or scope | [`wiki/`](wiki/README.md), the shipped snapshot of the wiki reference lists |
 | "How do I add a building / trait / decision / …" | [`wiki/`](wiki/README.md): one page per content kind. There is no building page; [`wiki/Holdings_modding.md`](wiki/Holdings_modding.md) covers it |
 | Whether a wiki page exists at all (including the pages not shipped) | [`wiki/INDEX.md`](wiki/INDEX.md) — one row per page, with `Local = yes/no` |
@@ -50,4 +50,4 @@ choosing the mechanism is a decision, and `entry-scout` only locates a name.
 | [`game.md`](game.md) | The game overview and the mod loading mechanics. |
 | [`ck3-modding-conventions.md`](ck3-modding-conventions.md) | The reason behind the override, load-order, localization, and metadata rules. |
 | [`wiki/README.md`](wiki/README.md) | What the wiki snapshot covers, its license, how to refresh it, and how to generate version-exact lists from the game itself. |
-| [`../game-scripts/script-docs/`](../game-scripts/) | The game's own dump, when `scripts/dump-script-docs.mjs` has run. Version-exact; never committed. |
+| `game-scripts/script-docs/` | The game's own dump, when `scripts/dump-script-docs.mjs` has run. Version-exact; never committed. |

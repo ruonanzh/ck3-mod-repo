@@ -31,7 +31,7 @@ Use this to answer "does a page for X exist?". What is shipped, and why, is in `
 | [Governments modding](./Governments_modding.md) | yes | Government types and mechanics |
 | [Graphical assets](https://ck3.paradoxwikis.com/Graphical_assets) | no | Sprites, textures, and visual assets |
 | [History modding](./History_modding.md) | yes | Historical setups and bookmarks |
-| [Holdings modding](./Holdings_modding.md) | yes | Baronies and holdings |
+| [Holdings modding](./Holdings_modding.md) | yes | Baronies, holdings, and buildings (there is no separate building page) |
 | [Interactions modding](./Interactions_modding.md) | yes | Character interactions |
 | [Interface](./Interface.md) | yes | UI and GUI modding |
 | [Lifestyles modding](./Lifestyles_modding.md) | yes | Lifestyles and perks |

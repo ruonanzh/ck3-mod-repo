@@ -148,6 +148,9 @@ The files are `localization/<lang>/*.yml` at the mod root.
   file in silence. That failure is fatal, not cosmetic. To add the BOM to a file that already
   exists, use: `printf '\xEF\xBB\xBF' | cat - <file> > tmp && mv tmp <file>`.
 - The filename must end with `_l_<language>`, which matches the language directory.
+- **The game ships 9 languages:** `english`, `french`, `german`, `japanese`, `korean`, `polish`,
+  `russian`, `simp_chinese`, `spanish`. Another language is an ERROR that names it and the accepted
+  set. Renaming the file cannot fix it.
 - The first content line is `l_<lang>:`, and it must match the directory.
 - An entry is `  key: "value"` or `  key:0 "value"` with an explicit version (the `:0` version is
   deprecated/no-op). The value starts and ends with a double quote on the same line, so an inner `"`
@@ -182,6 +185,10 @@ reason and the edge cases are in `docs/ck3-modding-conventions.md`
    first, e.g. `00_my_buttons.gui`.
 4. **`on_actions`:** `events`, `random_events`, and `on_actions` append; `trigger`/`effect`
    overwrite (and produce errors).
+5. **Only a top-level declaration can be overridden:** it starts at the beginning of a line and is not
+   inside a block. A nested field is not a target.
+6. **A single-object override can change an object, but it cannot delete one.** Delete needs a whole
+   file replacement.
 
 **Rule of thumb.** Prefer additive new objects. Use a later ASCIIbetical filename for a surgical
 object override, and reserve a full-file overwrite for a change to most of a file.
@@ -221,6 +228,8 @@ Each `ERROR` line reads `ERROR: <file>: <message>`. The common ones, and the fix
 - `missing UTF-8 BOM (game ignores localization files without a BOM)`: save the file as UTF-8
   **with BOM** (`EF BB BF`).
 - `filename must end with '_l_<language>.yml'`: rename the file to `<name>_l_<language>.yml`.
+- `unsupported localization language '<x>'; accepted: ...`: the game does not ship that language. Use
+  one of the nine, or accept that the game ignores the file. Renaming it does not help.
 - `expected a language header 'l_<lang>:' as the first content line`: the first content line must be
   `l_<lang>:`.
 - `malformed localization line (expected '  key: "value"' or '  key:0 "value"')`: write
@@ -259,8 +268,9 @@ only changes values inside an existing block, there is no new definition to plac
 For the question "does X exist, and what is the vanilla value?", follow the lookup hierarchy in
 `docs/INDEX.md`. It is the single authoritative map of which source to use.
 
-- Exact vanilla object definitions, field values, and loc keys: `game-scripts/game/`, which
-  `sync_game_scripts` generates, or the local game directory.
+- Exact vanilla object definitions, field values, and loc keys: `game-scripts/game/game/`, which
+  `sync_game_scripts` generates. This path has two `game/` levels, because the mirror copies the
+  whole install directory. Do not grep the install directory itself.
 - **The parameters and the scope of one effect, trigger, modifier, or scope:** `docs/wiki/`. The
   vanilla scripts show **usage** (a name appears somewhere); `docs/wiki/Effects_list.md`,
   `Triggers_list.md`, `Modifier_list.md`, and `Scopes_list.md` show the **fields and the scope they

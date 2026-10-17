@@ -102,6 +102,17 @@ function filenameLanguage(rel: string): string | null {
 }
 
 /**
+ * The language token in the `_l_<lang>.yml` filename suffix, whether or not this game ships it. It
+ * lets the error name the real cause when the language is valid but unsupported: the file is named
+ * correctly, and renaming it cannot help.
+ */
+function declaredFilenameLanguage(rel: string): string | null {
+  const name = rel.split("/").pop() ?? rel;
+  const stem = name.endsWith(".yml") ? name.slice(0, -4) : name;
+  return /_l_([a-z_]+)$/.exec(stem)?.[1] ?? null;
+}
+
+/**
  * The known language named by the localization directory, or null when the directory is a group.
  * The `replace/` level is skipped, because `localization/replace/<lang>/` overrides the vanilla keys
  * of <lang>.
@@ -232,12 +243,18 @@ function checkLocalization(modRoot: string): Finding[] {
     const name = rel.split("/").pop() ?? rel;
     const stem = name.endsWith(".yml") ? name.slice(0, -4) : name;
     if (expectedLang === null) {
-      // Neither the directory nor the `_l_<lang>` suffix names a known language, so the required
-      // filename suffix is missing or misspelled.
+      // Distinguish a missing or misspelled suffix from a valid language that this game does not
+      // ship. Only the filename is used: `_l_<lang>` is always a language token, while the first
+      // directory is often a group, not a language. The second case is not the agent's error, and
+      // renaming the file cannot fix it.
+      const declared = declaredFilenameLanguage(rel);
       findings.push({
         severity: "error",
         rel,
-        message: "filename must end with '_l_<language>.yml'",
+        message:
+          declared !== null && !LOC_LANGUAGES.has(declared)
+            ? `unsupported localization language '${declared}'; accepted: ${[...LOC_LANGUAGES].join(", ")}`
+            : "filename must end with '_l_<language>.yml'",
       });
     } else if (!stem.endsWith(`_l_${expectedLang}`)) {
       findings.push({

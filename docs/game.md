@@ -20,6 +20,20 @@ v1 of this workspace targets **Windows only**.
   ("Last In Only Served"); GUI `type`/`template` is the opposite ("First In Only Served"). Files
   load in ASCIIbetical order by filename.
 
+## How the player enables a mod
+
+`install_mod` copies the files. The launcher playlist is a separate step, and only the player can do
+it.
+
+1. Start CK3 and open the **Paradox Launcher**.
+2. Open **Playsets**, select the active playset, and add the mod to it. The mod appears by its `name`
+   key from `descriptor.mod`.
+3. Start the game from the launcher with that playset active. The launcher writes `dlc_load.json`,
+   and the game reads the mod from it.
+
+A mod that is installed but not in the active playset does not load. Report the two states
+separately: copied into the mod directory, and active in the game.
+
 ## Where to find the reference
 
 The knowledge layer has its own map. See [`INDEX.md`](INDEX.md).

@@ -31,9 +31,10 @@ When the change list is empty, you propose the list as part of your answer.
 
 Use the layers in this order. Stop when the first layer answers the question.
 
-1. `game-scripts/game/` — the vanilla scripts. This layer is the strongest evidence for a concrete
+1. `game-scripts/game/game/` — the vanilla scripts. The mirror copies the whole install directory,
+   which is why the path has two `game/` levels. This layer is the strongest evidence for a concrete
    object, a field value, or a localization key, because the engine already accepts these files.
-   Remember the two `game/` levels.
+   Never read the install directory itself.
 2. `docs/wiki/` — the wiki reference lists. Use it when the question is about the *form* of a call,
    not its existence: `Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md`
    give the parameters and the scope. `Scripting.md` gives the language rules.

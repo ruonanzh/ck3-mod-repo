@@ -82,6 +82,11 @@ const PAGES = [
   "Mod_troubleshooting.md", // error.log and common failures
 ];
 
+/** Overrides for a mirror README line that loses a word the agent needs to find this page. */
+const DESCRIPTION_OVERRIDES = {
+  "Holdings_modding.md": "Baronies, holdings, and buildings (there is no separate building page)",
+};
+
 /** The mirror README leaves these pages out; describe them so every index row has an answer. */
 const FALLBACK_DESCRIPTIONS = {
   "AI_modding.md": "AI personality, weights, and defines",
@@ -170,7 +175,7 @@ async function buildIndex(check) {
     .map(([page, title]) => ({
       page,
       title,
-      description: descriptions.get(page) ?? FALLBACK_DESCRIPTIONS[page] ?? "",
+      description: DESCRIPTION_OVERRIDES[page] ?? descriptions.get(page) ?? FALLBACK_DESCRIPTIONS[page] ?? "",
     }))
     .sort((a, b) => a.title.localeCompare(b.title))
     .map(({ page, title, description }) => {

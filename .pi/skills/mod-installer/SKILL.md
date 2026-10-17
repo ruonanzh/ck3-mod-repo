@@ -47,15 +47,15 @@ the effect, trigger, and modifier names and their scopes, which it resolves agai
   install only when the player agrees.
 
 Skip this step when you write no script file.
-When the `subagent` tool is not available, work through the last section of
-`docs/ck3-modding-conventions.md` by hand.
+When the `subagent` tool is not available, apply the six review classes in
+`.pi/agents/mod-reviewer.md` by hand.
 
 ## After the install
 
 An `install_mod` success does not mean the game loaded or enabled the mod. Report the three states
 separately: copied into the mod directory, visible in the launcher, and active in the game.
-The player must enable the mod in the launcher **playlist**. Follow the instructions in
-`docs/INDEX.md` and `docs/game.md` for the next step that you give the player.
+The player must enable the mod in the launcher **playlist**. The three steps are in
+`docs/game.md`, section "How the player enables a mod".
 
 ## Related skills
 

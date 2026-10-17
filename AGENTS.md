@@ -9,9 +9,9 @@ This repository targets **Windows only** in v1 (the game itself runs on Windows,
 These are fixed facts about this machine and this workspace. They prevent wasted turns.
 
 - **Prefer `node` for scripts.** The product ships its own node, so every player machine has it.
-  On this machine `python` is a Microsoft Store stub: it exits with `exit 49`
-  and is a silent no-op. If python is truly needed, run `command -v py` first. If `py`
-  is missing, fall back to `node` / `awk`.
+  If `python --version` exits with `exit 49`, then `python` is the Microsoft Store stub, and it is a
+  silent no-op. If python is truly needed, run `command -v py` first. If `py` is missing, fall back
+  to `node` / `awk`.
 - **When you develop, read scripts only from the vanilla scripts at `game-scripts/`** (this does not affect mod
   runtime). The vanilla scripts live at `game-scripts/game/game/...` — **two** `game/`
   levels. The real install directory `.../Crusader Kings III/game/...` — **one** `game/` level —
@@ -32,8 +32,8 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   cannot dispatch. Read its first candidate yourself. `mod-reviewer` checks the semantics that
   `validate_mod` cannot see, before you install: it resolves effect, trigger, and modifier names and
   their scopes against `docs/wiki/`. Neither writes, so you apply every change. When you cannot
-  dispatch, run the search yourself, and work through the last section of
-  `docs/ck3-modding-conventions.md` by hand.
+  dispatch, run the search yourself, and apply the six review classes in
+  `.pi/agents/mod-reviewer.md` by hand.
 
 ## Directory map
 
@@ -58,6 +58,12 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   capabilities and the side effects that each tool declares.
 - `reference/` — read-only mod samples. `reference/example_mod/` is a runnable sample that passes
   `validate_mod`. `reference/README.md` describes it.
+- `editors/` — the mod-page and descriptor editors. Each subdirectory is one editor, opened by the
+  product UI. `editors/ck3_mod_descriptor/` edits `descriptor.mod`; `editors/ck3_mod_page/` edits the
+  Steam Workshop page.
+- `scripts/` — maintenance scripts, run by the maintainer, never by the agent during a mod task:
+  `sync-wiki.mjs` refreshes `docs/wiki/`, `dump-script-docs.mjs` asks the game for its version-exact
+  lists, and `check-doc-refs.mjs` checks every markdown link.
 - `mod-repo.json` — the machine-readable game and environment declaration. `workshop.supported`
   declares whether this game has a Steam Workshop. `workshopDir` is a read-only reference and is
   not used for installing. The rule is in the `setup-workspace` skill.
