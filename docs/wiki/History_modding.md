@@ -5,7 +5,7 @@
 > **Note:** Last verified for version 1.1
 
 History modding is about applying changes to the data stored at the path *game/history*. The history folder contains subfolders for characters, cultures, provice mapping, provinces, titles and wars.
-[Character](https://ck3.paradoxwikis.com/Characters_modding) modding is explained on a dedicated article. Except for characters, where history (birth and death) and other data like name and traits are definded, history modding is only about changing the history not the existence of for example a title.
+[Character](Characters_modding.md) modding is explained on a dedicated article. Except for characters, where history (birth and death) and other data like name and traits are definded, history modding is only about changing the history not the existence of for example a title.
 
 - [Title history modding](#title-history-modding)
 - [Culture history modding](#culture-history-modding)

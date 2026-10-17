@@ -1,5 +1,14 @@
 # docs/wiki/
 
+Two indexes, on purpose:
+
+- **[`TABLE_OF_CONTENTS.md`](TABLE_OF_CONTENTS.md)** — every page and section in the wiki mirror, all
+  **57** pages. A relative link opens the local copy; a `ck3.paradoxwikis.com` link is a page this
+  workspace does **not** ship. Use it when you must know whether a page exists.
+- **This file** — what is shipped (36 pages), what is not (21), and why.
+
+---
+
 Reference pages from the CK3 wiki, shipped as a **snapshot** so the agent can answer questions the
 mod scripts cannot: the exact name, parameters, and scope of an effect, trigger, modifier, or scope.
 
@@ -41,6 +50,10 @@ answers "how do I add X" before the player asks.
 | `Governments_modding.md` | Government types |
 | `Title_modding.md` | Titles and succession |
 | `Dynasties_modding.md` | Dynasties and houses |
+| `Characters_modding.md` | Characters, attributes, and portraits |
+| `Lifestyles_modding.md` | Lifestyles and perks |
+| `AI_modding.md` | AI personality, weights, and defines |
+| `Resources_modding.md` | Resources |
 | `Artifact_modding.md` | Artifacts and relics |
 | `Regiments_modding.md` | Men-at-arms and units |
 | `Council_modding.md` | Council positions and tasks |
@@ -61,12 +74,17 @@ cannot fetch, so every "how do I add X" that the game supports needs one page he
 feature guides are in, even though some restate what a vanilla file shows: the vanilla file shows
 *one example*, the guide explains *every field*.
 
-Excluded on purpose, and fetched on demand:
+Excluded on purpose, and fetched on demand. Each entry names the reason, so a reader can decide
+whether the miss matters:
 
-- the graphics pipeline: `Map_modding`, `Terrain_modding`, `Coat_of_arms_modding`, `3D_models`,
-  `Sound_modding`, `Music_modding`, `Fonts`, `Graphical_assets`;
-- the console and data tables: `Console_commands`, `Commands`, `Defines`, `List_of_baronies`;
-- `Data_types`: `scripts/dump-script-docs.mjs --command=dump_data_types` regenerates it version-exact.
+| Page | Why it is not here |
+| --- | --- |
+| `Modding`, `Mod_structure`, `Localization`, `Effects`, `Triggers` | The workspace already covers these: `docs/game.md`, `docs/ck3-modding-conventions.md` (sections 3 and 5), `docs/wiki/Scripting.md`, and the two lists |
+| `Map_modding`, `Terrain_modding`, `Coat_of_arms_modding`, `3D_models`, `Sound_modding`, `Music_modding`, `Fonts`, `Graphical_assets` | The graphics and audio pipeline. Needed only for an asset mod; fetch the one page then |
+| `Console_commands`, `Commands` | Console and debug commands. Not part of writing a mod |
+| `Defines`, `Lists`, `List_of_baronies`, `Exporters` | Data tables and tools. `common/defines/` in the vanilla scripts answers the first |
+| `Data_types` | `scripts/dump-script-docs.mjs --command=dump_data_types` regenerates it version-exact |
+| `Modding_tools` | Tooling advice for humans, not for the agent |
 
 ## Source and license
 

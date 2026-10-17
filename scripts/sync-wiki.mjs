@@ -23,7 +23,8 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "docs", "wiki");
 const REPO = "jesec/ck3-modding-wiki";
-const RAW = `https://raw.githubusercontent.com/${REPO}/master/wiki_pages`;
+// The raw base for a page file is `${REPO_BASE}/wiki_pages/`; fetchRaw takes a repository-relative path.
+const REPO_BASE = `https://raw.githubusercontent.com/${REPO}/master`;
 
 /**
  * The pages this repository ships. Two groups, and both are needed.
@@ -60,6 +61,10 @@ const PAGES = [
   "Governments_modding.md", // government types
   "Title_modding.md", // titles and succession
   "Dynasties_modding.md", // dynasties and houses
+  "Characters_modding.md", // characters and their attributes
+  "Lifestyles_modding.md", // lifestyles and perks
+  "AI_modding.md", // AI personality, weights, and defines
+  "Resources_modding.md", // resources
   "Artifact_modding.md", // artifacts and relics
   "Regiments_modding.md", // men-at-arms and units
   "Council_modding.md", // council positions and tasks
@@ -101,12 +106,17 @@ function addHeader(text, page) {
 }
 
 async function fetchPage(page) {
+  return fetchRaw(`wiki_pages/${page}`);
+}
+
+/** Fetches a repository file, with a bounded attempt and retries. */
+async function fetchRaw(path) {
   // GitHub raw is intermittently reset on this network, and fetch has no default timeout, so a
-  // failed connection can hang the whole sync. Bound each attempt and retry once.
+  // failed connection can hang the whole sync. Bound each attempt and retry twice.
   let last;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      const response = await fetch(`${RAW}/${page}`, {
+      const response = await fetch(`https://raw.githubusercontent.com/${REPO}/master/${path}`, {
         headers: { "user-agent": "ck3-mod-repo-wiki-sync" },
         signal: AbortSignal.timeout(30_000),
       });
@@ -117,7 +127,7 @@ async function fetchPage(page) {
       if (attempt < 3) await new Promise((r) => setTimeout(r, 1500 * attempt));
     }
   }
-  throw new Error(`${page}: ${last instanceof Error ? last.message : String(last)}`);
+  throw new Error(`${path}: ${last instanceof Error ? last.message : String(last)}`);
 }
 
 async function main() {
@@ -151,6 +161,35 @@ async function main() {
     return;
   }
   console.log(`  done: ${changed} page(s) updated, ${PAGES.length - changed} unchanged`);
+
+  // The mirror also ships a table of contents for every page, shipped or not. Keep it, so an agent
+  // can see that a page exists before deciding to ask for it. Links to a page we do not ship point
+  // at the wiki instead.
+  try {
+    const toc = await fetchRaw("TABLE_OF_CONTENTS.md");
+    const body = `${toc
+      .split(/\r?\n/)
+      .map((line) => line.replace(/\]\(wiki_pages\/([A-Za-z0-9_]+\.md)(#[^)]*)?\)/g, (whole, page, anchor) =>
+        SHIPPED.has(page)
+          ? `](./${page}${anchor ?? ""})`
+          : `](https://ck3.paradoxwikis.com/${page.replace(/\.md$/, "")}${anchor ?? ""})`,
+      ))
+      .join("\n")}\n`;
+    const header =
+      "> Index of **every** page in the wiki mirror (`jesec/ck3-modding-wiki`), including the pages this\n" +
+      "> workspace does not ship. A relative link opens the local copy; a link to `ck3.paradoxwikis.com`\n" +
+      "> is not shipped, and the reader must fetch it. What is shipped, and why, is in `README.md`.\n";
+    const target = join(outDir, "TABLE_OF_CONTENTS.md");
+    const content = `${body.replace(/^(# .+\n)/, `$1\n${header}`)}`;
+    const current = existsSync(target) ? readFileSync(target, "utf8") : null;
+    if (current !== content) {
+      writeFileSync(target, content);
+      console.log("  wrote docs/wiki/TABLE_OF_CONTENTS.md");
+    }
+  } catch (error) {
+    console.error(`  FAIL: TABLE_OF_CONTENTS.md: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
 }
 
 await main();
