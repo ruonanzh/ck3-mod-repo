@@ -75,7 +75,7 @@ Write the files under `your_mods/<name>/localization/<lang>/...`. See `Localizat
   ends at the last unescaped `"` on the same line. Placeholders such as `[Scope.GetName]`, escapes
   such as `\n`, and nested calls such as `[Localize('other_key')]` all live inside the quoted value.
 - **Overriding vanilla loc keys:** the mechanism is a `replace` **subdirectory**. Both
-  `localization/replace/<lang>/` and `localization/<lang>/replace/` work, and
+  `localization/replace/<lang>/` and `localization/<lang>/replace/` work, and, per the wiki,
   `localization/replace/<lang>/` **takes precedence**. Prefer `localization/replace/<lang>/`.
 - **No duplicate keys** within one file. They are ambiguous and easy to miss, and the linter flags
   them.
@@ -90,9 +90,9 @@ Write the files under `your_mods/<name>/localization/<lang>/...`. See `Localizat
 - **A GUI string can span several physical lines.** A datamodel expression such as
   `visible = "[Or( ... )]"` legitimately wraps across lines, and the closing `"` can be several
   lines below the opening one. That is correct, as long as the string eventually closes.
-- A file that is not game script (`README.md`, a UTF-16 image, the files in a `tools/` directory)
-  is not checked for braces. CK3 has no `in_game/`/`main_menu/` split, so the linter treats every
-  script file at the mod root as game script.
+- A file whose extension is not `.txt`/`.gui`/`.gfx`/`.asset` (a `README.md`, a UTF-16 image) is not
+  checked for braces. CK3 has no `in_game/`/`main_menu/` split, so the linter checks every
+  `.txt`/`.gui`/`.gfx`/`.asset` file anywhere under the mod root, including a `tools/` subdirectory.
 
 ## 5. `descriptor.mod` and `<name>.mod`
 

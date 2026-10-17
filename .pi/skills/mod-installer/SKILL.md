@@ -15,10 +15,10 @@ creates it.
 
 ## Rules
 
-- **The installed directory name equals the `your_mods/` directory name.** This repository suggests
-  that the name matches `metadata.id`. The name is therefore always a single path segment, so the
-  tool cannot write outside the game directory. The player sees the same directory name in the
-  launcher as in the workspace.
+- **The installed directory name equals the `your_mods/` directory name.** The `name` key in
+  `descriptor.mod` is the display title and need not match the directory name. The directory name is
+  therefore always a single path segment, so the tool cannot write outside the game directory. The
+  player sees the same directory name in the launcher as in the workspace.
 - **A re-install updates in place.** The tool identifies its own previous install through the
   workspace-side record `your_mods/<mod name>/.pi-mod.json`, which holds `name` and `installedDir`.
 - **Another mod owns the target directory.** The tool does not overwrite it. It installs as

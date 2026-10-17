@@ -1,7 +1,8 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
-import { join, relative, resolve, sep, basename } from "node:path";
+import { join, relative, resolve, sep } from "node:path";
+import { parseDescriptorMod } from "../lib/mod-identity";
 
 /**
  * validate_mod - the CK3 mod validation tool for the pdx-script mod type.
@@ -23,7 +24,6 @@ import { join, relative, resolve, sep, basename } from "node:path";
 const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
 const PDX_SUFFIXES = new Set([".txt", ".gui", ".gfx", ".asset"]);
 const IMAGE_EXTS = new Set([".png", ".dds", ".jpg", ".jpeg", ".tga"]);
-const SEMVER_RE = /^\d+\.\d+(\.\d+)?$/;
 // A wildcard supported_version names no concrete game version, so it is too loose. This table is
 // the single place to add a form. A value that names a concrete minor release ("1.20.*", or the
 // two-level form "1.0.*") stays silent, because it still tells the player which release works.
@@ -316,20 +316,6 @@ function checkLocalization(modRoot: string): Finding[] {
 
 // ---- descriptor.mod ----
 
-/** Parses the `key="value"` scalar entries of a descriptor.mod text into a Map. Lines that are
- * comments, blank, or the `tags={ "a" "b" }` list form are skipped. */
-function parseDescriptorScalars(text: string): Map<string, string> {
-  const scalars = new Map<string, string>();
-  for (const rawLine of text.split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-    const m = /^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"\s*$/.exec(line);
-    if (!m) continue;
-    scalars.set(m[1], m[2]);
-  }
-  return scalars;
-}
-
 function checkMetadata(modRoot: string): Finding[] {
   const findings: Finding[] = [];
   const meta = join(modRoot, "descriptor.mod");
@@ -362,7 +348,13 @@ function checkMetadata(modRoot: string): Finding[] {
     });
     return findings;
   }
-  const scalars = parseDescriptorScalars(text);
+  // The only braces in a descriptor are the `tags={ ... }` list, so a brace balance check catches a
+  // malformed list such as `tags={ "Gameplay"` (missing the closing brace).
+  const bal = checkBraceQuoteBalance(stripLineComments(text));
+  if (!bal.ok && bal.message)
+    findings.push({ severity: "error", rel, message: bal.message });
+
+  const { scalars } = parseDescriptorMod(text);
 
   // The name is the directory name by convention, but the engine only requires a non-empty value.
   const name = scalars.get("name");
@@ -370,23 +362,18 @@ function checkMetadata(modRoot: string): Finding[] {
     findings.push({
       severity: "error",
       rel,
-      message: "descriptor.mod: name must be a non-empty string",
+      message: "name must be a non-empty string",
     });
   }
 
-  // version is required, and semver x.x or x.x.x.
+  // version is required. The game only requires a non-empty string: workshop mods use values like
+  // "1" as well as "1.0.0", so no semver rule is enforced here.
   const version = scalars.get("version");
-  if (version === undefined) {
+  if (version === undefined || version.trim() === "") {
     findings.push({
       severity: "error",
       rel,
-      message: "descriptor.mod: version is required (semver x.x or x.x.x)",
-    });
-  } else if (version !== "" && !SEMVER_RE.test(version)) {
-    findings.push({
-      severity: "error",
-      rel,
-      message: `version '${version}' is not semver x.x or x.x.x`,
+      message: "version is required (a non-empty string)",
     });
   }
 
@@ -404,7 +391,7 @@ function checkMetadata(modRoot: string): Finding[] {
     findings.push({
       severity: "warn",
       rel,
-      message: `supported_version '${supportedVersion}' is too loose. Write a patch-level wildcard such as 1.20.*, not an exact version.`,
+      message: `supported_version '${supportedVersion}' is too loose. Write a patch-level wildcard such as 1.20.*, not '1.*' or '*'.`,
     });
   }
 
@@ -516,7 +503,6 @@ function checkBraceQuoteBalance(cleaned: string): BalanceResult {
       ok: false,
       message: `unbalanced braces: ${depth} '{' never closed`,
     };
-  if (depth < 0) return { ok: false, message: "unbalanced braces: extra '}'" };
   return { ok: true };
 }
 
@@ -525,7 +511,6 @@ function checkPdxScript(modRoot: string): Finding[] {
   for (const { abs, rel } of walkFiles(modRoot)) {
     const dot = rel.lastIndexOf(".");
     if (dot < 0 || !PDX_SUFFIXES.has(rel.slice(dot).toLowerCase())) continue;
-    if (isLocalizationYml(rel)) continue;
     let raw: Buffer;
     try {
       raw = readFileSync(abs);

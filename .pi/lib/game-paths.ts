@@ -449,7 +449,7 @@ function deriveFallback(cwd: string, cfg: ModRepoConfig, kind: PathKind): { ok: 
   if (!gameDir) {
     const found = discoverGameDir(cfg, state);
     if (found.platformUnsupported)
-      return { ok: false, reason: `${GAME_FOLDER_NAME} is Windows-only, so nothing can be located on this platform` };
+      return { ok: false, reason: `${GAME_FOLDER_NAME} is only supported on Windows by this repository, so nothing can be located on this platform` };
     gameDir = found.gameDir;
   }
   if (!gameDir) return { ok: false, reason: "the automatic search could not find the game either" };
@@ -634,7 +634,7 @@ export async function ensureGameDir(cwd: string, cfg: ModRepoConfig): Promise<En
     return {
       status: "missing",
       reason: platformUnsupported
-        ? `${GAME_FOLDER_NAME} is Windows-only, so no game files can be located on this platform`
+        ? `${GAME_FOLDER_NAME} is only supported on Windows by this repository, so no game files can be located on this platform`
         : "the automatic search did not find the game (the tool searched the registry and every Steam library)",
     };
   }

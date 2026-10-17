@@ -2,7 +2,7 @@
 
 **Crusader Kings III** (Paradox, Clausewitz/Jomini engine) modding environment.
 Mods are pure PDXScript text files. There is no compilation and no runtime SDK.
-The game is **Windows-only**.
+This repository targets **Windows only** in v1 (the game itself runs on Windows, macOS, and Linux).
 
 ## Environment facts
 
@@ -21,7 +21,8 @@ These are fixed facts about this machine and this workspace. They prevent wasted
 - **`supported_version`: write a patch-level wildcard** (e.g. `1.20.*`). An exact
   version such as `1.20.1` goes stale. This game updates its minor version often, and the game flags
   an exact version as outdated. Do not take the easy way out with a loose `1.*` — the linter WARNs on it.
-  Read it from `get_game_info`, as section 5 of `docs/ck3-modding-conventions.md` explains.
+  Read it from `get_game_info`, and write it as `supported_version` (the field is covered in section 5
+  of `docs/ck3-modding-conventions.md`).
 - **Two read-only subagents ship with this repository.** `.pi/settings.json` declares the vendored
   `pi-subagents` package at `.pi/vendor/pi-subagents/`, so the `subagent` tool is available in a
   trusted project. Prefer `entry-scout` over your own grep of `game-scripts/`. It runs in parallel,
@@ -48,11 +49,12 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   descriptions in context, so read the matching skill. This repo's step guidance lives there, not in
   the product prompt.
 - `.pi/extensions/` — the tools. Path tools: `try_set_game_dir`, `set_game_dir`, and
-  `check_game_paths`. Runtime tools: `check_runtime` and `install_runtime` (CK3 has no runtime).
+  `check_game_paths`. Info tool: `get_game_info` (reports the recorded paths and the version value).
+  Runtime tools: `check_runtime` and `install_runtime` (CK3 has no runtime).
   Mod tools: `validate_mod` and `install_mod`. Context tool: `sync_game_scripts`. Trust the
   capabilities and the side effects that each tool declares.
 - `reference/` — read-only mod samples. `reference/example_mod/` is a runnable sample that passes
-  `validate_mod`. `reference/README.md` maps the real-world pattern mods.
+  `validate_mod`. `reference/README.md` describes it.
 - `mod-repo.json` — the machine-readable game and environment declaration. `workshop.supported`
   declares whether this game has a Steam Workshop. `workshopDir` is a read-only reference and is
   not used for installing. The rule is in the `setup-workspace` skill.

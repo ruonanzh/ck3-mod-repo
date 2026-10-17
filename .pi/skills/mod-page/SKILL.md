@@ -66,7 +66,8 @@ content means. Same styles. Path: `your_mods/<ModName>/.preview/ref-<topic>.modp
 The page styles come from the game's own interface. Use the same styles on every page. The styles do
 not follow the app theme.
 
-The values below are the colors of the game's interface textures. The names are the game's names.
+The values below are the colors of the game's interface. The names are the game's names. Three
+tokens (`--ground-deep`, `--panel`, `--heading-band`) are inferred, not taken from the game's files.
 
 | Token | Value | Use |
 |---|---|---|
@@ -118,12 +119,11 @@ The game's own interface fonts are `Fondamento` (title/header, SIL Open Font Lic
 A section that covers one subject may take the color of that subject. Use a color for that subject
 only.
 
-- `#521419` for military
-- `#634119` for economy
-- `#214d5a` for diplomacy
-- `#3a2d4a` for government
-- `#213d29` for society
-- `#733921` for production
+- `#FF6659` for martial (the game's hostile red)
+- `#1A80CC` for diplomacy (the game's diplomacy blue)
+- `#4DB34D` for stewardship (the game's friendly green)
+- `#806699` for intrigue (the game's courtier purple)
+- `#33A699` for learning (the game's vassal teal)
 
 ### Before you hand the page over
 

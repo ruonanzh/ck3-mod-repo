@@ -17,7 +17,7 @@ and its bound directory gate those actions.
 ## Usage modes (two roles)
 
 - **Q&A and consultation (read-only).** Answer game-mechanics and mod API questions by reading the
-  knowledge layer. Start from [`docs/INDEX.md`](docs/INDEX.md) to locate the right source. Do **not**
+  knowledge layer. Start from `docs/INDEX.md` to locate the right source. Do **not**
   create files or prepare the environment, unless the player explicitly asks about their
   environment. Preparing the environment means locating paths and mirroring the scripts into
   `game-scripts/`.
@@ -33,7 +33,7 @@ and its bound directory gate those actions.
         dispatch `entry-scout` and read its first candidate. The `## Survey before you research`
         section below has the details.
      2. Read in this fixed order: `docs/ck3-modding-conventions.md` (the single source of truth),
-        then locate 1 or 2 reference mods of the same kind, then write.
+        then `reference/example_mod`, then write.
      3. Decide the screen first, then research how to mount on that one screen. Where a mechanism
         lives and where to attach something inside an existing screen are two different questions.
         Section 7 of the conventions answers the first. For the second, read that screen's own
@@ -149,7 +149,7 @@ The `.txt`, `.gui`, `.gfx`, and `.asset` files sit under the content folders at 
 ## Overriding vanilla
 
 There is **no** `INJECT:`/`REPLACE:` keyword system in CK3. Override is file- and object-based. The
-reason and the edge cases are in [`docs/ck3-modding-conventions.md`](docs/ck3-modding-conventions.md)
+reason and the edge cases are in `docs/ck3-modding-conventions.md`
 §1.
 
 1. **Full file overwrite.** A file with the same path and filename replaces the vanilla file
@@ -167,8 +167,8 @@ object override, and reserve a full-file overwrite for a change to most of a fil
 
 ## Load order and naming
 
-- Files load in **ASCIIbetical order**: `00_foo.txt` before `01_bar.txt`. A file in a subdirectory
-  loads after the files in the parent directory.
+- Files load in **ASCIIbetical order**: `00_foo.txt` before `01_bar.txt`. (A file in a subdirectory
+  loading after the parent directory's files is **not yet verified for CK3** — treat it as "likely".)
 - Prefix idioms: `00_` forces an early load, and `zz_`, `98_`, or `99_` forces a late load, so an
   override wins.
 - **GUI exception.** A `type` or `template` clash resolves by **first in wins** (FIOS), so name the
@@ -182,8 +182,8 @@ Call `validate_mod` with `modDir = your_mods/<ModName>/`.
 
 - `PASS: <name> is valid` means the static syntax and convention checks passed. It does not mean the
   mod ran in the game.
-- `FAIL: <reason>` gives one reason per line, in English, and points at the offending file or field.
-  Use the `NEXT:` line to locate it. Fix every ERROR, and do not modify another mod.
+- `FAIL: <name> has N error(s)` then one `ERROR: <file>: <message>` per line, in English. Use the
+  `NEXT:` line to locate the problem. Fix every ERROR, and do not modify another mod.
 - The tool checks syntax and conventions: balanced braces and quotes, the localization format, and
   the `descriptor.mod` fields. It does **not** check effect, trigger, or modifier names, and it is
   not a scope or type validator. Use `game-scripts/` and the wiki for those. Use `how-to-speak` to
@@ -191,17 +191,20 @@ Call `validate_mod` with `modDir = your_mods/<ModName>/`.
 
 ## Common errors
 
-The `FAIL` messages below are the common ones. The text after each one is the fix.
+Each `ERROR` line reads `ERROR: <file>: <message>`. The common ones, and the fix:
 
-- `FAIL: descriptor.mod not found`: create the file with the standard keys above.
-- `FAIL: descriptor.mod: name is missing or empty`: add `name="..."`.
-- `FAIL: descriptor.mod: version is not semver`: use `x.x` or `x.x.x`.
-- `FAIL: localization file is not UTF-8 with BOM`: save the file as UTF-8 **with BOM** (`EF BB BF`).
-- `FAIL: filename must end with _l_<language>`: rename the file to `<name>_l_<language>.yml`.
-- `FAIL: missing/incorrect l_<lang>: header`: the first content line must be `l_<lang>:`.
-- `FAIL: key line not in 'key: "value"' form`: write `  key: "value"` with a closing double quote
-  on the same line.
-- `FAIL: unbalanced { }` or `unbalanced "`: fix the brace balance or add the missing closing quote.
+- `descriptor.mod: missing descriptor.mod`: create the file with the standard keys above.
+- `descriptor.mod: name must be a non-empty string`: add `name="..."`.
+- `descriptor.mod: version is required (a non-empty string)`: add `version="..."` (any string works;
+  `x.x` or `x.x.x` is a suggestion, not a rule).
+- `missing UTF-8 BOM (game ignores localization files without a BOM)`: save the file as UTF-8
+  **with BOM** (`EF BB BF`).
+- `filename must end with '_l_<language>.yml'`: rename the file to `<name>_l_<language>.yml`.
+- `expected a language header 'l_<lang>:' as the first content line`: the first content line must be
+  `l_<lang>:`.
+- `malformed localization line (expected '  key: "value"' or '  key:0 "value"')`: write
+  `  key: "value"` with a closing double quote on the same line.
+- `unbalanced braces` or `unbalanced '"'`: fix the brace balance or add the missing closing quote.
 
 ## Entry mechanisms and data kinds (what to add, and where it lives)
 
@@ -227,14 +230,13 @@ A mod can also add its own content to one of the game's own data folders. The co
 | activities | `common/activities/` |
 | schemes | `common/schemes/` |
 
-Most of these folders ship a `readme.txt` or a `.info` file that lists the fields. Read that file
-before you write the block. When a task only changes values inside an existing block, there is no new
-definition to place.
+Open a vanilla file in that folder and read one real block's fields before you write. When a task
+only changes values inside an existing block, there is no new definition to place.
 
 ## Vanilla lookup path
 
 For the question "does X exist, and what is the vanilla value?", follow the lookup hierarchy in
-[`docs/INDEX.md`](docs/INDEX.md). It is the single authoritative map of which source to use.
+`docs/INDEX.md`. It is the single authoritative map of which source to use.
 
 - Exact vanilla object definitions, field values, and loc keys: `game-scripts/game/`, which
   `sync_game_scripts` generates, or the local game directory.

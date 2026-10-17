@@ -12,7 +12,7 @@ Loading this skill does not grant write permission. In a consulting session you 
 method without recording anything.
 
 CK3 mods are **pure PDXScript text**. There is no compilation, no runtime SDK, and **no runtime to
-install**. The game is **Windows-only**.
+install**. This repository targets **Windows only** in v1.
 
 ## What is in `.gamer-agent.local.json`
 
@@ -74,8 +74,8 @@ Do not mix these tools up. They share one implementation in `.pi/lib/game-paths.
   scripts into `game-scripts/`. PDXScript has no self-describing API, so you cannot write correct
   PDXScript without this context. This step is **required**, and it is not a "find it when needed"
   step.
-  For exact effect, trigger, and modifier names and their scopes, grep `game-scripts/` and the
-  official wiki (ck3.paradoxwikis.com). Do not confuse those with `game-scripts/`.
+  For exact effect, trigger, and modifier names, grep `game-scripts/` and the official wiki
+  (ck3.paradoxwikis.com).
 - **Failures.** Follow the `NEXT` line the tool gives. When the same failure repeats, resolve the
   precondition instead of retrying.
 

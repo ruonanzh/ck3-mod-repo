@@ -357,15 +357,16 @@ export default function (pi: ExtensionAPI) {
       // Write the launcher pointer file `<installedName>.mod` next to the installed directory. The
       // CK3 launcher lists mods from these files, not from descriptor.mod alone, and it resolves
       // `path` relative to the game's user directory, so the standard form is `mod/<installedName>`.
-      // The file holds the identity keys from descriptor.mod plus `path`.
+      // The file holds every descriptor.mod key (name, version, supported_version, tags, picture,
+      // replace_path, ...) plus `path`. Copy the descriptor text, drop any `path=` line the mod may
+      // already declare, then append the new one, so no key is lost.
       const installedName = basename(installDir);
       const pointerPath = join(modRoot, `${installedName}.mod`);
-      const pointerLines = [`name="${identity.name}"`];
-      if (identity.version) pointerLines.push(`version="${identity.version}"`);
-      if (identity.supportedVersion)
-        pointerLines.push(`supported_version="${identity.supportedVersion}"`);
-      pointerLines.push(`path="mod/${installedName}"`);
-      writeFileSync(pointerPath, `${pointerLines.join("\n")}\n`);
+      const descriptorLines = readFileSync(join(modDir, "descriptor.mod"), "utf8")
+        .split(/\r?\n/)
+        .filter((line) => !/^\s*path\s*=/.test(line));
+      const pointerText = `${descriptorLines.join("\n").replace(/\s*$/, "")}\npath="mod/${installedName}"\n`;
+      writeFileSync(pointerPath, pointerText);
       } catch (error) {
         rmSync(staging, { recursive: true, force: true });
         return {

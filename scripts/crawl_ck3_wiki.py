@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Incrementally sync the CK3 wiki into docs/mod-wiki/ (committed to the repo).
+"""Incrementally sync the CK3 wiki into a local mod-wiki snapshot (NOT committed in v1).
 
 Feeds the local knowledge layer. Output is *not* committed - it is
 regenerated on demand and requires network access plus, only when pages
@@ -7,8 +7,7 @@ actually changed, the `markitdown` converter:
 
     uv run --with markitdown python scripts/crawl_ck3_wiki.py
 
-Default scope is the **kept mod-API topics** (KEEP_TOPICS — the directories committed
-under docs/mod-wiki/, see docs-organization.md). Pass --all-content for the whole
+Default scope is the **kept mod-API topics** (KEEP_TOPICS). Pass --all-content for the whole
 wiki; --pages-file / --category narrow further.
 
 Compliance (ck3.paradoxwikis.com robots.txt asks `Crawl-delay: 15`; MediaWiki
@@ -321,7 +320,7 @@ def topic_category(categories: list[str]) -> str | None:
     return None
 
 
-# 保留的 wiki 主题分类（mod API/机制目录，见 docs-organization.md §2.1）。
+# 保留的 wiki 主题分类（mod API/机制目录）。
 # 默认 scope 只 sync 这些分类；--all-content 才全站。
 KEEP_TOPICS = frozenset({
     "Modding", "Game_concepts", "Estates", "Economy", "Laws",
