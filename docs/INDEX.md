@@ -49,6 +49,5 @@ choosing the mechanism is a decision, and `entry-scout` only locates a name.
 |------|------------------------|
 | [`game.md`](game.md) | The game overview and the mod loading mechanics. |
 | [`ck3-modding-conventions.md`](ck3-modding-conventions.md) | The reason behind the override, load-order, localization, and metadata rules. |
-| [`writing-standard.md`](writing-standard.md) | The English rules and the glossary. Read it before you change an agent-facing text. |
 | [`wiki/README.md`](wiki/README.md) | What the wiki snapshot covers, its license, how to refresh it, and how to generate version-exact lists from the game itself. |
 | `game-scripts/script-docs/` | The game's own dump, when `scripts/dump-script-docs.mjs` has run. Version-exact. Never committed. |

@@ -41,8 +41,10 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   The modding conventions live **only** in
   [`docs/ck3-modding-conventions.md`](docs/ck3-modding-conventions.md). They cover override,
   load order, localization, and metadata.
-  Every English text that an agent reads follows
-  [`docs/writing-standard.md`](docs/writing-standard.md). Read it before you change such a text.
+  Every English text that an agent reads follows the CK3 writing standard. That standard is a
+  maintainer document, `ck3-writing-standard.md` in the design repository (`docs/eu5-harness/`), and
+  it is not part of this repository. The rules that matter most here: no semicolon, one word for one
+  meaning, and the glossary terms `mod directory`, `the vanilla scripts`, and `playset`.
 - `game-scripts/` — the vanilla scripts. `sync_game_scripts` copies them and the
   `workshop/` scripts into it, and git ignores it. This is the modding context you must load
   before writing mods. PDXScript has no self-describing API, so you cannot write a correct override
