@@ -12,24 +12,23 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   If `python --version` exits with `exit 49`, then `python` is the Microsoft Store stub, and it is a
   silent no-op. If python is truly needed, run `command -v py` first. If `py` is missing, fall back
   to `node` / `awk`.
-- **When you develop, read scripts only from the vanilla scripts at `game-scripts/`** (this does not affect mod
-  runtime). The vanilla scripts live at `game-scripts/game/game/...` — **two** `game/`
-  levels. The real install directory `.../Crusader Kings III/game/...` — **one** `game/` level —
-  is the vanilla source that `sync_game_scripts` reads to build that copy. Do not `cat` / `grep`
-  there while developing. Installing a mod is a third place: `install_mod` writes to the Paradox
-  launcher mod directory, `<user documents>/Paradox Interactive/Crusader Kings III/mod/`.
-- **`supported_version`: write a patch-level wildcard** (e.g. `1.20.*`). An exact
-  version such as `1.20.1` goes stale. This game updates its minor version often, and the game flags
-  an exact version as outdated. Do not take the easy way out with a loose `1.*` — the linter WARNs on it.
-  Read it from `get_game_info`, and write it as `supported_version` (the field is covered in section 5
-  of `docs/ck3-modding-conventions.md`).
+- **When you develop, read scripts only from the vanilla scripts at `game-scripts/vanilla/game/`**
+  (this does not affect mod runtime). The mirror copies the game directory, so the game's own
+  `game/` folder appears once inside `vanilla/`. The real install directory
+  `.../Crusader Kings III/game/...` is the source that `sync_game_scripts` reads to build that copy.
+  Do not `cat` / `grep` there while developing. Installing a mod is a third place: `install_mod`
+  writes to the Paradox launcher mod directory,
+  `<user documents>/Paradox Interactive/Crusader Kings III/mod/`.
+- **`supported_version` must point at the installed game.** Read it from `get_game_info` and write
+the patch-level wildcard that the tool returns. An exact version goes stale, and a loose wildcard is
+a WARN. The field rules are in section 5 of `docs/ck3-modding-conventions.md`.
 - **Two read-only subagents ship with this repository.** `.pi/settings.json` declares the vendored
   `pi-subagents` package at `.pi/vendor/pi-subagents/`, so the `subagent` tool is available in a
-  trusted project. Grepping `game-scripts/` yourself and dispatching `entry-scout` are **peer
-  options** for locating an entry. **Prefer `entry-scout`**, because it runs in parallel, one per
-  question, and its searches stay in the child session, so your context holds answers, not greps.
-  Grep yourself when you already know the exact name and one or two calls settle it, or when you
-  cannot dispatch. Read its first candidate yourself. `mod-reviewer` checks the semantics that
+  trusted project. Grepping `game-scripts/vanilla/game/` yourself and dispatching `entry-scout` are
+  **peer options** for locating an entry. **Prefer `entry-scout`**, because it runs in parallel, one
+  per question, and its searches stay in the child session, so your context holds answers, not
+  greps. Grep yourself when you already know the exact name and one or two calls settle it, or when
+  you cannot dispatch. Read its first candidate yourself. `mod-reviewer` checks the semantics that
   `validate_mod` cannot see, before you install: it resolves effect, trigger, and modifier names and
   their scopes against `docs/wiki/`. Neither writes, so you apply every change. When you cannot
   dispatch, run the search yourself, and apply the six review classes in
@@ -41,14 +40,18 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   The modding conventions live **only** in
   [`docs/ck3-modding-conventions.md`](docs/ck3-modding-conventions.md). They cover override,
   load order, localization, and metadata.
-  Every English text that an agent reads follows the CK3 writing standard. That standard is a
-  maintainer document, `ck3-writing-standard.md` in the design repository (`docs/eu5-harness/`), and
-  it is not part of this repository. The rules that matter most here: no semicolon, one word for one
-  meaning, and the glossary terms `mod directory`, `the vanilla scripts`, and `playset`.
-- `game-scripts/` — the vanilla scripts. `sync_game_scripts` copies them and the
-  `workshop/` scripts into it, and git ignores it. This is the modding context you must load
-  before writing mods. PDXScript has no self-describing API, so you cannot write a correct override
-  without it.
+  Every English text that an agent reads follows the CK3 writing standard: no semicolon, one word for
+  one meaning, and the words in the glossary. The glossary is section 8 of the conventions file, and
+  it is the list to check a term against.
+- `game-scripts/` — the modding context. `sync_game_scripts` writes two parts, and git ignores the
+  whole directory. `vanilla/` is a copy of the game directory, so the game's own scripts are at
+  `vanilla/game/`. `workshop/` holds one directory per Workshop mod. This is what you must load
+  before writing mods. The Workshop scripts are not vanilla. PDXScript has no self-describing API, so
+  you cannot write a correct override without it.
+- `docs/script_docs/` — the game's own dumps: `effects.log`, `triggers.log`, `modifiers.log`,
+  `event_scopes.log`, `event_targets.log`, and `on_actions.log`. They are committed, and
+  `validate_mod` reads them. They are version-exact, so they beat the wiki snapshot on the question
+  "does this name exist". `node scripts/dump-script-docs.mjs` refreshes them.
 - `.pi/skills/` — the step guidance: role skills `setup-workspace`, `mod-creator`, and `mod-installer`,
   plus `how-to-speak` (how to write anything the player reads) and `mod-page` (how to write a mod
   page, revise it from the player's marks, and when to answer a game mechanics or game content
@@ -63,11 +66,12 @@ These are fixed facts about this machine and this workspace. They prevent wasted
 - `reference/` — read-only mod samples. `reference/example_mod/` is a runnable sample that passes
   `validate_mod`. `reference/README.md` describes it.
 - `editors/` — the mod-page and descriptor editors. Each subdirectory is one editor, opened by the
-  product UI. `editors/ck3_mod_descriptor/` edits `descriptor.mod`; `editors/ck3_mod_page/` edits the
-  Steam Workshop page.
+  product UI. `editors/ck3_mod_descriptor/` edits `descriptor.mod`. `editors/ck3_mod_page/` edits
+  the Steam Workshop page.
 - `scripts/` — maintenance scripts, run by the maintainer, never by the agent during a mod task:
   `sync-wiki.mjs` refreshes `docs/wiki/`, `dump-script-docs.mjs` asks the game for its version-exact
-  lists, and `check-doc-refs.mjs` checks every markdown link.
+  lists and writes them into `docs/script_docs/`, and `check-doc-refs.mjs` checks every markdown
+  link.
 - `mod-repo.json` — the machine-readable game and environment declaration. `workshop.supported`
   declares whether this game has a Steam Workshop. `workshopDir` is a read-only reference and is
   not used for installing. The rule is in the `setup-workspace` skill.
@@ -101,34 +105,41 @@ The session sets one of two roles. The agent does not choose the role.
 The repository owner maintains everything else (`docs/`, `.pi/`, `reference/`, `mod-repo.json`).
 Do not write there.
 
-## Checklist before you write a mod
+## Boundaries before you write a mod
 
-Keep these in mind while you write a mod. They prevent most `validate_mod` failures.
+These are the boundaries. The rule and the reason for each one are in
+`docs/ck3-modding-conventions.md`. Read sections 1 to 3 before the first write.
 
-- Keep `{` and `}` balanced. Keep `"` balanced. A `#` starts a line comment, and `#` is literal
+- Write under `your_mods/<ModName>/` only.
+- Only a top-level declaration can be overridden, and a single-object override changes an object. It
+  cannot delete one. Section 1 has the override forms and the GUI first-in-wins exception.
+- Load order is ASCIIbetical. Section 2 has the prefix idioms and the GUI exception.
+- Localization is UTF-8 with BOM under `localization/`, and the filename carries the language.
+  Section 3 has the format and the shipped languages.
+- Keep `{` and `}` balanced, and keep `"` balanced. A `#` starts a line comment, and `#` is literal
   inside a string.
-- Only a top-level declaration can be overridden. A single-object override changes an object. It
-  cannot delete one.
-- To override a vanilla file, use the same path and filename. To override one object, put a new
-  file in the same directory with a later ASCIIbetical name (`01_defines.txt` wins over `00_defines.txt`).
-  GUI `type`/`template` clashes resolve in the opposite order (first in wins), so name the file early
-  (`00_my_buttons.gui`).
-- Use load-order prefixes so an override loads after its target: `00_` early, and `zz_`, `98_`, or
-  `99_` late.
-- Localization YAML must be UTF-8 **with BOM**. The filename must end with `_l_<language>`. The
-  first line must be `l_<lang>:`. Each entry is `key: "value"`. The game ships nine languages, and
-  the list is in `docs/ck3-modding-conventions.md` section 3.
 - Do not leave `temp_*` or `_tmp_*` scratch files, or editor backups, in the mod directory.
 
 ## Validation
 
 After you finish or change a mod, run `validate_mod` on `your_mods/<ModName>/`.
 Clear every ERROR before you end the turn.
-The tool checks syntax and conventions: balanced braces and quotes, the localization format, and the
-`descriptor.mod` fields. It does **not** check effect, trigger, or modifier names, and it is not a
-scope or type validator — use `game-scripts/` and the wiki for those.
 
-`mod-reviewer` reviews the override and metadata consistency that `validate_mod` cannot see. Dispatch
-it before `install_mod` and before you report a mod as finished. It reads the `validate_mod` receipt,
-so it does not repeat those checks.
+The tool checks syntax, conventions, and names:
+
+- **Syntax and conventions:** balanced braces and quotes, the localization format, and the
+  `descriptor.mod` fields.
+- **A new object needs its localization key:** a trait, a decision, or a character interaction that
+  the mod adds.
+- **An effect, trigger, or modifier name must be one the game knows.** The check compares against the
+  game's own dumps in `docs/script_docs/`, and it reports a name that is one or two edits away from a
+  real one, with the closest name.
+
+A `WARN` is advisory. A `PASS` does not prove that a new name exists. The tool is not a scope or type
+validator. Section 9 of `docs/ck3-modding-conventions.md` states the exact coverage and its limits.
+
+`mod-reviewer` reviews what `validate_mod` cannot see: the override form, the placement, the scope and
+the type of each call, and the questions that only the game answers. Dispatch it before `install_mod`
+and before you report a mod as finished. It reads the `validate_mod` receipt, so it does not repeat
+those checks.
 

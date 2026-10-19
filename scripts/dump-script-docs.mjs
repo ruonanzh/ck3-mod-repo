@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 /**
- * Generate the game's own script documentation and mirror it into `game-scripts/script-docs/`.
+ * Generate the game's own script documentation and write it into the repository, under
+ * `docs/script_docs/` (or `docs/data_types/` for `--command=dump_data_types`).
+ *
+ * The dumps are repository content, not machine-local state: a clone has the lists without the
+ * game. `validate_mod` reads `docs/script_docs/` for its name-level checks, and `mod-reviewer` reads
+ * it as the version-exact evidence.
  *
  * The wiki lists under `docs/wiki/` are a transcription and say so. This script asks the game
  * instead. CK3 ships two console commands and a command-line hook that runs one and exits:
@@ -24,11 +29,13 @@
  */
 import { execFileSync, spawn } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const outDir = join(root, "game-scripts", "script-docs");
+// These two paths are the same as DUMP_DIRNAME and DATA_TYPES_DIRNAME in `.pi/lib/game-paths.ts`.
+// This script is plain ESM and cannot import the TypeScript library, so the names live here too.
+const DUMP_DIRS = { script_docs: join(root, "docs", "script_docs"), dump_data_types: join(root, "docs", "data_types") };
 const args = process.argv.slice(2);
 const argOf = (name, fallback) => {
   const hit = args.find((a) => a.startsWith(`--${name}=`));
@@ -158,15 +165,17 @@ async function main() {
     return;
   }
 
+  const outDir = DUMP_DIRS[command] ?? DUMP_DIRS.script_docs;
   mkdirSync(outDir, { recursive: true });
   let copied = 0;
   for (const source of fresh) {
     copyFileSync(source, join(outDir, source.split(/[\\/]/).pop()));
     copied += 1;
   }
-  console.log(`\nPASS: ${copied} log file(s) mirrored to game-scripts/script-docs/`);
+  console.log(`\nPASS: ${copied} log file(s) written to ${relative(root, outDir).split("\\").join("/")}/`);
   console.log(`  ${fresh.map((p) => p.split(/[\\/]/).pop()).sort().join(", ")}`);
   console.log("  These are version-exact for the installed game and beat the docs/wiki snapshot.");
+  console.log("  Commit them: they are repository content, and validate_mod reads them.");
 }
 
 await main();

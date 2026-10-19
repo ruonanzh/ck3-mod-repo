@@ -32,7 +32,7 @@ A page can answer a game question instead of describing a mod: how game mechanic
 content means. Same styles. Path: `your_mods/<ModName>/.preview/ref-<topic>.modpage.html`.
 
 - One subject per page.
-- Say where each value comes from, in plain words: the vanilla scripts (`game-scripts/`) or the
+- Say where each value comes from, in plain words: the vanilla scripts (`game-scripts/vanilla/game/`) or the
   wiki.
 - Say what the page does not cover.
 

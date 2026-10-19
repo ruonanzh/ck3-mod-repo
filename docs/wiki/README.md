@@ -13,7 +13,7 @@ Reference pages from the CK3 wiki, shipped as a **snapshot** so the agent can an
 mod scripts cannot: the exact name, parameters, and scope of an effect, trigger, modifier, or scope.
 
 The live wiki (`ck3.paradoxwikis.com`) sits behind a JavaScript challenge, and a subagent cannot
-fetch it. This copy is the offline substitute. It does not replace `game-scripts/`: the vanilla
+fetch it. This copy is the offline substitute. It does not replace `game-scripts/vanilla/game/`: the vanilla
 scripts show **usage**, and these pages show **fields and scope**.
 
 ## What is here
@@ -111,7 +111,7 @@ The wiki pages are a **transcription**, and their own header says they are outda
 produces the same data for the exact installed version. Run:
 
 ```bash
-node scripts/dump-script-docs.mjs          # mirrors the logs into game-scripts/script-docs/
+node scripts/dump-script-docs.mjs          # writes the logs into docs/script_docs/
 ```
 
 The script runs the game headless and copies the result. It relies on three options, two of them in
@@ -127,8 +127,9 @@ ck3.exe -nographics -debug_mode -run_console_action=script_docs
 | `dump_data_types` (`--command=dump_data_types`) | the GUI data types, promotes, and functions |
 
 They land under `<Documents>/Paradox Interactive/Crusader Kings III/logs/`. `Documents` can be moved.
-The script asks the registry, then checks the file times to prove the run wrote them. `game-scripts/`
-is git-ignored, so the mirror is never committed.
+The script asks the registry, then checks the file times to prove the run wrote them. It copies the
+fresh logs into `docs/script_docs/`, which **is committed**: the dumps are repository content, so a
+clone has them without the game. `validate_mod` reads them for its name-level checks.
 
 **No game session is needed.** The command runs at the `application initialized` stage, before any
 menu or save is loaded, and the lists are complete there. Measured on 1.20.1.1:
@@ -174,6 +175,6 @@ and **85** wiki names no longer exist — `every_participant` became `every_memo
 `complete_activity` became `invalidate_activity`. Treat the dump as the truth and the wiki page as a
 explanation with examples.
 
-This also settles the reviewer's two remaining blind spots: with `script-docs/` present, a name that
-is absent from the wiki can be checked against the dump, and a call that fails there is genuinely
-wrong rather than "not in the snapshot".
+This also settles the reviewer's two remaining blind spots: with `docs/script_docs/` present, a name
+that is absent from the wiki can be checked against the dump, and a call that fails there is
+genuinely wrong rather than "not in the snapshot".

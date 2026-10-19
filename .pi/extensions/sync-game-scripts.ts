@@ -1,14 +1,15 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { existsSync, mkdirSync, copyFileSync, statSync, readdirSync, unlinkSync, rmdirSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, copyFileSync, statSync, readdirSync, rmSync, unlinkSync, rmdirSync } from "node:fs";
 import { join, relative, resolve, dirname, sep } from "node:path";
-import { checkGameDir, checkWorkshopDir, readModRepoConfig, readState } from "../lib/game-paths";
+import { MIRROR_DIRNAME, MIRROR_ROOT_DIRNAME, WORKSHOP_MIRROR_DIRNAME, checkGameDir, checkWorkshopDir, mirrorDirs, readModRepoConfig, readState } from "../lib/game-paths";
 
 /**
- * sync_game_scripts - it mirrors the text and definition scripts from game/ and workshop/ into the
- * workspace's game-scripts/. That directory is the modding context you must load before you write a
- * mod. PDXScript has no self-describing API, so without these scripts you do not know which vanilla
- * objects to override. You also cannot find a localization key.
+ * sync_game_scripts - it mirrors the text and definition scripts into the workspace's mirror. The
+ * mirror has two parts: `game-scripts/vanilla/` is a copy of the game directory, and
+ * `game-scripts/workshop/` holds one directory per Workshop mod. That mirror is the modding context
+ * you must load before you write a mod. PDXScript has no self-describing API, so without these
+ * scripts you do not know which vanilla objects to override. You also cannot find a localization key.
  *
  * It copies text and definition suffixes only, from the KEEP_SUFFIXES allowlist. That list matches
  * the sync tool in cursor main. It never copies a binary, so textures, meshes, and audio stay out.
@@ -86,8 +87,9 @@ function removeEmptyDirsUnder(root: string): void {
     }
     for (const e of entries) {
       const p = join(dir, e);
+      // lstatSync, not statSync: a symbolic link is not descended, and the target stays untouched.
       try {
-        if (statSync(p).isDirectory()) walkUp(p);
+        if (lstatSync(p).isDirectory()) walkUp(p);
       } catch {
         /* ignore */
       }
@@ -174,6 +176,7 @@ export default function (pi: ExtensionAPI) {
     parameters: Type.Object({}),
     async execute(_toolCallId, _params, _signal, _onUpdate, ctx) {
       const repoRoot = ctx.cwd;
+      const dirs = mirrorDirs(repoRoot);
       // The state read and the "is the game directory usable" check both go through the lib, which
       // check_game_paths, try_set_game_dir, and install_mod share. This file used to parse the JSON
       // itself and call existsSync alone, which implemented the same check a second time.
@@ -199,15 +202,15 @@ export default function (pi: ExtensionAPI) {
         /* The config is unreadable. The workshop shape check below therefore fails, so treat it as a rejection. */
       }
 
-      const destRoot = join(repoRoot, "game-scripts");
-      const g = syncTree(gameDir, join(destRoot, "game"));
+      const destRoot = dirs.root;
+      const g = syncTree(gameDir, dirs.vanilla);
       // The harness denies the Workshop content to the agent under test, so that it cannot read the
       // mods of another player. An earlier mirror is cleared too, because a copy on disk stays
       // readable. The harness creates the marker file with a shell command, and the agent under test
       // has no reason to look for it. A tool parameter would show this switch in the tool schema,
       // which the agent reads, so there is none.
       const skipWorkshop = existsSync(join(destRoot, NO_WORKSHOP_MARKER));
-      const workshopMirror = join(destRoot, "workshop");
+      const workshopMirror = dirs.workshop;
       let clearedForSkip = 0;
       let w = { copied: 0, staleRemoved: 0 };
       let workshopGone = false;
@@ -233,31 +236,62 @@ export default function (pi: ExtensionAPI) {
             : { copied: 0, staleRemoved: 0 };
       }
 
+      // The mirror layout changed. Write the new copy first (above), then delete the old roots, so a
+      // failed run leaves a readable mirror behind. A symbolic link is never deleted: it can point at
+      // the game directory, and that is not this tool's copy. A failed delete does not stop the run.
+      const stale = [{ path: dirs.legacy }, { path: dirs.legacyDump }];
+      let staleRemoved = 0;
+      const staleNotes: string[] = [];
+      for (const entry of stale) {
+        const stat = lstatSync(entry.path, { throwIfNoEntry: false });
+        if (!stat) continue;
+        const rel = toPosix(relative(repoRoot, entry.path));
+        if (stat.isSymbolicLink()) {
+          staleNotes.push(
+            `NOTE: ${rel}/ is a symbolic link, so it was not deleted. Delete it yourself when you are sure it does not point at the game directory.`,
+          );
+          continue;
+        }
+        const count = walkFiles(entry.path).length;
+        try {
+          rmSync(entry.path, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+          staleRemoved += count;
+          staleNotes.push(
+            `deleted the old ${rel}/ mirror (${count} file(s)).${entry.path === dirs.legacy ? ` The vanilla scripts are now under ${MIRROR_DIRNAME}/.` : ""}`,
+          );
+        } catch (e) {
+          staleNotes.push(
+            `NOTE: could not delete the old ${rel}/ mirror (${String(e)}). Run sync_game_scripts again to finish the cleanup.`,
+          );
+        }
+      }
+
       // The `mirrored N` count above is what this run copied, so an up-to-date mirror reports 0.
       // That reads as "the mirror is empty", which is wrong: the mirror keeps every file the earlier
       // runs copied. Count the mirror itself, after the sync, and report that total as well.
       const mirrorTotal = walkFiles(destRoot).length;
 
       const lines = [
-        `PASS: mirrored ${g.copied + w.copied} script file(s) into ${toPosix(relative(repoRoot, destRoot))}/ (game: ${g.copied}, workshop: ${w.copied})`,
+        `PASS: mirrored ${g.copied + w.copied} script file(s) into ${toPosix(relative(repoRoot, destRoot))}/ (vanilla: ${g.copied}, workshop: ${w.copied})`,
         `mirror now holds ${mirrorTotal} file(s).`,
       ];
       if (g.staleRemoved + w.staleRemoved > 0) {
         lines.push(`deleted ${g.staleRemoved + w.staleRemoved} stale file(s) that the source no longer has.`);
       }
+      lines.push(...staleNotes);
       if (workshopDir && wsRejected && !workshopGone) {
         lines.push(
-          `NOTE: the workshop directory was rejected (${wsRejectReason}). The existing mirror under game-scripts/workshop was left untouched.`,
+          `NOTE: the workshop directory was rejected (${wsRejectReason}). The existing mirror under ${MIRROR_ROOT_DIRNAME}/${WORKSHOP_MIRROR_DIRNAME}/ was left untouched.`,
         );
       }
       if (workshopGone) {
         lines.push(
-          `NOTE: the workshop source is gone (unsubscribed or deleted). Its mirrored copy under game-scripts/workshop was cleared (${w.staleRemoved} file(s)) instead of being left behind.`,
+          `NOTE: the workshop source is gone (unsubscribed or deleted). Its mirrored copy under ${MIRROR_ROOT_DIRNAME}/${WORKSHOP_MIRROR_DIRNAME}/ was cleared (${w.staleRemoved} file(s)) instead of being left behind.`,
         );
       }
       return {
         content: [{ type: "text", text: lines.join("\n") }],
-        details: { ok: true, copied: g.copied + w.copied, staleRemoved: g.staleRemoved + w.staleRemoved, workshopSourceMissing: workshopGone, workshopSkipped: skipWorkshop, workshopCleared: clearedForSkip },
+        details: { ok: true, copied: g.copied + w.copied, staleRemoved: g.staleRemoved + w.staleRemoved + staleRemoved, workshopSourceMissing: workshopGone, workshopSkipped: skipWorkshop, workshopCleared: clearedForSkip },
       };
     },
   });

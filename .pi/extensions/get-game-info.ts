@@ -5,7 +5,8 @@
  * The facts:
  *   - the three paths: gameDir, modInstallDir, and workshopDir;
  *   - supportedGameVersion: the version value for the mod metadata;
- *   - the script layout, whether the vanilla scripts are present, and where the entry points are.
+ *   - the script layout, whether the vanilla scripts are present, how many Workshop mods the
+ *     mirror holds, whether the game's dumps are present, and where the entry points are.
  *
  * The version rule: the tool derives supportedGameVersion from the build tag in the runtime state
  * (`gameBuild`), and it prints the major and the minor version with a wildcard, for example `1.20.*`.
@@ -16,27 +17,67 @@
  * Read-only: the tool reads `.gamer-agent.local.json`, and it never writes it. A missing or invalid
  * gameDir is a FAIL, and the agent then runs try_set_game_dir, which records the paths.
  *
- * CK3 facts: the install scripts live in `<gameDir>/game/...`. The vanilla copy lives in
- * `game-scripts/game/game/...`, which carries one more `game/` layer. That copy holds vanilla
- * scripts only, and the agent must count it with `find -L`, because `game-scripts` is a symlink.
+ * CK3 facts: the install scripts live in `<gameDir>/game/...`. The mirror copies the game
+ * directory, so the vanilla scripts live at `game-scripts/vanilla/game/...`. The workshop part of
+ * the mirror is `game-scripts/workshop/`, one directory per mod.
  */
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { checkGameDir, nonAsciiCharsInPath, pathsFor, readModRepoConfig, readState, supportedGameVersion } from "../lib/game-paths";
+import {
+  DUMP_DIRNAME,
+  MIRROR_DIRNAME,
+  MIRROR_ROOT_DIRNAME,
+  checkGameDir,
+  dumpDir,
+  mirrorDirs,
+  nonAsciiCharsInPath,
+  pathsFor,
+  readModRepoConfig,
+  readState,
+  supportedGameVersion,
+} from "../lib/game-paths";
 
 /** The label column width of the report. */
 const LABEL_WIDTH = 22;
 const row = (label: string, value: string): string => `${label.padEnd(LABEL_WIDTH)}${value}`;
+const NO_WORKSHOP_MARKER = ".no-workshop";
+
+/** The number of directories under one path. A missing path reports 0. */
+function countDirs(dir: string): number {
+  try {
+    return readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory()).length;
+  } catch {
+    return 0;
+  }
+}
+
+/** The Workshop row. It reports the state of the mirror, never a fixed claim. */
+function workshopRow(cwd: string): string {
+  const dirs = mirrorDirs(cwd);
+  if (existsSync(join(dirs.root, NO_WORKSHOP_MARKER))) return "not mirrored (.no-workshop is present)";
+  const count = countDirs(dirs.workshop);
+  return count > 0 ? `${count} mod(s) mirrored` : "not mirrored - run sync_game_scripts";
+}
+
+/** The dumps row. The game's own lists are repository content, so a clone has them without the game. */
+function dumpsRow(cwd: string): string {
+  try {
+    const logs = readdirSync(dumpDir(cwd)).filter((n) => n.endsWith(".log"));
+    return logs.length > 0 ? `${logs.length} log file(s) in ${DUMP_DIRNAME}/` : `empty - run \`node scripts/dump-script-docs.mjs\``;
+  } catch {
+    return `missing - run \`node scripts/dump-script-docs.mjs\``;
+  }
+}
 
 export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: "get_game_info",
     label: "Get Game Info",
     description:
-      "Reports the recorded game environment facts for Crusader Kings III in one call: the game directory, the mod install directory, the Workshop directory, the supported game version, the script layout, whether the vanilla scripts are present, and where the entry points are. It takes no arguments, it reads the runtime state only, and it writes nothing.",
-    promptSnippet: "Report the game paths, the supported version, the layout, and whether the vanilla scripts are present",
+      "Reports the recorded game environment facts for Crusader Kings III in one call: the game directory, the mod install directory, the Workshop directory, the supported game version, the script layout, whether the vanilla scripts are present, how many Workshop mods the mirror holds, whether the game's dumps are present, and where the entry points are. It takes no arguments, it reads the runtime state only, and it writes nothing.",
+    promptSnippet: "Report the game paths, the supported version, the mirror state, and whether the dumps are present",
     promptGuidelines: [
       "Use get_game_info when you need the game paths, the script layout, whether the vanilla scripts are present, or the version value for the mod metadata. It answers all of them in one call.",
       "Use get_game_info instead of gathering the game version yourself. Write the returned `supportedGameVersion` into `supported_version`. Do not read `ck3.exe`, and do not use its `VersionInfo`.",
@@ -78,9 +119,9 @@ export default function (pi: ExtensionAPI) {
       const build = typeof state.gameBuild === "string" ? state.gameBuild : null;
       const version = supportedGameVersion(build);
 
-      // The vanilla copy holds the scripts, and `game-scripts` is a symlink, so the agent counts
-      // it with `find -L`. This check reads one directory entry only.
-      const vanillaPresent = existsSync(join(cwd, "game-scripts", "game", "game"));
+      // The vanilla part of the mirror is a copy of the game directory, so the scripts sit one
+      // level down, at `vanilla/game/`. This check reads one directory entry only.
+      const vanillaPresent = existsSync(join(cwd, MIRROR_ROOT_DIRNAME, MIRROR_DIRNAME, "game"));
 
       const lines = [
         "PASS: game info",
@@ -94,13 +135,10 @@ export default function (pi: ExtensionAPI) {
             : "(none - no build tag is recorded, so the version cannot be derived)",
         ),
         row("layout", `install: ${gameDir}/game/...`),
-        row("", "vanilla:  game-scripts/game/game/...   (the vanilla copy has one more game/ layer)"),
-        row(
-          "vanilla",
-          vanillaPresent
-            ? "present, no workshop mirrored, count with `find -L`"
-            : "missing - run sync_game_scripts, then count with `find -L`",
-        ),
+        row("", `vanilla:  ${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/game/...   (a copy of the game directory)`),
+        row("vanilla", vanillaPresent ? "present" : "missing - run sync_game_scripts"),
+        row("workshop", workshopRow(cwd)),
+        row("dumps", dumpsRow(cwd)),
         row("entry points", "see docs/ck3-modding-conventions.md section 7"),
       ];
       if (!version) {

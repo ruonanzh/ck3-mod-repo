@@ -13,8 +13,8 @@ import { Type } from "typebox";
  *   - set_game_dir       records one concrete game directory, from the player or from you.
  *   - check_game_paths   checks the given or remembered paths only. Read-only, no scan, no write.
  *   - install_runtime    reports "no dependencies, nothing to install". It performs no install.
- *   - sync_game_scripts  mirrors the game/ and workshop/ scripts into game-scripts/, which is the
- *                        modding context you load before you write a mod.
+ *   - sync_game_scripts  mirrors the game's scripts and the workshop/ scripts into game-scripts/,
+ *                        which is the modding context you load before you write a mod.
  *   - install_mod        installs a mod, and creates the target directory when it is missing.
  */
 export default function (pi: ExtensionAPI) {

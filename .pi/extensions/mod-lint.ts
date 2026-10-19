@@ -3,11 +3,12 @@ import { Type } from "typebox";
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import { parseDescriptorMod } from "../lib/mod-identity";
+import { MAX_SEMANTIC_FINDINGS, analyzeSemantics } from "../lib/mod-semantics";
 
 /**
  * validate_mod - the CK3 mod validation tool for the pdx-script mod type.
- * It was ported from lint_mod.py in eu5-starry-night-project, and it checks syntax and convention
- * rules only (there is no name-level semantic layer in v1):
+ * It was ported from lint_mod.py in eu5-starry-night-project. It checks three layers: the syntax
+ * and the conventions in this file, and the name-level semantics in ../lib/mod-semantics.
  *   - descriptor.mod: presence, a key=value shape, a non-empty name, and a semver version.
  *   - Localization YAML: the UTF-8 BOM, the encoding, the `_l_<lang>` filename, the `l_<lang>:`
  *     header, the key line format, the double-quoted value, the quote balance, duplicate keys, and
@@ -16,6 +17,9 @@ import { parseDescriptorMod } from "../lib/mod-identity";
  *     checks the UTF-8 encoding, the `{` and `}` balance, and the `"` balance, with awareness of
  *     `#` comments and multiline strings. There is no INJECT:/REPLACE: keyword system in CK3, so no
  *     keyword check exists.
+ *   - Semantics (name level, in ../lib/mod-semantics): the localization keys of a new trait, decision,
+ *     or character interaction, and an effect, trigger, or modifier name that is within two edits of
+ *     a name in the game's dumps.
  *
  * The tool is read-only, and it has no third-party dependency. Its content output uses PASS or FAIL with NEXT,
  * in ASCII English, and its details hold only ok, errors, and warnings.
@@ -578,11 +582,12 @@ export default function (pi: ExtensionAPI) {
     name: "validate_mod",
     label: "Validate Mod",
     description:
-      "Validate a CK3 mod of the pdx-script type, under your_mods/. It checks the descriptor.mod fields (name, version, supported_version, picture), the localization YAML, and the brace and quote balance in PDXScript and GUI files. It does not check effect, trigger, or modifier names, scope, type, or values.",
+      "Validate a CK3 mod of the pdx-script type, under your_mods/. It checks the descriptor.mod fields (name, version, supported_version, picture), the localization YAML, and the brace and quote balance in PDXScript and GUI files. It also checks three names: a new trait, decision, or character interaction needs its localization key, and an effect, trigger, or modifier name that is close to a real game name but absent from the game's dumps is reported with the closest name. It does not check scope, type, or values.",
     promptSnippet: "Validate a mod under your_mods/",
     promptGuidelines: [
       "Use validate_mod after you write a mod, to check that it passes the rules.",
       "Fix every validate_mod ERROR before you call a mod done. WARNs are advisory.",
+      "A semantic WARN names the closest game name. A name you copied from the vanilla scripts is never wrong, so when the WARN disagrees with the vanilla scripts, keep the vanilla spelling and tell the player.",
     ],
     parameters: Type.Object({
       modDir: Type.String({
@@ -611,19 +616,26 @@ export default function (pi: ExtensionAPI) {
       ];
       const errors = findings.filter((f) => f.severity === "error");
       const warnings = findings.filter((f) => f.severity === "warn");
+      const semantic = analyzeSemantics(modDir, ctx.cwd);
+      const semanticWarnings = semantic.findings.filter((f) => f.level === "warn");
+      const semanticNotes = semantic.findings.filter((f) => f.level === "note");
+      const warningCount = warnings.length + semanticWarnings.length;
 
       const name = modDir.split(/[\\/]/).pop() || modDir;
       const lines: string[] = [];
       if (errors.length === 0) {
         lines.push(
-          `PASS: ${name} is valid - syntax and conventions only. Effect, trigger, and modifier names, scope, type, and values are not checked.${warnings.length > 0 ? ` (${warnings.length} warning(s))` : ""}`,
+          `PASS: ${name} is valid - syntax, conventions, and names. Scope, type, and values are not checked.${warningCount > 0 ? ` (${warningCount} warning(s))` : ""}`,
         );
         for (const w of warnings.slice(0, MAX_CONTENT_LINES)) {
           lines.push(`WARN: ${w.rel}: ${w.message}`);
         }
+        for (const w of semanticWarnings.slice(0, MAX_SEMANTIC_FINDINGS)) {
+          lines.push(`WARN: ${w.rel}: ${w.message}`);
+        }
       } else {
         lines.push(
-          `FAIL: ${name} has ${errors.length} error(s), ${warnings.length} warning(s)`,
+          `FAIL: ${name} has ${errors.length} error(s), ${warningCount} warning(s)`,
         );
         for (const e of errors.slice(0, MAX_CONTENT_LINES)) {
           lines.push(`ERROR: ${e.rel}: ${e.message}`);
@@ -633,8 +645,12 @@ export default function (pi: ExtensionAPI) {
             `... ${errors.length - MAX_CONTENT_LINES} more error(s) omitted`,
           );
         }
+        for (const w of semanticWarnings.slice(0, MAX_SEMANTIC_FINDINGS)) {
+          lines.push(`WARN: ${w.rel}: ${w.message}`);
+        }
         lines.push(`NEXT: fix the errors above and re-run validate_mod.`);
       }
+      for (const note of semanticNotes) lines.push(`NOTE: ${note.rel}: ${note.message}`);
 
       return {
         content: [{ type: "text", text: lines.join("\n") }],
@@ -642,6 +658,10 @@ export default function (pi: ExtensionAPI) {
           ok: errors.length === 0,
           errors: errors.map((e) => `${e.rel}: ${e.message}`),
           warnings: warnings.map((w) => `${w.rel}: ${w.message}`),
+          semantic: {
+            checked: semantic.checked,
+            findings: semantic.findings,
+          },
         },
       };
     },

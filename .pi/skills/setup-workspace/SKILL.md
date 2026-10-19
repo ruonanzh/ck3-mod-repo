@@ -1,6 +1,6 @@
 ---
 name: setup-workspace
-description: Prepare the CK3 (pdx-script) environment and the paths. Locate the game directory, the mod install directory, and the Steam Workshop directory. Mirror the vanilla `game/` scripts and the `workshop/` scripts into `game-scripts/` as the modding context. Read it when a path is unknown or wrong, when the player gives a path to check, or on a new machine. CK3 has no runtime and no compilation.
+description: Prepare the CK3 (pdx-script) environment and the paths. Locate the game directory, the mod install directory, and the Steam Workshop directory. Mirror the game's scripts and the `workshop/` scripts into `game-scripts/vanilla/` and `game-scripts/workshop/` as the modding context. Read it when a path is unknown or wrong, when the player gives a path to check, or on a new machine. CK3 has no runtime and no compilation.
 ---
 
 # Environment and paths (CK3)
@@ -51,7 +51,7 @@ Do not mix these tools up. They share one implementation in `.pi/lib/game-paths.
 | `set_game_dir` | **Record one concrete game directory**, either from the player or one you found. It checks the path first, then records it. | Writes path state. |
 | `check_game_paths` | **Check only.** Read-only. It checks the paths you give or the remembered ones, and it records nothing. | None. |
 | `check_runtime` | **Report the runtime prerequisites only.** CK3 has none, so it always passes. It does **not** locate the game, and it does not touch the paths. | None. |
-| `sync_game_scripts` | **Mirror the vanilla and Workshop scripts into `game-scripts/`.** This is the context you need before you write mods. | Writes `game-scripts/`. |
+| `sync_game_scripts` | **Mirror the game's scripts and the Workshop scripts into `game-scripts/`**: `vanilla/` holds a copy of the game directory, and `workshop/` holds one directory per mod. This is the context you need before you write mods. | Writes `game-scripts/`. |
 
 ## How to use
 
@@ -74,8 +74,9 @@ Do not mix these tools up. They share one implementation in `.pi/lib/game-paths.
   scripts into `game-scripts/`. PDXScript has no self-describing API, so you cannot write correct
   PDXScript without this context. This step is **required**, and it is not a "find it when needed"
   step.
-  For exact effect, trigger, and modifier names, grep `game-scripts/` and the official wiki
-  (ck3.paradoxwikis.com).
+  For exact effect, trigger, and modifier names, grep `game-scripts/vanilla/game/` and the official
+  wiki (ck3.paradoxwikis.com). The Workshop scripts are not vanilla: do not take a name from
+  `game-scripts/workshop/` as evidence that the game accepts it.
 - **Failures.** Follow the `NEXT` line the tool gives. When the same failure repeats, resolve the
   precondition instead of retrying.
 
