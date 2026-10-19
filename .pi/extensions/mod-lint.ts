@@ -587,7 +587,7 @@ export default function (pi: ExtensionAPI) {
     promptGuidelines: [
       "Use validate_mod after you write a mod, to check that it passes the rules.",
       "Fix every validate_mod ERROR before you call a mod done. WARNs are advisory.",
-      "A semantic WARN names the closest game name. A name you copied from the vanilla scripts is never wrong, so when the WARN disagrees with the vanilla scripts, keep the vanilla spelling and tell the player.",
+      "A name WARN names the closest game name. A localization-key WARN names the missing key. When a WARN disagrees with the vanilla scripts, keep the vanilla spelling and tell the player.",
     ],
     parameters: Type.Object({
       modDir: Type.String({
