@@ -36,9 +36,10 @@ Choosing the mechanism is a decision, and `entry-scout` only locates a name. The
 effect, trigger, modifier, or scope comes from the reference lists in [`wiki/`](wiki/README.md) and
 from `docs/script_docs/`.
 
-> `validate_mod` checks **syntax, conventions, and names**: balanced braces and quotes, the
-> localization format, the `descriptor.mod` fields, the localization keys of a new trait, decision, or
-> character interaction, and an effect, trigger, or modifier name that is close to a real game name.
+> `validate_mod` checks **syntax, conventions, and names**, when the mirror and the dumps are present:
+> balanced braces and quotes, the localization format, the `descriptor.mod` fields, the localization
+> keys of a new trait, decision, or character interaction, and an effect, trigger, or modifier name
+> that is close to a real game name.
 > It is not a scope, type, or value validator, and a `PASS` does not prove that a new name exists. Use
 > `game-scripts/vanilla/game/` and the official wiki for scope and type.
 
@@ -48,5 +49,5 @@ from `docs/script_docs/`.
 |------|------------------------|
 | [`game.md`](game.md) | The game overview and the mod loading mechanics. |
 | [`ck3-modding-conventions.md`](ck3-modding-conventions.md) | The reason behind the override, load-order, localization, and metadata rules. |
-| [`wiki/README.md`](wiki/README.md) | What the wiki snapshot covers, its license, how to refresh it, and how to generate version-exact lists from the game itself. |
+| [`wiki/README.md`](wiki/README.md) | What the wiki snapshot covers, its license, how to refresh it, and how to regenerate the name lists from the installed game. |
 | `docs/script_docs/` | The game's own dump, committed. Exact for the build it was dumped from. `validate_mod` reads it for the name-level checks. `node scripts/dump-script-docs.mjs` refreshes it. |

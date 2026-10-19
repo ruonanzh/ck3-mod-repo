@@ -34,7 +34,7 @@ and its bound directory gate those actions.
   | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
   | 3 | **Locate the entry in vanilla** | Two **peer** options: grep `game-scripts/vanilla/game/` yourself, or dispatch `entry-scout`. Prefer `entry-scout`: it runs in parallel and its greps stay in the child session. Add `reference/example_mod` for a whole shape. | Real object names, real field values, and the file to mirror |
   | 4 | **Read that window's own `.gui` file** | When the change mounts on an existing window or panel, read its `.gui` file under `game-scripts/vanilla/game/gui/`. Skip this step when no window changes. | The `type` and the block to hook into |
-  | 5 | **Agree with the player** | The player. Skip only when the player says to start, for example "start now, no confirmation". | One sentence: what the mod changes, its scope, and its shape |
+  | 5 | **Agree with the player** | The player. Skip only when the player says to start, for example "start now, no confirmation". Do this even when the request looks specific. | One sentence: what the mod changes, its scope, and its shape |
 
   Step 4 is a separate step on purpose. A mechanism lives in `common/`, and an attachment point lives
   in `.gui`. When the two merge, you find the `common/` directory and stop, and the UI half is
@@ -57,9 +57,6 @@ and its bound directory gate those actions.
   2. Steps 6 and 7 are a gate, not a suggestion: a stage-2 wiki page explains a mechanism, and the
      conventions decide how the result may override vanilla. A correct block attached the wrong way
      still fails in the game.
-
-  **Agree with the player before you write.** Give that one-sentence description, then wait for the
-  player's confirmation. Do this even when the request looks specific.
 
   **Then write.** Produce or modify a mod under `your_mods/<ModName>/`. Reuse
   `reference/example_mod/`. You may write only inside the bound mod directory. With no binding,

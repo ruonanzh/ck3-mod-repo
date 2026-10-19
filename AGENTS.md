@@ -20,8 +20,8 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   writes to the Paradox launcher mod directory,
   `<user documents>/Paradox Interactive/Crusader Kings III/mod/`.
 - **`supported_version` must point at the installed game.** Read it from `get_game_info` and write
-the patch-level wildcard that the tool returns. An exact version goes stale, and a loose wildcard is
-a WARN. The field rules are in section 5 of `docs/ck3-modding-conventions.md`.
+  the patch-level wildcard that the tool returns. An exact version goes stale, and a loose wildcard
+  is a WARN. The field rules are in section 5 of `docs/ck3-modding-conventions.md`.
 - **Two read-only subagents ship with this repository.** `.pi/settings.json` declares the vendored
   `pi-subagents` package at `.pi/vendor/pi-subagents/`, so the `subagent` tool is available in a
   trusted project. Grepping `game-scripts/vanilla/game/` yourself and dispatching `entry-scout` are
@@ -50,8 +50,9 @@ a WARN. The field rules are in section 5 of `docs/ck3-modding-conventions.md`.
   you cannot write a correct override without it.
 - `docs/script_docs/` — the game's own dumps: `effects.log`, `triggers.log`, `modifiers.log`,
   `event_scopes.log`, `event_targets.log`, and `on_actions.log`. They are committed, and
-  `validate_mod` reads them. They are version-exact, so they beat the wiki snapshot on the question
-  "does this name exist". `node scripts/dump-script-docs.mjs` refreshes them.
+  `validate_mod` reads them. They are exact for the build they were dumped from, so they beat the
+  wiki snapshot on the question "does this name exist", and a game patch can make them stale.
+  `node scripts/dump-script-docs.mjs` refreshes them.
 - `.pi/skills/` — the step guidance: role skills `setup-workspace`, `mod-creator`, and `mod-installer`,
   plus `how-to-speak` (how to write anything the player reads) and `mod-page` (how to write a mod
   page, revise it from the player's marks, and when to answer a game mechanics or game content
@@ -69,9 +70,9 @@ a WARN. The field rules are in section 5 of `docs/ck3-modding-conventions.md`.
   product UI. `editors/ck3_mod_descriptor/` edits `descriptor.mod`. `editors/ck3_mod_page/` edits
   the Steam Workshop page.
 - `scripts/` — maintenance scripts, run by the maintainer, never by the agent during a mod task:
-  `sync-wiki.mjs` refreshes `docs/wiki/`, `dump-script-docs.mjs` asks the game for its version-exact
-  lists and writes them into `docs/script_docs/`, and `check-doc-refs.mjs` checks every markdown
-  link.
+  `sync-wiki.mjs` refreshes `docs/wiki/`, `dump-script-docs.mjs` asks the game for its name lists, to
+  the build that is installed, and writes them into `docs/script_docs/`, and `check-doc-refs.mjs`
+  checks every markdown link.
 - `mod-repo.json` — the machine-readable game and environment declaration. `workshop.supported`
   declares whether this game has a Steam Workshop. `workshopDir` is a read-only reference and is
   not used for installing. The rule is in the `setup-workspace` skill.
@@ -125,7 +126,7 @@ These are the boundaries. The rule and the reason for each one are in
 After you finish or change a mod, run `validate_mod` on `your_mods/<ModName>/`.
 Clear every ERROR before you end the turn.
 
-The tool checks syntax, conventions, and names:
+The tool checks syntax, conventions, and names, when the mirror and the dumps are present:
 
 - **Syntax and conventions:** balanced braces and quotes, the localization format, and the
   `descriptor.mod` fields.

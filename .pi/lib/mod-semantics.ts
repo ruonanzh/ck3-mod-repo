@@ -9,8 +9,8 @@
  *          (the wiki states both: docs/wiki/Trait_modding.md, the *localization* section)
  *        - a decision in `common/decisions/`: `<key>` and `<key>_desc`
  *          (the wiki states the four keys: docs/wiki/Decisions_modding.md. This check requires the
- *          two that have no default. `_tooltip` and `_confirm` have defaults in
- *          `common/decisions/_decisions.info`, so a mod may leave them out.)
+ *          two that the player always sees. `_tooltip` and `_confirm` have defaults in
+ *          `common/decisions/_decisions.info`, so a mod may leave them out, and they stay unchecked.)
  *        - a character interaction in `common/character_interactions/`: `<key>`
  *          (the name defaults to the interaction key: `common/character_interactions/
  *          _character_interactions.info`. The wiki page has no localization section, so this check
@@ -359,33 +359,56 @@ function closestName(token: string, dump: DumpNames, max: number): string | null
     }
   };
   scan(dump.byFirstChar.get(token[0]) ?? [], bestDistance - 1);
-  // A typo in the first character falls into no bucket. One full pass at distance 1 recovers it.
-  if (!best && max > 1) scan(dump.names, 1);
+  // A typo in the first character falls into no bucket. One full pass recovers it.
+  if (!best) scan(dump.names, max);
   return bestDistance <= max ? best : null;
 }
 
-/** The top-level names that vanilla declares in one data directory. */
-function vanillaIds(vanillaRoot: string, dir: string): Set<string> {
-  const ids = new Set<string>();
-  for (const file of walkFiles(join(vanillaRoot, dir), (rel) => rel.endsWith(".txt"))) {
-    try {
-      definitionsIn(readFileSync(file.abs, "utf8"), ids);
-    } catch {
-      /* An unreadable vanilla file only hides an override, and that can add a false WARN. */
+/** The names that vanilla declares, read once and shared by both checks. */
+interface VanillaNames {
+  /** The top-level names of each data directory that the localization check reads. */
+  byDir: Map<string, Set<string>>;
+  /** Every definition name and every word that the vanilla files use, for the near-miss check. */
+  known: Set<string>;
+}
+
+/**
+ * Read the vanilla names one time. The two checks need the same files, and reading 21 MB twice made
+ * validate_mod slow. Every field that vanilla uses is a legal word too, and vanilla uses fields that
+ * no definition list holds (`random_traits`, for example), so the vocabulary of these files is part
+ * of the known set. Without it, a correct mod is reported as a misspelling.
+ */
+function readVanillaNames(vanillaRoot: string): VanillaNames {
+  const byDir = new Map<string, Set<string>>();
+  const known = new Set<string>();
+  for (const dir of VANILLA_NAME_DIRS) {
+    const dirNames = new Set<string>();
+    for (const file of walkFiles(join(vanillaRoot, dir), (rel) => rel.endsWith(".txt"))) {
+      let text = "";
+      try {
+        text = readFileSync(file.abs, "utf8");
+      } catch {
+        /* An unreadable vanilla file hides an override or a word, and that can add a false WARN. */
+        continue;
+      }
+      definitionsIn(text, dirNames);
+      for (const match of scriptOnly(text).matchAll(TOKEN_RE)) known.add(match[0]);
     }
+    for (const name of dirNames) known.add(name);
+    byDir.set(dir, dirNames);
   }
-  return ids;
+  return { byDir, known };
 }
 
 /** The findings for check 1: a new object without its derived localization keys. */
-function checkNewObjectLoc(modDir: string, vanillaRoot: string, findings: SemanticFinding[]): void {
+function checkNewObjectLoc(modDir: string, vanilla: VanillaNames, findings: SemanticFinding[]): void {
   const keys = modLocKeys(modDir);
   let found = 0;
   for (const rule of LOC_REQUIREMENTS) {
     if (found >= MAX_FINDINGS_PER_CHECK) break;
     // An object whose name vanilla already declares is an override. Vanilla supplies the key, so the
     // mod needs no new one. Without this, a correct override is reported as a new object.
-    const vanilla = vanillaIds(vanillaRoot, rule.dir);
+    const vanillaIds = vanilla.byDir.get(rule.dir) ?? new Set<string>();
     const files = walkFiles(modDir, (rel) => rel.startsWith(`${rule.dir}/`) && rel.endsWith(".txt"));
     for (const file of files) {
       if (found >= MAX_FINDINGS_PER_CHECK) break;
@@ -396,7 +419,7 @@ function checkNewObjectLoc(modDir: string, vanillaRoot: string, findings: Semant
         continue;
       }
       for (const def of definitionBodies(text)) {
-        if (vanilla.has(def.id)) continue;
+        if (vanillaIds.has(def.id)) continue;
         const missing = rule.required(def.id, def.body).filter((key) => !keys.has(key));
         if (missing.length === 0) continue;
         if (found >= MAX_FINDINGS_PER_CHECK) break;
@@ -417,48 +440,39 @@ function checkNewObjectLoc(modDir: string, vanillaRoot: string, findings: Semant
 /** The findings for check 2: a name that is one or two edits away from a game name. */
 function checkNearMissNames(
   modDir: string,
-  vanilla: string,
+  vanilla: VanillaNames,
   dump: DumpNames,
   findings: SemanticFinding[],
 ): boolean {
   const known = new Set<string>(dump.names);
-  for (const dir of VANILLA_NAME_DIRS) {
-    const files = walkFiles(join(vanilla, dir), (rel) => rel.endsWith(".txt"));
-    for (const file of files) {
-      let text = "";
-      try {
-        text = readFileSync(file.abs, "utf8");
-      } catch {
-        /* An unreadable vanilla file adds no names, and that only risks a false WARN. */
-        continue;
-      }
-      definitionsIn(text, known);
-      // Every field that vanilla uses is a legal word too. Vanilla uses fields that no definition
-      // list holds (`random_traits`, for example). So the vocabulary of these files is part of the
-      // known set. Without it, a correct mod is reported as a misspelling.
-      for (const match of scriptOnly(text).matchAll(TOKEN_RE)) known.add(match[0]);
-    }
-  }
+  for (const name of vanilla.known) known.add(name);
 
   const reported = new Set<string>();
   let found = 0;
   const scriptFiles = walkFiles(modDir, (rel) => /\.(txt|gui|gfx|asset)$/i.test(rel));
+  const modFiles: Array<{ rel: string; text: string }> = [];
+  // A mod name is exempt in every file, not only in the file that defines it: a scripted effect
+  // defined in one file is called from another.
+  const modNames = new Set<string>();
   for (const file of scriptFiles) {
-    if (found >= MAX_FINDINGS_PER_CHECK) break;
-    let text = "";
     try {
-      text = readFileSync(file.abs, "utf8");
+      const text = readFileSync(file.abs, "utf8");
+      modFiles.push({ rel: file.rel, text });
+      definitionsIn(text, modNames);
     } catch {
-      continue;
+      /* An unreadable mod file is skipped, and the syntax check reports it. */
     }
-    const names = new Set<string>();
-    definitionsIn(text, names);
+  }
+
+  for (const file of modFiles) {
+    if (found >= MAX_FINDINGS_PER_CHECK) break;
+    const text = file.text;
     const clean = scriptOnly(text);
     const saved = new Set<string>();
     for (const match of clean.matchAll(SAVED_NAME_RE)) saved.add(match[1]);
     for (const match of clean.matchAll(TOKEN_RE)) {
       const token = match[0];
-      if (known.has(token) || names.has(token) || saved.has(token) || reported.has(token)) continue;
+      if (known.has(token) || modNames.has(token) || saved.has(token) || reported.has(token)) continue;
       const suggestion = closestName(token, dump, 2);
       if (!suggestion) continue;
       reported.add(token);
@@ -504,7 +518,8 @@ export function analyzeSemantics(modDir: string, cwd: string): SemanticResult {
     return { checked, findings };
   }
 
-  checkNewObjectLoc(modDir, vanilla, findings);
+  const vanillaNames = readVanillaNames(vanilla);
+  checkNewObjectLoc(modDir, vanillaNames, findings);
   checked.push("localization keys for new traits, decisions, and character interactions");
 
   const dump = readDumpNames(dumpDir(cwd));
@@ -517,7 +532,7 @@ export function analyzeSemantics(modDir: string, cwd: string): SemanticResult {
     });
     return { checked, findings };
   }
-  checkNearMissNames(modDir, vanilla, dump, findings);
+  checkNearMissNames(modDir, vanillaNames, dump, findings);
   checked.push("effect, trigger, and modifier names against docs/script_docs");
 
   return { checked, findings };

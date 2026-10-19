@@ -83,7 +83,7 @@ whether the miss matters:
 | `Map_modding`, `Terrain_modding`, `Coat_of_arms_modding`, `3D_models`, `Sound_modding`, `Music_modding`, `Fonts`, `Graphical_assets` | The graphics and audio pipeline. Needed only for an asset mod. Fetch the one page, then |
 | `Console_commands`, `Commands` | Console and debug commands. Not part of writing a mod |
 | `Defines`, `Lists`, `List_of_baronies`, `Exporters` | Data tables and tools. `common/defines/` in the vanilla scripts answers the first |
-| `Data_types` | `scripts/dump-script-docs.mjs --command=dump_data_types` regenerates it version-exact |
+| `Data_types` | `scripts/dump-script-docs.mjs --command=dump_data_types` regenerates it for the installed build. The result is not committed |
 | `Modding_tools` | Tooling advice for humans, not for the agent |
 
 ## Source and license

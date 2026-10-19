@@ -22,7 +22,7 @@ import { MAX_SEMANTIC_FINDINGS, analyzeSemantics } from "../lib/mod-semantics";
  *     a name in the game's dumps.
  *
  * The tool is read-only, and it has no third-party dependency. Its content output uses PASS or FAIL with NEXT,
- * in ASCII English, and its details hold only ok, errors, and warnings.
+ * in ASCII English, and its details hold ok, errors, warnings, and the semantic result.
  */
 
 const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
@@ -655,15 +655,15 @@ export default function (pi: ExtensionAPI) {
             `... ${errors.length - MAX_CONTENT_LINES} more error(s) omitted`,
           );
         }
+        for (const w of warnings.slice(0, MAX_CONTENT_LINES)) {
+          lines.push(`WARN: ${w.rel}: ${w.message}`);
+        }
         for (const w of semanticWarnings.slice(0, MAX_SEMANTIC_FINDINGS)) {
           lines.push(`WARN: ${w.rel}: ${w.message}`);
         }
         lines.push(`NEXT: fix the errors above and re-run validate_mod.`);
       }
       for (const note of semanticNotes) lines.push(`NOTE: ${note.rel}: ${note.message}`);
-      if (semanticWarnings.length > MAX_SEMANTIC_FINDINGS) {
-        lines.push(`... ${semanticWarnings.length - MAX_SEMANTIC_FINDINGS} more semantic warning(s) omitted`);
-      }
 
       return {
         content: [{ type: "text", text: lines.join("\n") }],

@@ -17,7 +17,7 @@ The smallest CK3 mod that exercises the real structure:
 
 What it demonstrates:
 
-- **Classic layout.** Content folders (`common/`, `localization/`) sit at the mod root. There is no
+- **Classic layout.** Content directories (`common/`, `localization/`) sit at the mod root. There is no
   `.metadata/` directory and no `in_game/`/`main_menu/` split.
 - **A new object is additive.** `example_gain_gold_decision` is a new key, so it cannot clash with
   vanilla.

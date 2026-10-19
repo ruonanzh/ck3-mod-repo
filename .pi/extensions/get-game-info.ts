@@ -66,7 +66,11 @@ function dumpsRow(cwd: string): string {
   try {
     const dir = dumpDir(cwd);
     const logs = readdirSync(dir).filter((n) => n.endsWith(".log"));
-    const usable = logs.includes("effects.log") || logs.includes("triggers.log");
+    // The name check needs a non-empty effects.log or triggers.log, so an empty file is not usable.
+    const usable = ["effects.log", "triggers.log"].some((name) => {
+      const stat = statSync(join(dir, name), { throwIfNoEntry: false });
+      return stat?.isFile() === true && stat.size > 0;
+    });
     if (!usable) return `missing - the maintainer can refresh them with \`node scripts/dump-script-docs.mjs\``;
     // The dump carries no build tag, so its date is the only sign of its age.
     const newest = logs.reduce((latest, name) => {

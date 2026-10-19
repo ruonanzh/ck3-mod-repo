@@ -33,8 +33,9 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-// These two paths are the same as DUMP_DIRNAME and DATA_TYPES_DIRNAME in `.pi/lib/game-paths.ts`.
-// This script is plain ESM and cannot import the TypeScript library, so the names live here too.
+// These two paths are the same as DUMP_DIRNAME in `.pi/lib/game-paths.ts` and the data-type
+// directory next to it. This script is plain ESM and cannot import the TypeScript library, so the
+// names live here too.
 const DUMP_DIRS = { script_docs: join(root, "docs", "script_docs"), dump_data_types: join(root, "docs", "data_types") };
 const args = process.argv.slice(2);
 const argOf = (name, fallback) => {
