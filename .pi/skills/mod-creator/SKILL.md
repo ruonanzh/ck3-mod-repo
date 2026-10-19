@@ -41,7 +41,7 @@ and its bound directory gate those actions.
   in `.gui`. When the two merge, you find the `common/` directory and stop, and the UI half is
   missing.
 
-  **Do not start step 3 without the mirror.** `game-scripts/` is not committed, so a fresh workspace
+  **Do not start step 3 without the modding context.** `game-scripts/` is not committed, so a fresh workspace
   has no vanilla scripts. A grep of an empty directory returns nothing, and an empty answer is not
   "vanilla has no such entry".
 
@@ -91,7 +91,7 @@ decision: read its first candidate yourself before you write.
 `grep -rln <keyword> game-scripts/vanilla/game/`. Also grep yourself when you cannot dispatch, for
 example when the subagent tool is unavailable.
 
-Grep only the vanilla part of the mirror. `game-scripts/workshop/` holds another player's mods: a hit
+Grep only the vanilla part of the modding context. `game-scripts/workshop/` holds another player's mods: a hit
 there proves what that mod does, not what the game accepts.
 
 When the change has two or three independent parts, send all the scouts at once, one per part.
@@ -200,7 +200,7 @@ the candidate it returns, in two cases: when you are unsure which mechanism fits
 survey the mechanisms that the game already has for a feature.
 
 A mod can also add its own content to one of the game's own data directories. The list is mechanical,
-and the mirror already holds it: usually one directory per data kind. On game version 1.20.1.1,
+and the modding context already holds it: usually one directory per data kind. On game version 1.20.1.1,
 `game-scripts/vanilla/game/common/` holds 128 directories. To list them, run
 `ls game-scripts/vanilla/game/common/`. Each directory entry names one data kind, and the count
 changes when the game adds one.

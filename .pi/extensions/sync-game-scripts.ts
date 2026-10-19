@@ -210,7 +210,7 @@ export default function (pi: ExtensionAPI) {
       }
 
       const destRoot = dirs.root;
-      // A link at any part of the mirror can point at the game directory. Writing through it would
+      // A link at any part of the modding context can point at the game directory. Writing through it would
       // copy files into the game, and the sweep below could then delete the game's own scripts. Stop
       // before any write or delete.
       const linked = [dirs.root, dirs.vanilla, dirs.vanillaScripts, dirs.workshop].filter(isLink);
@@ -219,7 +219,7 @@ export default function (pi: ExtensionAPI) {
           content: [
             {
               type: "text",
-              text: `FAIL: ${linked.map((p) => toPosix(relative(repoRoot, p)) + "/").join(", ")} is a symbolic link. The mirror must be a real directory, because a link can point at the game directory and this tool would write into the game or delete the game's scripts.\nNEXT: delete the link, or replace it with a directory, then run sync_game_scripts again.`,
+              text: `FAIL: ${linked.map((p) => toPosix(relative(repoRoot, p)) + "/").join(", ")} is a symbolic link. The modding context must be a real directory, because a link can point at the game directory and this tool would write into the game or delete the game's scripts.\nNEXT: delete the link, or replace it with a directory, then run sync_game_scripts again.`,
             },
           ],
           details: { ok: false, errors: ["MIRROR_IS_SYMLINK"] },
@@ -244,8 +244,8 @@ export default function (pi: ExtensionAPI) {
         // The Workshop source can disappear, when the player unsubscribes or deletes the directory.
         // The tool must not silently keep the old mirror, because the agent would keep reading it as
         // the current game content. Distinguish that from an unknown path:
-        //   - The path is known and no longer exists: the source is gone. Clear the mirror and say so.
-        //   - The path is unknown (try_set_game_dir never ran): leave the mirror alone, because it
+        //   - The path is known and no longer exists: the source is gone. Clear it and say so.
+        //   - The path is unknown (try_set_game_dir never ran): leave it alone, because it
         //     may be a valid mirror from an earlier run.
         const wsVerdict = checkWorkshopDir(workshopDir, steamAppId);
         workshopGone = typeof workshopDir === "string" && !existsSync(workshopDir);
@@ -258,7 +258,7 @@ export default function (pi: ExtensionAPI) {
             : { copied: 0, staleRemoved: 0 };
       }
 
-      // The mirror layout changed. Write the new copy first (above), then delete the old roots, so a
+      // The layout changed. Write the new copy first (above), then delete the old roots, so a
       // failed run leaves a readable mirror behind. A symbolic link is never deleted: it can point at
       // the game directory, and that is not this tool's copy. A failed delete does not stop the run.
       const stale = [{ path: dirs.legacy }, { path: dirs.legacyDump }];
@@ -297,8 +297,8 @@ export default function (pi: ExtensionAPI) {
       }
 
       // The `mirrored N` count above is what this run copied, so an up-to-date mirror reports 0.
-      // That reads as "the mirror is empty", which is wrong: the mirror keeps every file the earlier
-      // runs copied. Count the mirror itself, after the sync, and report that total as well.
+      // That reads as "nothing is there", which is wrong: it keeps every file the earlier runs
+      // copied. Count the context itself, after the sync, and report that total as well.
       const mirrorTotal = walkFiles(destRoot).length;
 
       const lines = [

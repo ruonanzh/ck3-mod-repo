@@ -26,7 +26,8 @@ enforces nothing.
 
 CK3 loads the mod files on top of the vanilla files. There is **no** `INJECT:`/`REPLACE:` keyword
 system. Those are Victoria 3 / EU5 keywords, and they do not appear anywhere in CK3's docs or vanilla
-scripts). Override is file- and object-based, per `Modding`, section "Override rules".
+scripts. Those are Victoria 3 / EU5 keywords, and they do not appear anywhere in CK3's docs or vanilla
+scripts. Override is file- and object-based, per `Modding`, section "Override rules".
 
 - **Full file override:** a mod file with the *same path and filename* as a vanilla/DLC file
   replaces it entirely. Anything you omit is lost — brittle across patches.
@@ -52,8 +53,8 @@ no keyword to prefix. The filename order is the mechanism.
 
 Per `Modding`, sections "Mod load order" and "Override rules":
 
-- Files load in **ASCIIbetical order** by name: `00_foo.txt` before `01_bar.txt`. Vanilla compared
-  with mod does not matter for ordering. It matters for overwrite precedence, which section 1 covers.
+- Files load in **ASCIIbetical order** by name: `00_foo.txt` before `01_bar.txt`. The same order
+decides two files at the same relative path, so the later name wins.
 - **A file in a subdirectory loads after the files in the parent directory**, regardless of ASCII
   order. *(This rule is stated by the EU5 wiki and is **not yet verified for CK3**. Treat it as
   "likely, to confirm" until checked against a CK3 install.)*
@@ -65,8 +66,8 @@ Per `Modding`, sections "Mod load order" and "Override rules":
 
 ## 3. Localization (BOM, filename, header, and the `replace/` directory)
 
-Write the files under `your_mods/<name>/localization/<lang>/...`. See `Localization` and
-`Modding`, section "Override rules", subsection "Localization".
+Write the files under `your_mods/<name>/localization/<lang>/...`. The format is in `Modding`,
+the localization section: BOM, filename, and header. The `replace/` directory is in `Localization`.
 
 - **Encoding (mandatory):** UTF-8 **with BOM** (`EF BB BF`). Without a BOM the game **ignores the
   file**. This failure is fatal, not cosmetic, so the linter treats a missing BOM as an ERROR.
@@ -106,8 +107,8 @@ Write the files under `your_mods/<name>/localization/<lang>/...`. See `Localizat
 
 ## 5. `descriptor.mod` and `<name>.mod`
 
-Per `Mod_structure`, section "Mod structure": every mod ships **two** key=value text files (NOT
-`.metadata/metadata.json`, which is a Victoria 3 / EU5 format).
+Per `Mod_structure`, sections "The .mod files" and "Keys": every mod ships **two** key=value text
+files (NOT `.metadata/metadata.json`, which is a Victoria 3 / EU5 format).
 
 - **`descriptor.mod`** — inside the mod directory. Holds `version` (required), `name` (required),
   `tags`, `picture`, `remote_file_id` (Workshop upload only), and `replace_path`. It does **not**
@@ -123,7 +124,7 @@ Keys table (per `Mod_structure`):
 | `version` | yes | The mod version, a string. |
 | `name` | yes | The launcher display name. |
 | `supported_version` | in `<name>.mod` | Latest game version the mod supports. The game uses semantic versioning `MAJOR.MINOR.PATCH`, and `*` wildcards define a range, e.g. `1.20.*`. |
-| `path` | in `<name>.mod` | Where the mod directory lives. Relative to the Paradox user-documents directory (`path="mod/my_mod"`) **or an absolute path** (`path="C:/Mods/my_mod"`). |
+| `path` | in `<name>.mod` | Where the mod directory lives. Relative to the CK3 user folder (`…/Paradox Interactive/Crusader Kings III/`, so `path="mod/my_mod"`) **or an absolute path** (`path="C:/Mods/my_mod"`). |
 | `tags` | no | A list of quoted strings, `tags={ "a" "b" }`. A list may span several lines. |
 | `picture` | no | The thumbnail image file, e.g. `"thumbnail.png"`. Steam ignores this key and always looks for `thumbnail.png` in the mod root. |
 | `remote_file_id` | Workshop only | The Steam Workshop item id. |
@@ -230,7 +231,7 @@ would change a reader's decision. The list governs the text this repository writ
 | The directory that holds installed mods | `mod install directory` | `launcher dir`, `install target` |
 | The player's Documents tree | `Paradox user-documents directory` | `user documents folder` |
 | The Steam Workshop directory | `Steam Workshop directory` | `Workshop folder`, `workshop dir` |
-| `game-scripts/` | `the modding context`, `the mirror` | `the authoring context`, `the script mirror` |
+| `game-scripts/` | `the modding context` | `the authoring context`, `the script mirror`, `the mirror` |
 | `game-scripts/vanilla/game/` | `the vanilla scripts` | `vanilla` for the whole mirror |
 | `game-scripts/workshop/` | `the Workshop scripts` | `vanilla` for the Workshop scripts |
 | `docs/script_docs/` | `the game's dumps` | `the logs` |
@@ -279,7 +280,7 @@ CK3 has no `metadata.id`. The directory name is the identity that this repositor
 | Delete a file | `delete` | `remove`, `erase` |
 | Write a mod | `write` | `author` |
 | The activity of making mods | `modding` | `authoring` |
-| Copy the game and Workshop scripts into the mirror | `mirror` | `copy down`, `download` |
+| Copy the game and Workshop scripts into the modding context | `mirror` | `copy down`, `download` |
 | Copy a mod into the mod install directory | `install` | `deploy`, `publish` |
 | A mod passed | `valid` | `correct` |
 | A path check passed | `correct` | `verified` |
@@ -288,9 +289,10 @@ CK3 has no `metadata.id`. The directory name is the identity that this repositor
 
 ## 9. Name-level checks (what `validate_mod` proves, and what it does not)
 
-`validate_mod` reads three sources: the mod, the vanilla scripts in the mirror, and the game's own
-dumps in `docs/script_docs/`. It reports WARN or NOTE only, never FAIL, and every finding names the
-file.
+`validate_mod` reads three sources: the mod, the vanilla scripts in `game-scripts/vanilla/game/`, and
+the game's own dumps in `docs/script_docs/`. These two name checks report WARN or NOTE only, never
+FAIL, and every finding names the file. The syntax and localization checks in section 3 still report
+ERROR.
 
 1. **A new object needs its localization key.** The key is derived from the object name, so a new
    object cannot borrow a vanilla key.
@@ -320,9 +322,10 @@ file.
    data directories use is also known, because a field such as `random_traits` is correct and appears
    in no definition list. A misspelling that happens to be one of those words therefore passes
    silently. Limits: a name shorter than 8 characters is not compared at all. The check compares
-   dumped names only, never a scope or a type. When a name with the same first character is as close
+   dumped names only, never a scope or a type. It compares a call position only (`name = …`), so a
+   token on the right of `=` is never reported. When a name with the same first character is as close
    as the real one, the suggestion can name the wrong one.
-3. **Both checks need the mirror.** `game-scripts/vanilla/` is generated by `sync_game_scripts`.
+3. **Both checks need the modding context.** `game-scripts/vanilla/` is generated by `sync_game_scripts`.
    Without it, a vanilla object looks new and a vanilla name looks unknown. When it is missing, both
    checks are skipped with one NOTE. The name check also needs `docs/script_docs/`, which is
    committed, and it reports its own NOTE when the dumps are missing.
@@ -339,7 +342,7 @@ form, the placement, the scope, and the type of each call. For exact vanilla nam
 the lookup hierarchy in [`INDEX.md`](INDEX.md):
 
 - **Vanilla scripts:** `game-scripts/vanilla/game/`, generated by `sync_game_scripts`, holds the
-  vanilla game scripts. The mirror copies the game directory, so the scripts sit one level down.
+  vanilla game scripts. The modding context copies the game directory, so the scripts sit one level down.
   Grep it for exact object definitions, field values, and loc keys. Never grep the install directory
   itself. The Workshop scripts are in `game-scripts/workshop/`, one directory per mod, and they are
   **not** vanilla: a hit there proves that another player wrote it, not that the game accepts it.
@@ -351,8 +354,8 @@ the lookup hierarchy in [`INDEX.md`](INDEX.md):
   substitute.
 
 Both the scripts and the lists can be behind the installed game. The most exact source is the
-game's own dump: it records the build that the dump run used, so it beats both, and a game patch can
-make it stale. The dump is at `docs/script_docs/`, described in [`wiki/README.md`](wiki/README.md).
+game's own dump, and it carries no build tag: [`wiki/README.md`](wiki/README.md) records the build
+that the committed dump was measured on. The dump is at `docs/script_docs/`.
 
 What stays out of reach without that dump: a **value domain** (the legal range of a number or the
 closed set of an enum) and **pairing** beyond the scope column (which host list an object belongs to).

@@ -29,24 +29,24 @@ import os from "node:os";
 export const GAME_SENTINEL = join("binaries", "ck3.exe");
 
 /**
- * The workspace directory that holds the script mirror. This is the one definition of the mirror
- * name: sync_game_scripts writes it, and get_game_info and validate_mod read it.
+ * The workspace directory that holds the modding context. This is the one definition of the path:
+ * sync_game_scripts writes it, and get_game_info and validate_mod read it.
  *
- * The mirror holds two parts:
+ * The modding context holds two parts:
  *   - `vanilla/`   a copy of the game directory, which is the install root. The scripts of the
  *                  game are at `vanilla/game/...`.
  *   - `workshop/`  one directory per Workshop mod.
  */
 export const MIRROR_ROOT_DIRNAME = "game-scripts";
-/** The part of the mirror that holds the copy of the game directory. */
+/** The part of the modding context that holds the copy of the game directory. */
 export const MIRROR_DIRNAME = "vanilla";
-/** The part of the mirror that holds the Workshop scripts. */
+/** The part of the modding context that holds the Workshop scripts. */
 export const WORKSHOP_MIRROR_DIRNAME = "workshop";
-/** The vanilla part of the mirror that an earlier version wrote. sync_game_scripts deletes it. */
+/** The vanilla part that an earlier layout wrote. sync_game_scripts deletes it. */
 export const LEGACY_MIRROR_DIRNAME = "game";
-/** The dump directory that an earlier version wrote under the mirror. sync_game_scripts deletes it. */
+/** The dump directory that an earlier layout wrote under it. sync_game_scripts deletes it. */
 export const LEGACY_DUMP_DIRNAME = "script-docs";
-/** The marker file that turns the Workshop half of the mirror off. The test harness creates it. */
+/** The marker file that turns the Workshop half off. The test harness creates it. */
 export const NO_WORKSHOP_MARKER = ".no-workshop";
 /** The game's own script dumps. They are repository content, so a clone has them without the game. */
 export const DUMP_DIRNAME = "docs/script_docs";
@@ -66,7 +66,7 @@ export interface MirrorDirs {
   legacyDump: string;
 }
 
-/** The mirror paths under one workspace root. Call this instead of writing a mirror path. */
+/** The modding-context paths under one workspace root. Call this instead of writing a path. */
 export function mirrorDirs(cwd: string): MirrorDirs {
   const root = join(cwd, MIRROR_ROOT_DIRNAME);
   const vanilla = join(root, MIRROR_DIRNAME);

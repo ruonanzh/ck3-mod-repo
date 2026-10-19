@@ -13,7 +13,7 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   silent no-op. If python is truly needed, run `command -v py` first. If `py` is missing, fall back
   to `node` / `awk`.
 - **When you develop, read scripts only from the vanilla scripts at `game-scripts/vanilla/game/`**
-  (this does not affect mod runtime). The mirror copies the game directory, so the game's own
+  (this does not affect mod runtime). The modding context copies the game directory, so the game's own
   `game/` directory appears once inside `vanilla/`. The real install directory
   `.../Crusader Kings III/game/...` is the source that `sync_game_scripts` reads to build that copy.
   Do not `cat` / `grep` there while developing. Installing a mod is a third place: `install_mod`
@@ -134,7 +134,7 @@ These are the boundaries. The rule and the reason for each one are in
 After you finish or change a mod, run `validate_mod` on `your_mods/<ModName>/`.
 Clear every ERROR before you end the turn.
 
-The tool checks syntax, conventions, and names, when the mirror and the dumps are present:
+The tool checks syntax, conventions, and names, when the modding context and the dumps are present:
 
 - **Syntax and conventions:** balanced braces and quotes, the localization format, and the
   `descriptor.mod` fields.

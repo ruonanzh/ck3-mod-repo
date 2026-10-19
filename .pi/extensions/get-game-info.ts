@@ -17,9 +17,9 @@
  * Read-only: the tool reads `.gamer-agent.local.json`, and it never writes it. A missing or invalid
  * gameDir is a FAIL, and the agent then runs try_set_game_dir, which records the paths.
  *
- * CK3 facts: the install scripts live in `<gameDir>/game/...`. The mirror copies the game
+ * CK3 facts: the install scripts live in `<gameDir>/game/...`. The modding context copies the game
  * directory, so the vanilla scripts live at `game-scripts/vanilla/game/...`. The workshop part of
- * the mirror is `game-scripts/workshop/`, one directory per mod.
+ * the modding context is `game-scripts/workshop/`, one directory per mod.
  */
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -53,7 +53,7 @@ function countDirs(dir: string): number {
   }
 }
 
-/** The Workshop row. It reports the state of the mirror, never a fixed claim. */
+/** The Workshop row. It reports the real state, never a fixed claim. */
 function workshopRow(cwd: string): string {
   const dirs = mirrorDirs(cwd);
   if (existsSync(join(dirs.root, NO_WORKSHOP_MARKER))) return "not mirrored (.no-workshop is present)";
@@ -85,8 +85,8 @@ export default function (pi: ExtensionAPI) {
     name: "get_game_info",
     label: "Get Game Info",
     description:
-      "Reports the recorded game environment facts for Crusader Kings III in one call: the game directory, the mod install directory, the Workshop directory, the supported game version, the script layout, whether the vanilla scripts are present, how many Workshop mods the mirror holds, whether the game's dumps are present, and where the entry points are. It takes no arguments, it reads the runtime state only, and it writes nothing.",
-    promptSnippet: "Report the game paths, the supported version, the mirror state, and whether the dumps are present",
+      "Reports the recorded game environment facts for Crusader Kings III in one call: the game directory, the mod install directory, the Workshop directory, the supported game version, the script layout, whether the vanilla scripts are present, how many Workshop mods the modding context holds, whether the game's dumps are present, and where the entry points are. It takes no arguments, it reads the runtime state only, and it writes nothing.",
+    promptSnippet: "Report the game paths, the supported version, the modding context, and whether the dumps are present",
     promptGuidelines: [
       "Use get_game_info when you need the game paths, the script layout, whether the vanilla scripts are present, or the version value for the mod metadata. It answers all of them in one call.",
       "Use get_game_info instead of gathering the game version yourself. Write the returned `supportedGameVersion` into `supported_version`. Do not read `ck3.exe`, and do not use its `VersionInfo`.",
@@ -128,7 +128,7 @@ export default function (pi: ExtensionAPI) {
       const build = typeof state.gameBuild === "string" ? state.gameBuild : null;
       const version = supportedGameVersion(build);
 
-      // The vanilla part of the mirror is a copy of the game directory, so the scripts sit one
+      // The vanilla part of the modding context is a copy of the game directory, so the scripts sit one
       // level down, at `vanilla/game/`. This check reads one directory entry only.
       const vanillaPresent = existsSync(mirrorDirs(cwd).vanillaScripts);
 

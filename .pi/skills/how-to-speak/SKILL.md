@@ -78,7 +78,7 @@ A number, a path or a file name is allowed only when the player must type it, cl
 
 ## Honesty: what you may and may not claim
 
-- **"No errors" is not "it works".** When the mirror and the dumps are present, the checks cover
+- **"No errors" is not "it works".** When the modding context and the dumps are present, the checks cover
   syntax, conventions, and names: balanced braces and quotes, the localization format, the
   `descriptor.mod` fields, the key of a new object, and an effect, trigger, or modifier name against
   the game's dumps. They do not check scope, type, values, intent, or balance. A mod can pass every

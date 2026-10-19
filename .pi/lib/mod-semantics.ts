@@ -306,6 +306,9 @@ const VANILLA_NAME_DIRS = [
   "common/scripted_guis",
 ];
 
+/** Directories that supply names only. A missing one is not a partial mirror. */
+const EXTRA_NAME_DIRS = ["common/opinion_modifiers", "common/customizable_localization"];
+
 /** The engine name list: every effect, trigger, and modifier that the game declares. */
 interface DumpNames {
   names: Set<string>;
@@ -403,7 +406,7 @@ interface VanillaNames {
   byDir: Map<string, Set<string>>;
   /** Every definition name and every word that the vanilla files use, for the near-miss check. */
   known: Set<string>;
-  /** The data directories that the mirror does not hold, so a check can say what it skipped. */
+  /** The data directories that are absent, so a check can say what it skipped. */
   missingDirs: string[];
 }
 
@@ -443,12 +446,40 @@ function readVanillaNames(vanillaRoot: string): VanillaNames {
     for (const name of dirNames) known.add(name);
     byDir.set(dir, dirNames);
   }
+
+  for (const dir of EXTRA_NAME_DIRS) {
+    for (const file of walkFiles(join(vanillaRoot, dir), (rel) => rel.endsWith(".txt"))) {
+      let text = "";
+      try {
+        text = readFileSync(file.abs, "utf8");
+      } catch {
+        continue;
+      }
+      definitionsIn(text, known);
+      for (const match of scriptOnly(text).matchAll(TOKEN_RE)) known.add(match[0]);
+    }
+  }
+
+  // The `.info` files document field names that no definition holds, including the history commands
+  // (`add_spouse` among them). A correct name that only lives there must not look like a misspelling.
+  for (const dir of ["history", ...VANILLA_NAME_DIRS]) {
+    for (const file of walkFiles(join(vanillaRoot, dir), (rel) => rel.endsWith(".info"))) {
+      let text = "";
+      try {
+        text = readFileSync(file.abs, "utf8");
+      } catch {
+        continue;
+      }
+      for (const match of scriptOnly(text).matchAll(TOKEN_RE)) known.add(match[0]);
+    }
+  }
   return { byDir, known, missingDirs };
 }
 
 /** The findings for check 1: a new object without its derived localization keys. */
-function checkNewObjectLoc(modDir: string, vanilla: VanillaNames, findings: SemanticFinding[]): void {
+function checkNewObjectLoc(modDir: string, vanilla: VanillaNames, findings: SemanticFinding[]): string[] {
   const keys = modLocKeys(modDir);
+  const kinds: string[] = [];
   let found = 0;
   for (const rule of LOC_REQUIREMENTS) {
     if (found >= MAX_FINDINGS_PER_CHECK) break;
@@ -456,6 +487,7 @@ function checkNewObjectLoc(modDir: string, vanilla: VanillaNames, findings: Sema
     // mod needs no new one. Without this, a correct override is reported as a new object.
     const vanillaIds = vanilla.byDir.get(rule.dir);
     if (!vanillaIds) continue;
+    kinds.push(rule.kind);
     const files = walkFiles(modDir, (rel) => rel.startsWith(`${rule.dir}/`) && rel.endsWith(".txt"));
     for (const file of files) {
       if (found >= MAX_FINDINGS_PER_CHECK) break;
@@ -482,6 +514,7 @@ function checkNewObjectLoc(modDir: string, vanilla: VanillaNames, findings: Sema
       }
     }
   }
+  return kinds;
 }
 
 /** The findings for check 2: a name that is one or two edits away from a game name. */
@@ -520,6 +553,9 @@ function checkNearMissNames(
     for (const match of clean.matchAll(TOKEN_RE)) {
       const token = match[0];
       if (known.has(token) || modNames.has(token) || saved.has(token) || reported.has(token)) continue;
+      // Compare a call position only: `name = …`. A value on the right of `=` is data, not a call.
+      const after = clean.slice(match.index + token.length, match.index + token.length + 16);
+      if (!/^[ \t]*=/.test(after)) continue;
       const suggestion = closestName(token, dump, 2);
       if (!suggestion) continue;
       reported.add(token);
@@ -537,7 +573,7 @@ function checkNearMissNames(
 }
 
 /**
- * Run the semantic checks on one mod. `cwd` is the workspace root: the mirror and the dumps are
+ * Run the semantic checks on one mod. `cwd` is the workspace root: the modding context and the dumps are
  * relative to it.
  *
  * Both checks need the vanilla mirror, so a missing mirror gives one NOTE and skips both. Without the
@@ -560,7 +596,7 @@ export function analyzeSemantics(modDir: string, cwd: string): SemanticResult {
       code: "mirror-missing",
       rel: `${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/game`,
       level: "note",
-      message: `semantic: the vanilla mirror is missing, so the localization keys and the effect, trigger, and modifier names were not checked. Without the mirror, a vanilla object would look new. Run sync_game_scripts, then validate again.`,
+      message: `semantic: the vanilla scripts are missing, so the localization keys and the effect, trigger, and modifier names were not checked. Without them, a vanilla object would look new. Run sync_game_scripts, then validate again.`,
     });
     return { checked, findings };
   }
@@ -582,11 +618,15 @@ export function analyzeSemantics(modDir: string, cwd: string): SemanticResult {
       code: "mirror-partial",
       rel: `${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/game`,
       level: "note",
-      message: `semantic: the mirror has no ${shown}${more > 0 ? ` and ${more} more` : ""}. A name that vanilla declares in a missing directory can be reported as new, and its words are not in the known set. Run sync_game_scripts, then validate again.`,
+      message: `semantic: the modding context has no ${shown}${more > 0 ? ` and ${more} more` : ""}. A name that vanilla declares in a missing directory can be reported as new, and its words are not in the known set. Run sync_game_scripts, then validate again.`,
     });
   }
-  checkNewObjectLoc(modDir, vanillaNames, findings);
-  checked.push("localization keys for new traits, decisions, and character interactions");
+  const locKinds = checkNewObjectLoc(modDir, vanillaNames, findings);
+  if (locKinds.length === LOC_REQUIREMENTS.length) {
+    checked.push("localization keys for new traits, decisions, and character interactions");
+  } else if (locKinds.length > 0) {
+    checked.push(`localization keys for new ${locKinds.join(", ")}`);
+  }
 
   const dump = readDumpNames(dumpDir(cwd));
   if (!dump) {

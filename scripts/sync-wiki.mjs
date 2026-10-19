@@ -3,7 +3,7 @@
  * Refresh docs/wiki/ from the CK3 wiki mirror.
  *
  * Source: https://github.com/jesec/ck3-modding-wiki (`wiki_pages/<Page>.md`), an automated mirror of
- * ck3.paradoxwikis.com. The live wiki sits behind a JavaScript challenge, so the mirror is the
+ * ck3.paradoxwikis.com. The live wiki sits behind a JavaScript challenge, so this copy is the
  * practical source. The content is CC BY-SA 3.0; `docs/wiki/LICENSE` carries the notice.
  *
  * What this script changes in each page, so the copy fits this repository:
@@ -87,7 +87,7 @@ const DESCRIPTION_OVERRIDES = {
   "Holdings_modding.md": "Baronies, holdings, and buildings (there is no separate building page)",
 };
 
-/** The mirror README leaves these pages out; describe them so every index row has an answer. */
+/** The snapshot README leaves these pages out; describe them so every index row has an answer. */
 const FALLBACK_DESCRIPTIONS = {
   "AI_modding.md": "AI personality, weights, and defines",
   "Customizable_localization.md": "Customizable localization blocks",
@@ -156,7 +156,7 @@ function writeIfChanged(target, content, label, check) {
 }
 
 /**
- * docs/wiki/INDEX.md: every wiki page, one row. It replaces the mirror's TABLE_OF_CONTENTS, whose
+ * docs/wiki/INDEX.md: every wiki page, one row. It replaces the snapshot's TABLE_OF_CONTENTS, whose
  * 659 section links are a map of the wiki; each page already carries its own section list, and an
  * agent should not read 659 lines to learn whether a page exists.
  */
@@ -220,7 +220,7 @@ async function main() {
   }
   if (check) {
     if (changed > 0) process.exit(1);
-    console.log(`  ok: ${PAGES.length + 1} file(s) match the mirror`);
+    console.log(`  ok: ${PAGES.length + 1} file(s) match the snapshot`);
     return;
   }
   console.log(`  done: ${changed} file(s) updated, ${PAGES.length + 1 - changed} unchanged`);

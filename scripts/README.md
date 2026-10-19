@@ -42,22 +42,22 @@ unless `--keep` is given.
 | `decision-title-override` | New decision with `title` and `desc` overrides, plus their loc keys. | No finding. |
 | `character-interaction-ok` | New interaction with its `<key>`. | No finding. |
 | `character-interaction-no-loc` | New interaction with no loc key. | One WARN for `<key>`. |
-| `near-miss-and-exemptions` | One-edit, two-edit, and first-character typos; a saved scope; `random_traits`; a typo in a comment and in a string; an unrelated long name. | Three WARNs for the three typos; everything else is silent. |
-| `cross-file-and-inline-definitions` | A scripted effect defined in one file and called from another; an inline `scripted_effect`. | No finding. |
+| `near-miss-and-exemptions` | One-edit, two-edit, and first-character typos, a saved scope, `random_traits`, a typo in a comment and in a string, and an unrelated long name. | Three WARNs for the three typos. Everything else is silent. |
+| `cross-file-and-inline-definitions` | A scripted effect defined in one file and called from another, and an inline `scripted_effect`. | No finding. |
 | `short-names-are-not-compared` | A seven-character name. | No finding. |
 | `vanilla-field-is-known` | A field that vanilla uses but no definition list holds (`random_traits`). | No finding. |
 | `icon-nested-desc` | A new trait whose `icon` block holds a nested `desc` and has no `trait_<key>_desc`. | One WARN for `trait_<key>_desc`. A nested field is not the trait's own `desc`. |
 | `indented-definition` | A new trait whose top-level definition is indented. | One WARN for the missing keys. |
 | `bom-before-first-definition` | A `.txt` file that starts with a UTF-8 BOM. | One WARN for the missing keys. |
-| `missing-mirror` | No `game-scripts/` directory; the dumps exist. | One `mirror-missing` NOTE; no check runs. |
-| `mirror-without-dumps` | A mirror; no `docs/script_docs/`. | The loc WARN and one `dump-missing` NOTE; one check runs. |
-| `empty-dumps` | A mirror; `effects.log` and `triggers.log` are empty. | The loc WARN and one `dump-missing` NOTE; one check runs. |
-| `partial-mirror` | `game-scripts/vanilla/game/common/` exists, but none of the twelve data directories. | One `mirror-incomplete` NOTE; no check runs. |
-| `partial-mirror-one-dir` | Only `common/traits/` exists. | One `mirror-partial` NOTE; both checks run against what is present. |
-| `partial-dumps` | `effects.log` is empty; `triggers.log` and `modifiers.log` exist. | One `dump-partial` NOTE; both checks run. |
+| `missing-mirror` | No `game-scripts/` directory. The dumps exist. | One `mirror-missing` NOTE, and no check runs. |
+| `mirror-without-dumps` | A modding context, and no `docs/script_docs/`. | The loc WARN and one `dump-missing` NOTE, and one check runs. |
+| `empty-dumps` | A modding context, and `effects.log` and `triggers.log` are empty. | The loc WARN and one `dump-missing` NOTE, and one check runs. |
+| `partial-mirror` | `game-scripts/vanilla/game/common/` exists, but none of the twelve data directories. | One `mirror-incomplete` NOTE, and no check runs. |
+| `partial-mirror-one-dir` | Only `common/traits/` exists. | One `mirror-partial` NOTE, and both checks run against what is present. |
+| `partial-dumps` | `effects.log` is empty. `triggers.log` and `modifiers.log` exist. | One `dump-partial` NOTE, and both checks run. |
 
 The default run must print `22 cases: 22 passed, 0 failed`. A known defect would be marked with a
-`known` flag in the script and reported as `KNOWN`; this matrix currently has none. The four defects
+`known` flag in the script and reported as `KNOWN`. This matrix currently has none. The four defects
 that the review found in the first version (the decision `title` override, a nested `desc` that hid
 a missing key, indented/BOM definitions, and the partial mirror) are fixed in
 `.pi/lib/mod-semantics.ts`, and these cases are their regression net. If one of them regresses, the
@@ -67,7 +67,7 @@ run exits with code 1.
 
 - **`validate_mod` end to end.** `mod-lint.ts` imports `typebox` and the pi extension API, so it
   runs inside pi, not in this standalone harness. The semantic result is the same function that the
-  matrix calls; the integration is covered by a `validate_mod` call in a pi session.
+  matrix calls. A `validate_mod` call in a pi session covers the integration.
 - **`dump-script-docs.mjs`.** The positive path launches CK3. The argument handling and the spawn
   path need a separate check.
 - **`sync-wiki.mjs`.** It needs network access, and a run rewrites `docs/wiki/`.
@@ -85,4 +85,4 @@ The review run on 2026-10-19 used five Workshop mods (`2234706894`, `2837398670`
 seconds each. That result is machine-specific: the Workshop set and the installed version are not
 fixtures, so the command is documented here and not automated.
 
-The mirror for that run held 19,699 files and 535 MB.
+The modding context for that run held 19,699 files and 535 MB.

@@ -4,7 +4,7 @@
  *
  * It builds a small vanilla mirror and a set of mod fixtures in a temporary directory, then calls
  * `analyzeSemantics` on each fixture. It needs no CK3 install: the name check reads the committed
- * dumps under `docs/script_docs/`, and the mirror is generated here.
+ * dumps under `docs/script_docs/`, and the modding context is generated here.
  *
  * The harness copies the two library files to the temporary directory and adds the `.ts` extension
  * to their relative imports, so the run uses the repository source and no third-party loader.
@@ -327,10 +327,10 @@ add(
   2,
 );
 
-// Degradation: the mirror and the dumps are repository setup, not repository content.
+// Degradation: the modding context and the dumps are repository setup, not repository content.
 const degradeMod = (root, name) =>
   makeMod(root, name, { "common/traits/n.txt": "new_trait_beta = {\n\tdiplomacy = 1\n}\n" });
-add("missing-mirror", nomirror, degradeMod(nomirror, "d_missing"), [finding("note", "mirror-missing", "vanilla mirror is missing")], 0);
+add("missing-mirror", nomirror, degradeMod(nomirror, "d_missing"), [finding("note", "mirror-missing", "vanilla scripts are missing")], 0);
 add("mirror-without-dumps", nodumps, degradeMod(nodumps, "d_nodumps"), [
   finding("warn", "new-object-loc", '"trait_new_trait_beta"'),
   finding("note", "dump-missing", "dumps are missing"),
@@ -350,7 +350,7 @@ add(
   "partial-mirror-one-dir",
   partialone,
   makeMod(partialone, "d_partialone", { "common/traits/o.txt": "brave = {\n\tdiplomacy = 3\n}\n" }),
-  [finding("note", "mirror-partial", "mirror has no")],
+  [finding("note", "mirror-partial", "modding context has no")],
   2,
 );
 add(

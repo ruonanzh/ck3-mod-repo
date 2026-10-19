@@ -31,7 +31,7 @@ When the change list is empty, you propose the list as part of your answer.
 
 Use the layers in this order. Stop when the first layer answers the question.
 
-1. `game-scripts/vanilla/game/` — the vanilla scripts. The mirror copies the game directory, so the
+1. `game-scripts/vanilla/game/` — the vanilla scripts. The modding context copies the game directory, so the
    scripts sit one level down. This layer is the strongest evidence for a concrete object, a field
    value, or a localization key, because the engine already accepts these files. It is also the only
    source for a scripted effect, a scripted trigger, or an event namespace name. Never read the
