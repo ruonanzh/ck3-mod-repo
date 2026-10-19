@@ -17,13 +17,14 @@ creates it.
 
 - **The installed directory name equals the `your_mods/` directory name.** The `name` key in
   `descriptor.mod` is the display title and need not match the directory name. The directory name is
-  therefore always a single path segment, so the tool cannot write outside the game directory. The
-  player sees the same directory name in the launcher as in the workspace.
+  therefore always a single path segment, so the tool cannot write outside the mod install directory.
+  The player sees the same directory name in the launcher as in the workspace.
 - **A re-install updates in place.** The tool identifies its own previous install through the
   workspace-side record `your_mods/<mod name>/.pi-mod.json`, which holds `name` and `installedDir`.
 - **Another mod owns the target directory.** The tool does not overwrite it. It installs as
-  `<directory name>_pimod` instead. It does not modify that copy's `descriptor.mod`. Tell the player
-  the directory name that the tool used. The in-game title `name` stays the same.
+  `<directory name>_pimod` instead. If that name is taken too, it adds a number: `_pimod2`, then
+  `_pimod3`. It does not modify that copy's `descriptor.mod`. Tell the player the directory name that
+  the tool used. The in-game title `name` stays the same.
 - **The install path should be ASCII.** The engine reads a mod at a path with a non-ASCII character
   as having no files inside. `install_mod` does **not** refuse such a path: it installs, then returns a
   `WARN` that says the game may load the mod with no files. Report that warning to the player exactly

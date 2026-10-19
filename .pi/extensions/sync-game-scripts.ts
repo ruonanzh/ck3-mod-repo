@@ -213,7 +213,7 @@ export default function (pi: ExtensionAPI) {
       // A link at any part of the mirror can point at the game directory. Writing through it would
       // copy files into the game, and the sweep below could then delete the game's own scripts. Stop
       // before any write or delete.
-      const linked = [dirs.root, dirs.vanilla, dirs.workshop].filter(isLink);
+      const linked = [dirs.root, dirs.vanilla, dirs.vanillaScripts, dirs.workshop].filter(isLink);
       if (linked.length > 0) {
         return {
           content: [

@@ -72,13 +72,9 @@ function dumpsRow(cwd: string): string {
       return stat?.isFile() === true && stat.size > 0;
     });
     if (!usable) return `missing - the maintainer can refresh them with \`node scripts/dump-script-docs.mjs\``;
-    // The dump carries no build tag, so its date is the only sign of its age.
-    const newest = logs.reduce((latest, name) => {
-      const time = statSync(join(dir, name), { throwIfNoEntry: false })?.mtimeMs ?? 0;
-      return time > latest ? time : latest;
-    }, 0);
-    const date = newest > 0 ? new Date(newest).toISOString().slice(0, 10) : "unknown date";
-    return `${logs.length} log file(s) in ${DUMP_DIRNAME}/, newest ${date} - exact for the build they were dumped from`;
+    // Git keeps no file date, so a date here would show the checkout time. The recorded build lives in
+    // docs/wiki/README.md, next to the measurement.
+    return `${logs.length} log file(s) in ${DUMP_DIRNAME}/ - exact for the build they were dumped from`;
   } catch {
     return `missing - the maintainer can refresh them with \`node scripts/dump-script-docs.mjs\``;
   }

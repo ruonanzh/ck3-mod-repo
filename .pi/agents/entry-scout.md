@@ -39,7 +39,8 @@ Use the layers in this order. Stop when the first layer answers the question.
    another player's mod.
 2. `docs/script_docs/` — the game's own dumps. Use them to settle whether an effect, a trigger, a
    modifier, or an on_action name exists. They are exact for the build they were dumped from, so they
-   beat the wiki, and a game patch can make them stale.
+   beat the wiki. For a `.gui` change, `docs/data_types/` lists the data types, promotes, and functions
+   that a window offers.
 3. `docs/wiki/` — the wiki reference lists. Use it for the *form* of a call, not its existence:
    `Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md` give the parameters
    and the scope. `Scripting.md` gives the language rules.

@@ -145,7 +145,7 @@ menu or save is loaded, and the lists are complete there. Measured on 1.20.1.1:
   identical name set for `modifiers` (that file only varies in line order). Rendering and session
   state do not feed the lists.
 - DLC-gated names are present (`add_amenity_level`, `add_barter_goods`,
-  `add_animate_domicile_building`, `accolade_*`), so the dump is not a base-game subset.
+  `add_animate_domicile_building`, `accolade_*`), so the dump is not a vanilla-only subset.
 - The **wrong** init stage fails loudly: `-run_console_action_clausewitz` returns
   `Project does not have modifier documentation function pointer set`. That error is the CK3 analogue
   of "the docs are incomplete because the game has not started". The fix is the documented stage, not
@@ -178,8 +178,8 @@ The dump also follows the **session language**: a `Use areas:` line can read `ch
 with a full-width comma on a Chinese session. The `Tag:` name line stays ASCII, so a name check reads
 `Tag:` only.
 
-The dump carries **no build tag**. It is exact for the build the run used, and the committed copy can
-be older than the player's install. The only age signal is the file date in `docs/script_docs/`.
+The dump carries **no build tag**, and git keeps no file date. The recorded build is the one in the
+measurement note below, so refresh the dump after a game patch.
 
 **Measured on 1.20.1.1** (this workspace, 2026-10-17): the dump holds **2128** effects, **1937**
 triggers, and **761** modifier entries (152 of them templated, such as `$CULTURE$_opinion`). The

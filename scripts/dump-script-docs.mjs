@@ -44,6 +44,17 @@ const argOf = (name, fallback) => {
 };
 const command = argOf("command", "script_docs");
 const timeoutSec = Number(argOf("timeout", "240"));
+// A bad argument must not launch the game: an unknown command would start it with a flag it ignores,
+// and a NaN timeout would kill it at once.
+const ACCEPTED_COMMANDS = new Set(["script_docs", "dump_data_types"]);
+if (!ACCEPTED_COMMANDS.has(command)) {
+  console.error(`FAIL: unknown --command=${command}. Accepted: ${[...ACCEPTED_COMMANDS].join(", ")}.`);
+  process.exit(1);
+}
+if (!Number.isFinite(timeoutSec) || timeoutSec <= 0) {
+  console.error("FAIL: --timeout must be a positive number of seconds, for example --timeout=240.");
+  process.exit(1);
+}
 
 /** The game directory: the recorded one wins, then mod-repo.json's hints. */
 function findGameDir() {
@@ -130,8 +141,18 @@ async function main() {
     process.exitCode = 1;
   }, timeoutSec * 1000);
 
-  const code = await new Promise((res) => child.on("exit", (c) => res(c)));
+  const code = await new Promise((res) => {
+    child.on("exit", (c) => res(c));
+    // A spawn failure never fires "exit", and an unhandled "error" would end the process with a stack.
+    child.on("error", (e) => {
+      clearTimeout(timer);
+      console.error(`FAIL: could not start the game: ${String(e)}`);
+      process.exitCode = 1;
+      res(-1);
+    });
+  });
   clearTimeout(timer);
+  if (code === -1) return;
 
   for (const line of output.split(/\r?\n/).filter(Boolean).slice(-4)) console.log(`  ${line}`);
   // The game exits non-zero after a console action even when the command succeeded, so the exit code

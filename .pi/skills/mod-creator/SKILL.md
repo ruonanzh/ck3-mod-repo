@@ -17,10 +17,10 @@ and its bound directory gate those actions.
 ## Usage modes (two roles)
 
 - **Q&A and consultation (read-only).** Answer game-mechanics and mod API questions by reading the
-  knowledge layer. Start from `docs/INDEX.md` to locate the right source. Do **not**
-  create files or prepare the environment, unless the player explicitly asks about their
-  environment. Preparing the environment means locating paths and mirroring the scripts into
-  `game-scripts/`.
+  knowledge layer. Start from `docs/INDEX.md` to locate the right source. You may explain how the
+  environment works, in words. Whether this session may locate a path or mirror the scripts is decided
+  by the **session role**, not by this skill: the Q&A role forbids both. Do not create or edit any
+  file.
 - **Writing or modifying the mod.** Run the two stages below, in this order. They exist because CK3 is
   pure PDXScript with no self-describing API: the mechanism is documented, the entry is in the
   vanilla scripts, and the call form is in the lists. Merging the stages produces a plausible file
@@ -30,6 +30,7 @@ and its bound directory gate those actions.
 
   | # | Step | What you read or run | Output |
   | --- | --- | --- | --- |
+  | 0 | **Prepare the paths** | `get_game_info`. When it reports the vanilla scripts missing, run `sync_game_scripts`. The `setup-workspace` skill has the cases. | A mirror that steps 3 and 4 can read |
   | 1 | **Map the request to a page** | `docs/wiki/INDEX.md` — one row per wiki page, with `Local yes/no` | The one page that covers "how do I add X" (`Holdings_modding` for a building, `Event_modding` for an event, …) |
   | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
   | 3 | **Locate the entry in vanilla** | Two **peer** options: grep `game-scripts/vanilla/game/` yourself, or dispatch `entry-scout`. Prefer `entry-scout`: it runs in parallel and its greps stay in the child session. Add `reference/example_mod` for a whole shape. | Real object names, real field values, and the file to mirror |
@@ -40,6 +41,10 @@ and its bound directory gate those actions.
   in `.gui`. When the two merge, you find the `common/` directory and stop, and the UI half is
   missing.
 
+  **Do not start step 3 without the mirror.** `game-scripts/` is not committed, so a fresh workspace
+  has no vanilla scripts. A grep of an empty directory returns nothing, and an empty answer is not
+  "vanilla has no such entry".
+
   **Stage 2: write the mod.**
 
   | # | Step | What you read or run | Output |
@@ -47,7 +52,12 @@ and its bound directory gate those actions.
   | 6 | **Read the conventions** | `docs/ck3-modding-conventions.md`, sections 1 to 3: override form, load order, localization | The rule list for this change |
   | 7 | **Choose the override form** | The same file, section 1: a full-file overwrite, a single-object override, or an additive new object | The form, and the reason for it |
   | 8 | **Write the files** | `reference/example_mod/` for the shape | The mod tree under `your_mods/<ModName>/` |
+  | 8b | **Check the UI side** | The same file, section 7, when the change needs an icon, a label, a menu entry, a column, a filter, or a panel. Reuse an existing in-game icon or asset when one fits. | The extra files, or a sentence that the change needs none |
   | 9 | **Validate, then review** | `validate_mod`, then `mod-reviewer` | Two verdicts, and every line handled |
+
+  Step 8b sits before step 9 on purpose. An icon or a localization key added after a clean receipt is
+  covered by no check, and a localization file without a BOM fails in silence. When step 8b adds any
+  file, run step 9 again after it.
 
   Two ordering rules:
   1. Stage 1 belongs to you, not to the scout: choosing the mechanism is a decision, and
@@ -62,13 +72,7 @@ and its bound directory gate those actions.
   `reference/example_mod/`. You may write only inside the bound mod directory. With no binding,
   call `create_mod_folder` with a `lower_snake_case` name, as the **Directory name** rule below
   defines it. Do not create a second binding when one already exists.
-
-  **Then check the UI side.** A mod here is mostly PDXScript code, but an in-game check often
-  fails without the UI part. Before you finish, ask: does this modification need an icon, a UI
-  label (localization), a menu entry, a column, a filter, or a panel? Add what is missing. Reuse
-  an existing in-game icon or asset when one fits, because you do not have to create new art. Do
-  not wait for the player to ask about the icon.
-- **Directory name** (this repository's rule, enforced by `create_mod_folder`). The name is
+- **Directory name** (this repository's rule, checked by the product's `create_mod_folder`). The name is
   `lower_snake_case`: it starts with a lowercase letter, then holds only lowercase letters, digits,
   and underscores, at most 40 characters. Do **not** use hyphens: `fix_inheritance`, not
   `fix-inheritance`. It must not be a Windows reserved device name: `con`, `prn`, `aux`,

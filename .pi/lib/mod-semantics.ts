@@ -7,10 +7,11 @@
  *      object cannot borrow a vanilla key. The mapped kinds and their keys:
  *        - a trait in `common/traits/`: `trait_<key>` and `trait_<key>_desc`
  *          (the wiki states both: docs/wiki/Trait_modding.md, the *localization* section)
- *        - a decision in `common/decisions/`: `<key>` and `<key>_desc`
- *          (the wiki states the four keys: docs/wiki/Decisions_modding.md. This check requires the
- *          two that the player always sees. `_tooltip` and `_confirm` have defaults in
- *          `common/decisions/_decisions.info`, so a mod may leave them out, and they stay unchecked.)
+ *        - a decision in `common/decisions/`: `<key>` and `<key>_desc`, unless the block sets `title`
+ *          or `desc` itself (the wiki states the four keys and both overrides:
+ *          docs/wiki/Decisions_modding.md). `_tooltip` and `_confirm` have defaults in
+ *          `common/decisions/_decisions.info`, so a mod may leave them out, and they stay unchecked.
+ *        - a trait may set `name`; a decision may set `title`. Either field replaces the derived key.
  *        - a character interaction in `common/character_interactions/`: `<key>`
  *          (the name defaults to the interaction key: `common/character_interactions/
  *          _character_interactions.info`. The wiki page has no localization section, so this check
@@ -64,7 +65,7 @@ const TOKEN_RE = /(?<![A-Za-z0-9_.$#:])[a-z][a-z0-9_]{7,}(?![A-Za-z0-9_.])/g;
 /** A name that the script introduces itself, and that is therefore not a statement about the game. */
 const SAVED_NAME_RE = /\b(?:save_(?:temporary_)?scope(?:_value)?_as|name)[ \t]*=[ \t]*([A-Za-z_][A-Za-z0-9_]*)/g;
 /** A line that starts a definition: `name =`. The block may open on that line or a later line. */
-const TOP_DEF_LINE_RE = /([A-Za-z_][A-Za-z0-9_.]*)[ \t]*=/y;
+const TOP_DEF_LINE_RE = /[ \t]*([A-Za-z_][A-Za-z0-9_.]*)[ \t]*=/y;
 /** An inline scripted definition: `scripted_effect name = {`. */
 const INLINE_SCRIPTED_RE = /^[ \t]*scripted_(?:effect|trigger)[ \t]+([A-Za-z_][A-Za-z0-9_.]*)[ \t]*=/i;
 /** A localization key line: `  key:0 "value"`. */
@@ -86,6 +87,7 @@ function scriptOnly(text: string): string {
   let inString = false;
   let inComment = false;
   for (const ch of text) {
+    if (ch === "\ufeff") continue;
     if (inComment) {
       if (ch === "\n") {
         inComment = false;
@@ -194,9 +196,24 @@ function definitionBodies(text: string): Array<{ id: string; body: string }> {
   return out;
 }
 
-/** Whether a block declares a field of its own. */
+/**
+ * Whether the block declares a field of its own, at its own level. A field nested deeper does not
+ * count: a trait's `icon = { first_valid = { ... desc = ... } }` declares an icon, not a description.
+ */
 function hasOwnField(body: string, field: string): boolean {
-  return new RegExp(`(?:^|\\n)[ \\t]*${field}[ \\t]*=`, "i").test(body);
+  const wanted = field.toLowerCase();
+  let depth = 0;
+  for (const line of body.split("\n")) {
+    if (depth === 1) {
+      const m = /^[ \t]*([A-Za-z_][A-Za-z0-9_]*)[ \t]*=/.exec(line);
+      if (m && m[1].toLowerCase() === wanted) return true;
+    }
+    for (const ch of line) {
+      if (ch === "{") depth += 1;
+      else if (ch === "}") depth -= 1;
+    }
+  }
+  return false;
 }
 
 /** The top-level definition names in one script file, including an inline scripted declaration. */
@@ -256,7 +273,14 @@ const LOC_REQUIREMENTS: Array<{
   {
     dir: "common/decisions",
     kind: "decision",
-    required: (id, body) => (hasOwnField(body, "desc") ? [id] : [id, `${id}_desc`]),
+    required: (id, body) => {
+      // `title` overrides the name key and `desc` overrides the description key; the wiki states both,
+      // and vanilla uses `title` to share one heading across several decisions.
+      const required: string[] = [];
+      if (!hasOwnField(body, "title")) required.push(id);
+      if (!hasOwnField(body, "desc")) required.push(`${id}_desc`);
+      return required;
+    },
   },
   {
     dir: "common/character_interactions",
@@ -287,6 +311,8 @@ interface DumpNames {
   names: Set<string>;
   /** Names grouped by their first character, so the closest-name search stays cheap. */
   byFirstChar: Map<string, string[]>;
+  /** The log files that are absent or empty, so the check says what it could not read. */
+  missing: string[];
 }
 
 function readDumpNames(dir: string): DumpNames | null {
@@ -301,6 +327,13 @@ function readDumpNames(dir: string): DumpNames | null {
   const triggers = read("triggers.log");
   const modifiers = read("modifiers.log");
   if (!effects && !triggers) return null;
+  const missing = [
+    ["effects.log", effects],
+    ["triggers.log", triggers],
+    ["modifiers.log", modifiers],
+  ]
+    .filter(([, text]) => !text)
+    .map(([name]) => String(name));
   const names = new Set<string>();
   for (const text of [effects, triggers]) {
     if (!text) continue;
@@ -322,7 +355,7 @@ function readDumpNames(dir: string): DumpNames | null {
     if (bucket) bucket.push(name);
     else byFirstChar.set(name[0], [name]);
   }
-  return { names, byFirstChar };
+  return { names, byFirstChar, missing };
 }
 
 /** The number of single-character edits that turn a into b, or max + 1 when it is larger than max. */
@@ -366,10 +399,12 @@ function closestName(token: string, dump: DumpNames, max: number): string | null
 
 /** The names that vanilla declares, read once and shared by both checks. */
 interface VanillaNames {
-  /** The top-level names of each data directory that the localization check reads. */
+  /** The top-level names of each data directory, for the checks that need one directory. */
   byDir: Map<string, Set<string>>;
   /** Every definition name and every word that the vanilla files use, for the near-miss check. */
   known: Set<string>;
+  /** The data directories that the mirror does not hold, so a check can say what it skipped. */
+  missingDirs: string[];
 }
 
 /**
@@ -381,7 +416,18 @@ interface VanillaNames {
 function readVanillaNames(vanillaRoot: string): VanillaNames {
   const byDir = new Map<string, Set<string>>();
   const known = new Set<string>();
+  const missingDirs: string[] = [];
   for (const dir of VANILLA_NAME_DIRS) {
+    let present = false;
+    try {
+      present = statSync(join(vanillaRoot, dir), { throwIfNoEntry: false })?.isDirectory() === true;
+    } catch {
+      present = false;
+    }
+    if (!present) {
+      missingDirs.push(dir);
+      continue;
+    }
     const dirNames = new Set<string>();
     for (const file of walkFiles(join(vanillaRoot, dir), (rel) => rel.endsWith(".txt"))) {
       let text = "";
@@ -397,7 +443,7 @@ function readVanillaNames(vanillaRoot: string): VanillaNames {
     for (const name of dirNames) known.add(name);
     byDir.set(dir, dirNames);
   }
-  return { byDir, known };
+  return { byDir, known, missingDirs };
 }
 
 /** The findings for check 1: a new object without its derived localization keys. */
@@ -408,7 +454,8 @@ function checkNewObjectLoc(modDir: string, vanilla: VanillaNames, findings: Sema
     if (found >= MAX_FINDINGS_PER_CHECK) break;
     // An object whose name vanilla already declares is an override. Vanilla supplies the key, so the
     // mod needs no new one. Without this, a correct override is reported as a new object.
-    const vanillaIds = vanilla.byDir.get(rule.dir) ?? new Set<string>();
+    const vanillaIds = vanilla.byDir.get(rule.dir);
+    if (!vanillaIds) continue;
     const files = walkFiles(modDir, (rel) => rel.startsWith(`${rule.dir}/`) && rel.endsWith(".txt"));
     for (const file of files) {
       if (found >= MAX_FINDINGS_PER_CHECK) break;
@@ -519,6 +566,25 @@ export function analyzeSemantics(modDir: string, cwd: string): SemanticResult {
   }
 
   const vanillaNames = readVanillaNames(vanilla);
+  if (vanillaNames.byDir.size === 0) {
+    findings.push({
+      code: "mirror-incomplete",
+      rel: `${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/game`,
+      level: "note",
+      message: `semantic: the vanilla mirror has no data directory, so the name checks were skipped. Run sync_game_scripts, then validate again.`,
+    });
+    return { checked, findings };
+  }
+  if (vanillaNames.missingDirs.length > 0) {
+    const shown = vanillaNames.missingDirs.slice(0, 3).join(", ");
+    const more = vanillaNames.missingDirs.length - 3;
+    findings.push({
+      code: "mirror-partial",
+      rel: `${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/game`,
+      level: "note",
+      message: `semantic: the mirror has no ${shown}${more > 0 ? ` and ${more} more` : ""}. A name that vanilla declares in a missing directory can be reported as new, and its words are not in the known set. Run sync_game_scripts, then validate again.`,
+    });
+  }
   checkNewObjectLoc(modDir, vanillaNames, findings);
   checked.push("localization keys for new traits, decisions, and character interactions");
 
@@ -531,6 +597,14 @@ export function analyzeSemantics(modDir: string, cwd: string): SemanticResult {
       message: `semantic: the game's dumps are missing, so the effect, trigger, and modifier names were not checked. The maintainer can refresh them with "node scripts/dump-script-docs.mjs", and you then validate again.`,
     });
     return { checked, findings };
+  }
+  for (const name of dump.missing) {
+    findings.push({
+      code: "dump-partial",
+      rel: `docs/script_docs/${name}`,
+      level: "note",
+      message: `semantic: ${name} is missing or empty, so the names it holds were not checked. The maintainer can refresh the dumps with "node scripts/dump-script-docs.mjs".`,
+    });
   }
   checkNearMissNames(modDir, vanillaNames, dump, findings);
   checked.push("effect, trigger, and modifier names against docs/script_docs");

@@ -98,9 +98,10 @@ A number, a path or a file name is allowed only when the player must type it, cl
   top of it. This workspace writes PDXScript only. When the player asks for something the engine does
   not expose, say that in one sentence, name what cannot be changed, and offer what PDXScript can do
   instead. Never edit engine sources, and never promise a result that needs one.
-- **Destructive or hard-to-undo actions come last and need a yes.** Deleting files, overwriting
-  something outside `your_mods/`, and anything that uploads the mod to the Workshop wait for the
-  player's confirmation. Say what will be lost before asking.
+- **Destructive or hard-to-undo actions come last and need a yes.** Deleting files, replacing content
+  outside `your_mods/` that this workspace did not install itself, and anything that uploads the mod to
+  the Workshop wait for the player's confirmation. Say what will be lost before asking. A re-install of
+  the same mod by `install_mod` updates the copy that this workspace owns, so it needs no separate yes.
 - **Do not decide the mod's design.** Offer options with their consequences. The choice is the
   player's.
 - **Do not explain the workspace to the player.** Directory maps, tool lists and conventions are for

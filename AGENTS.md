@@ -48,11 +48,16 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   `vanilla/game/`. `workshop/` holds one directory per Workshop mod. This is what you must load
   before writing mods. The Workshop scripts are not vanilla. PDXScript has no self-describing API, so
   you cannot write a correct override without it.
-- `docs/script_docs/` — the game's own dumps: `effects.log`, `triggers.log`, `modifiers.log`,
-  `event_scopes.log`, `event_targets.log`, and `on_actions.log`. They are committed, and
-  `validate_mod` reads them. They are exact for the build they were dumped from, so they beat the
-  wiki snapshot on the question "does this name exist", and a game patch can make them stale.
-  `node scripts/dump-script-docs.mjs` refreshes them.
+- `docs/script_docs/` — the game's own name dumps: `effects.log`, `triggers.log`, `modifiers.log`,
+  `event_scopes.log`, `event_targets.log`, and `on_actions.log`. They are committed and exact for the
+  build they were dumped from, so they beat the wiki snapshot on the question "does this name exist",
+  and a game patch can make them stale. `validate_mod` reads the first three. The other three are the
+  reviewer's evidence: `on_actions.log` holds the on_action names, and the event scope files describe
+  the scopes. `node scripts/dump-script-docs.mjs` refreshes them.
+- `docs/data_types/` — the game's own GUI data types, promotes, and functions, five `data_types_*.txt`
+  files. They are committed and exact for the build they were dumped from. Read the file that matches
+  the window before you write a `.gui` override. `node scripts/dump-script-docs.mjs
+  --command=dump_data_types` refreshes them.
 - `.pi/skills/` — the step guidance: role skills `setup-workspace`, `mod-creator`, and `mod-installer`,
   plus `how-to-speak` (how to write anything the player reads) and `mod-page` (how to write a mod
   page, revise it from the player's marks, and when to answer a game mechanics or game content
@@ -62,23 +67,24 @@ These are fixed facts about this machine and this workspace. They prevent wasted
 - `.pi/extensions/` — the tools. Path tools: `try_set_game_dir`, `set_game_dir`, and
   `check_game_paths`. Info tool: `get_game_info` (reports the recorded paths and the version value).
   Runtime tools: `check_runtime` and `install_runtime` (CK3 has no runtime).
-  Mod tools: `validate_mod` and `install_mod`. Context tool: `sync_game_scripts`. Trust the
-  capabilities and the side effects that each tool declares.
+  Mod tools: `validate_mod` and `install_mod`. Context tool: `sync_game_scripts`. The product also
+  provides `create_mod_folder`, which binds this session to one directory under `your_mods/`. Trust
+  the capabilities and the side effects that each tool declares.
 - `reference/` — read-only mod samples. `reference/example_mod/` is a runnable sample that passes
   `validate_mod`. `reference/README.md` describes it.
 - `editors/` — the mod-page and descriptor editors. Each subdirectory is one editor, opened by the
   product UI. `editors/ck3_mod_descriptor/` edits `descriptor.mod`. `editors/ck3_mod_page/` edits
   the Steam Workshop page.
 - `scripts/` — maintenance scripts, run by the maintainer, never by the agent during a mod task:
-  `sync-wiki.mjs` refreshes `docs/wiki/`, `dump-script-docs.mjs` asks the game for its name lists, to
-  the build that is installed, and writes them into `docs/script_docs/`, and `check-doc-refs.mjs`
-  checks every markdown link.
+  `sync-wiki.mjs` refreshes `docs/wiki/`, `dump-script-docs.mjs` asks the installed game for its name
+  lists and its GUI data types, and writes them into `docs/script_docs/` and `docs/data_types/`, and
+  `check-doc-refs.mjs` checks every markdown link.
 - `mod-repo.json` — the machine-readable game and environment declaration. `workshop.supported`
   declares whether this game has a Steam Workshop. `workshopDir` is a read-only reference and is
   not used for installing. The rule is in the `setup-workspace` skill.
 - `your_mods/` — the mod output area. Write mods only here, as `your_mods/<ModName>/`.
 
-## Runtime state file
+## Runtime path record (`.gamer-agent.local.json`)
 
 `.gamer-agent.local.json` (**under this workspace directory**) is the single source of truth for
 path state. The tools in `.pi/extensions/` read and write it.
@@ -99,6 +105,8 @@ The session sets one of two roles. The agent does not choose the role.
   scripts into `game-scripts/`.
 - **Mod development:** write only under `your_mods/<ModName>/`. The session role and binding decide
   whether writing is allowed and which mod directory is writable. This file does not decide that.
+  Two tools write outside it by design: `sync_game_scripts` writes the modding context, and
+  `install_mod` writes the mod install directory.
 - **The subagents never write.** `entry-scout` and `mod-reviewer` hold `read` and `grep` only.
   Their results are advice. They are not session roles. Any session may
   dispatch them.

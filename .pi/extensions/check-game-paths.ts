@@ -54,7 +54,14 @@ export default function (pi: ExtensionAPI) {
     }),
     async execute(_id, params, _signal, _onUpdate, ctx) {
       const cwd = ctx.cwd;
-      const cfg: ModRepoConfig = readModRepoConfig(cwd);
+      let cfg: ModRepoConfig;
+      try {
+        cfg = readModRepoConfig(cwd);
+      } catch {
+        throw new Error(
+          "INVALID_WORKSPACE_CONFIG: Cannot read mod-repo.json. Reopen or update the game workspace. Do not edit its maintainer configuration.",
+        );
+      }
       const state = readState(cwd);
       const appId = String(cfg.game?.steamAppId ?? "");
 

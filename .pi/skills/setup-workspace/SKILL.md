@@ -21,7 +21,7 @@ state. The tools in `.pi/extensions/` read and write it. Fields:
 
 | Key | Meaning | Source | Used by |
 |---|---|---|---|
-| `gameDir` | The game directory (`steamapps/common/Crusader Kings III`) | The player, or `try_set_game_dir` when it locates the game | `sync_game_scripts` mirrors the vanilla scripts from it. `install_mod` derives the install target from it. |
+| `gameDir` | The game directory (`steamapps/common/Crusader Kings III`) | The player, or `try_set_game_dir` when it locates the game | `sync_game_scripts` mirrors the vanilla scripts from it, and `workshopDir` is derived from it. `install_mod` does **not** use it for the install path. |
 | `workshopDir` | The Steam Workshop directory (`steamapps/workshop/content/1158310`) | **Derived from `gameDir`**. There is no separate setter. | **Read-only reference.** Read the existing Workshop mods. It is **not involved in installing**. |
 | `modInstallDir` | The Paradox launcher mod directory (`<userDocuments>/Paradox Interactive/Crusader Kings III/mod`) | **Computed from `mod-repo.json`'s `modInstall.path`**, independent of `gameDir` | `install_mod` copies the mod there. |
 
