@@ -28,7 +28,7 @@
  * Usage: node scripts/dump-script-docs.mjs [--command=script_docs|dump_data_types] [--timeout=240]
  */
 import { execFileSync, spawn } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -38,9 +38,21 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // names live here too.
 const DUMP_DIRS = { script_docs: join(root, "docs", "script_docs"), dump_data_types: join(root, "docs", "data_types") };
 const args = process.argv.slice(2);
+// A typo in a flag must not launch the game with a wrong command or a default timeout.
+const KNOWN_FLAGS = new Set(["--command", "--timeout"]);
+for (const arg of args) {
+  if (arg.startsWith("--") && !KNOWN_FLAGS.has(arg.split("=")[0])) {
+    console.error(`FAIL: unknown argument ${arg}. Accepted: --command=script_docs|dump_data_types, --timeout=<seconds>.`);
+    process.exit(1);
+  }
+}
+/** Read `--name=value` or `--name value`. A missing value is passed on, so the check below fails it. */
 const argOf = (name, fallback) => {
-  const hit = args.find((a) => a.startsWith(`--${name}=`));
-  return hit ? hit.slice(name.length + 3) : fallback;
+  const joined = args.find((a) => a.startsWith(`--${name}=`));
+  if (joined) return joined.slice(name.length + 3);
+  const at = args.indexOf(`--${name}`);
+  if (at !== -1) return args[at + 1] ?? "";
+  return fallback;
 };
 const command = argOf("command", "script_docs");
 const timeoutSec = Number(argOf("timeout", "240"));
@@ -194,12 +206,22 @@ async function main() {
 
   const outDir = DUMP_DIRS[command] ?? DUMP_DIRS.script_docs;
   mkdirSync(outDir, { recursive: true });
+  // A file from an earlier run would sit next to the fresh copies and look current. Remove every
+  // file that this run did not produce, so the directory holds one command's output only.
+  const freshNames = new Set(fresh.map((p) => p.split(/[\\/]/).pop()));
+  let removed = 0;
+  for (const entry of readdirSync(outDir, { withFileTypes: true })) {
+    if (!entry.isFile() || freshNames.has(entry.name)) continue;
+    rmSync(join(outDir, entry.name));
+    removed += 1;
+  }
   let copied = 0;
   for (const source of fresh) {
     copyFileSync(source, join(outDir, source.split(/[\\/]/).pop()));
     copied += 1;
   }
   console.log(`\nPASS: ${copied} log file(s) written to ${relative(root, outDir).split("\\").join("/")}/`);
+  if (removed > 0) console.log(`  Removed ${removed} stale file(s) from an earlier run.`);
   console.log(`  ${fresh.map((p) => p.split(/[\\/]/).pop()).sort().join(", ")}`);
   console.log(
     command === "script_docs"

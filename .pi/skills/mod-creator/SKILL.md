@@ -45,14 +45,18 @@ and its bound directory gate those actions.
   has no vanilla scripts. A grep of an empty directory returns nothing, and an empty answer is not
   "vanilla has no such entry".
 
-  **Stage 2: write the mod.**
+  **Stage 2: write the mod.** Produce or modify a mod under `your_mods/<ModName>/`. Reuse
+  `reference/example_mod/`. You may write only inside the bound mod directory. With no binding,
+  call `create_mod_folder` with a `lower_snake_case` name, as the **Directory name** rule below
+  defines it. Do not create a second binding when one already exists. The steps below say what to
+  read before the first write.
 
   | # | Step | What you read or run | Output |
   | --- | --- | --- | --- |
   | 6 | **Read the conventions** | `docs/ck3-modding-conventions.md`, sections 1 to 3: override form, load order, localization | The rule list for this change |
   | 7 | **Choose the override form** | The same file, section 1: a full-file overwrite, a single-object override, or an additive new object | The form, and the reason for it |
   | 8 | **Write the files** | `reference/example_mod/` for the shape | The mod tree under `your_mods/<ModName>/` |
-  | 8b | **Check the UI side** | The same file, section 7, when the change needs an icon, a label, a menu entry, a column, a filter, or a panel. Reuse an existing in-game icon or asset when one fits. | The extra files, or a sentence that the change needs none |
+  | 8b | **Check the UI side** | The same file, section 3 for a label or a localization key, and section 7 when the change needs a menu entry, a column, a filter, or a panel. Reuse an existing in-game icon or asset when one fits. | The extra files, or a sentence that the change needs none |
   | 9 | **Validate, then review** | `validate_mod`, then `mod-reviewer` | Two verdicts, and every line handled |
 
   Step 8b sits before step 9 on purpose. An icon or a localization key added after a clean receipt is
@@ -67,11 +71,6 @@ and its bound directory gate those actions.
   2. Steps 6 and 7 are a gate, not a suggestion: a stage-2 wiki page explains a mechanism, and the
      conventions decide how the result may override vanilla. A correct block attached the wrong way
      still fails in the game.
-
-  **Then write.** Produce or modify a mod under `your_mods/<ModName>/`. Reuse
-  `reference/example_mod/`. You may write only inside the bound mod directory. With no binding,
-  call `create_mod_folder` with a `lower_snake_case` name, as the **Directory name** rule below
-  defines it. Do not create a second binding when one already exists.
 - **Directory name** (this repository's rule, checked by the product's `create_mod_folder`). The name is
   `lower_snake_case`: it starts with a lowercase letter, then holds only lowercase letters, digits,
   and underscores, at most 40 characters. Do **not** use hyphens: `fix_inheritance`, not

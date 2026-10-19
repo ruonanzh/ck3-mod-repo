@@ -210,16 +210,26 @@ export default function (pi: ExtensionAPI) {
       }
 
       const destRoot = dirs.root;
-      // A link at any part of the modding context can point at the game directory. Writing through it would
-      // copy files into the game, and the sweep below could then delete the game's own scripts. Stop
-      // before any write or delete.
-      const linked = [dirs.root, dirs.vanilla, dirs.vanillaScripts, dirs.workshop].filter(isLink);
+      // A link anywhere on the path into the modding context can point at the game directory. Writing
+      // through it would copy files into the game, and the sweep below could then delete the game's own
+      // scripts. So check every parent from the context root up to the repository root. A link deeper
+      // inside the context is never followed by the sweep either: it is skipped, not deleted.
+      const linked: string[] = [];
+      for (let p = dirs.root; ; p = dirname(p)) {
+        if (isLink(p)) linked.push(p);
+        if (p === repoRoot || dirname(p) === p) break;
+      }
       if (linked.length > 0) {
+        // A path outside the repository has no relative form, so show it whole.
+        const show = (p: string): string => {
+          const rel = relative(repoRoot, p);
+          return toPosix(rel && !rel.startsWith("..") ? rel : p) + "/";
+        };
         return {
           content: [
             {
               type: "text",
-              text: `FAIL: ${linked.map((p) => toPosix(relative(repoRoot, p)) + "/").join(", ")} is a symbolic link. The modding context must be a real directory, because a link can point at the game directory and this tool would write into the game or delete the game's scripts.\nNEXT: delete the link, or replace it with a directory, then run sync_game_scripts again.`,
+              text: `FAIL: ${linked.map(show).join(", ")} is a symbolic link. The modding context must be a real directory, because a link can point at the game directory and this tool would write into the game or delete the game's scripts.\nNEXT: delete the link, or replace it with a directory, then run sync_game_scripts again.`,
             },
           ],
           details: { ok: false, errors: ["MIRROR_IS_SYMLINK"] },

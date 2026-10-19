@@ -43,12 +43,14 @@ unless `--keep` is given.
 | `character-interaction-ok` | New interaction with its `<key>`. | No finding. |
 | `character-interaction-no-loc` | New interaction with no loc key. | One WARN for `<key>`. |
 | `near-miss-and-exemptions` | One-edit, two-edit, and first-character typos, a saved scope, `random_traits`, a typo in a comment and in a string, and an unrelated long name. | Three WARNs for the three typos. Everything else is silent. |
+| `near-miss-first-character` | A typo in the first character: `bdd_trait`. | One WARN that names `add_trait`. |
+| `interaction-name-override` | A character interaction that sets `name`, with that key localized and no `<key>` key. | No finding. |
 | `cross-file-and-inline-definitions` | A scripted effect defined in one file and called from another, and an inline `scripted_effect`. | No finding. |
 | `short-names-are-not-compared` | A seven-character name. | No finding. |
 | `vanilla-field-is-known` | A field that vanilla uses but no definition list holds (`random_traits`). | No finding. |
 | `icon-nested-desc` | A new trait whose `icon` block holds a nested `desc` and has no `trait_<key>_desc`. | One WARN for `trait_<key>_desc`. A nested field is not the trait's own `desc`. |
 | `indented-definition` | A new trait whose top-level definition is indented. | One WARN for the missing keys. |
-| `bom-before-first-definition` | A `.txt` file that starts with a UTF-8 BOM. | One WARN for the missing keys. |
+| `bom-before-first-definition` | A `.txt` file whose first three bytes are a UTF-8 BOM. | One WARN for the missing keys. |
 | `missing-mirror` | No `game-scripts/` directory. The dumps exist. | One `mirror-missing` NOTE, and no check runs. |
 | `mirror-without-dumps` | A modding context, and no `docs/script_docs/`. | The loc WARN and one `dump-missing` NOTE, and one check runs. |
 | `empty-dumps` | A modding context, and `effects.log` and `triggers.log` are empty. | The loc WARN and one `dump-missing` NOTE, and one check runs. |
@@ -70,6 +72,9 @@ run exits with code 1.
   matrix calls. A `validate_mod` call in a pi session covers the integration.
 - **`dump-script-docs.mjs`.** The positive path launches CK3. The argument handling and the spawn
   path need a separate check.
+- **`sync_game_scripts`.** Its cleanup and its link guard need a real workspace and a real game
+  directory. `plans/ck3-mod-repo.md` records a manual smoke run on a temporary workspace with
+  junctions. The matrix has no automated case for it.
 - **`sync-wiki.mjs`.** It needs network access, and a run rewrites `docs/wiki/`.
 
 ## The real-game check

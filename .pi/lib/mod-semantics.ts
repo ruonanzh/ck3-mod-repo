@@ -11,11 +11,12 @@
  *          or `desc` itself (the wiki states the four keys and both overrides:
  *          docs/wiki/Decisions_modding.md). `_tooltip` and `_confirm` have defaults in
  *          `common/decisions/_decisions.info`, so a mod may leave them out, and they stay unchecked.
- *        - a trait may set `name`; a decision may set `title`. Either field replaces the derived key.
- *        - a character interaction in `common/character_interactions/`: `<key>`
+ *        - a trait or a character interaction may set `name`; a decision may set `title`. Either
+ *          field replaces the derived key.
+ *        - a character interaction in `common/character_interactions/`: `<key>`, which the `name`
+ *          field overrides.
  *          (the name defaults to the interaction key: `common/character_interactions/
- *          _character_interactions.info`. The wiki page has no localization section, so this check
- *          requires only the name and nothing else.)
+ *          _character_interactions.info`.)
  *      A scripted effect, an on_action, and a scripted GUI need no loc key, so they are not mapped:
  *      vanilla itself ships them with no key.
  *
@@ -60,8 +61,15 @@ export interface SemanticResult {
   findings: SemanticFinding[];
 }
 
-/** A name token: at least 8 characters, so a short field name is never a candidate. */
-const TOKEN_RE = /(?<![A-Za-z0-9_.$#:])[a-z][a-z0-9_]{7,}(?![A-Za-z0-9_.])/g;
+/** The shortest name that the near-miss check compares. A short field name is never a candidate. */
+const NEAR_MISS_MIN_NAME_LENGTH = 8;
+/** The largest number of edits that still counts as a near miss. */
+const NEAR_MISS_MAX_EDITS = 2;
+/** A name token, long enough to compare: a short field name is never a candidate. */
+const TOKEN_RE = new RegExp(
+  `(?<![A-Za-z0-9_.$#:])[a-z][a-z0-9_]{${NEAR_MISS_MIN_NAME_LENGTH - 1},}(?![A-Za-z0-9_.])`,
+  "g",
+);
 /** A name that the script introduces itself, and that is therefore not a statement about the game. */
 const SAVED_NAME_RE = /\b(?:save_(?:temporary_)?scope(?:_value)?_as|name)[ \t]*=[ \t]*([A-Za-z_][A-Za-z0-9_]*)/g;
 /** A line that starts a definition: `name =`. The block may open on that line or a later line. */
@@ -285,7 +293,11 @@ const LOC_REQUIREMENTS: Array<{
   {
     dir: "common/character_interactions",
     kind: "character interaction",
-    required: (id) => [id],
+    required: (id, body) => {
+      // `_character_interactions.info`: `name` ("Localization key for the name") overrides the key,
+      // and the name defaults to the interaction key when the field is absent.
+      return hasOwnField(body, "name") ? [] : [id];
+    },
   },
 ];
 
@@ -556,7 +568,7 @@ function checkNearMissNames(
       // Compare a call position only: `name = …`. A value on the right of `=` is data, not a call.
       const after = clean.slice(match.index + token.length, match.index + token.length + 16);
       if (!/^[ \t]*=/.test(after)) continue;
-      const suggestion = closestName(token, dump, 2);
+      const suggestion = closestName(token, dump, NEAR_MISS_MAX_EDITS);
       if (!suggestion) continue;
       reported.add(token);
       found += 1;

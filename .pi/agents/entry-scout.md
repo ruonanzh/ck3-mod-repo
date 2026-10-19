@@ -45,7 +45,7 @@ Use the layers in this order. Stop when the first layer answers the question.
    `Effects_list.md`, `Triggers_list.md`, `Modifier_list.md`, `Scopes_list.md` give the parameters
    and the scope. `Scripting.md` gives the language rules.
 4. `reference/` — the pattern mod (`example_mod`).
-5. Nothing else. Do not use `your_mods/`. The caller owns that directory.
+5. **Nothing else.** Do not use `your_mods/`. The caller owns that directory.
 
 **Fallback, only when the caller asks for it:** the session records of this workspace, in
 `~/.gamer-agent-pi/sessions/<encoded workspace path>/`, as `.jsonl` files. Do not search them on
@@ -62,7 +62,7 @@ Return a short list of candidates, best first. Each candidate carries:
 - Mechanism family — the wording from `docs/ck3-modding-conventions.md` section 7.
 - Evidence — the line or the block that supports the candidate.
 - Confidence — high, medium, or low.
-- Layer — 1, 2, 3, 4, or 5.
+- Layer — 1, 2, 3, or 4. When you used the fallback, write `fallback`.
 
 After the list, add these three lines:
 

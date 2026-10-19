@@ -65,7 +65,8 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   descriptions in context, so read the matching skill. This repo's step guidance lives there, not in
   the product prompt.
 - `.pi/extensions/` — the tools. Path tools: `try_set_game_dir`, `set_game_dir`, and
-  `check_game_paths`. Info tool: `get_game_info` (reports the recorded paths and the version value).
+  `check_game_paths`. Info tool: `get_game_info` (reports the recorded paths, the version value, the
+  state of the modding context and its Workshop mods, and whether the dumps are present).
   Runtime tools: `check_runtime` and `install_runtime` (CK3 has no runtime).
   Mod tools: `validate_mod` and `install_mod`. Context tool: `sync_game_scripts`. The product also
   provides `create_mod_folder`, which binds this session to one directory under `your_mods/`. Trust
@@ -122,7 +123,7 @@ These are the boundaries. The rule and the reason for each one are in
 - Write under `your_mods/<ModName>/` only.
 - Only a top-level declaration can be overridden, and a single-object override changes an object. It
   cannot delete one. Section 1 has the override forms and the GUI first-in-wins exception.
-- Load order is ASCIIbetical. Section 2 has the prefix idioms and the GUI exception.
+- Load order is ASCIIbetical. Section 2 has the prefix idioms.
 - Localization is UTF-8 with BOM under `localization/`, and the filename carries the language.
   Section 3 has the format and the shipped languages.
 - Keep `{` and `}` balanced, and keep `"` balanced. A `#` starts a line comment, and `#` is literal

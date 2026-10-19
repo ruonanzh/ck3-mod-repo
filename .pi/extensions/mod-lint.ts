@@ -80,11 +80,11 @@ function isLocalizationYml(rel: string): boolean {
   return r.endsWith(".yml") && (r.startsWith("localization/") || r.includes("/localization/"));
 }
 
-// The languages CK3 ships. A localization file names its language with the `_l_<lang>` filename
-// suffix (wiki Modding/Localization: "the filename must end with `_l_<language>`; any file name can
-// be used as long as this format is respected"). The engine and DLC trees group files as
-// `localization/<group>/<file>_l_<lang>.yml`, so the first directory is often a group and not a
-// language. This set is the single place to add a language.
+// The languages CK3 ships. The wiki requires a localization file name to include `l_<language>`
+// (Localization: "must include `l_<language>` in their name", e.g. `my_locs_l_english.yml`). This
+// tool requires the token at the end, as `_l_<lang>`, because it reads the language from the end.
+// The engine and DLC trees group files as `localization/<group>/<file>_l_<lang>.yml`, so the first
+// directory is often a group and not a language. This set is the single place to add a language.
 const LOC_LANGUAGES = new Set([
   "english",
   "french",

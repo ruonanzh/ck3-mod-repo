@@ -262,6 +262,30 @@ add(
   2,
 );
 add(
+  "near-miss-first-character",
+  full,
+  makeMod(full, "names_first", {
+    "common/scripted_effects/se.txt": "my_long_effect_def = {\n\tbdd_trait = brave\n}\n",
+  }),
+  [finding("warn", "near-miss-name", '"bdd_trait"')],
+  2,
+);
+add(
+  "interaction-name-override",
+  full,
+  makeMod(
+    full,
+    "interaction_name",
+    {
+      "common/character_interactions/ci.txt":
+        "my_long_interaction = {\n\tname = my_long_interaction_name\n}\n",
+    },
+    ['my_long_interaction_name:0 "N"'],
+  ),
+  [],
+  2,
+);
+add(
   "cross-file-and-inline-definitions",
   full,
   makeMod(full, "cross_file", {
