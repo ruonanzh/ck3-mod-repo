@@ -74,9 +74,10 @@ Do not mix these tools up. They share one implementation in `.pi/lib/game-paths.
   scripts into `game-scripts/`. PDXScript has no self-describing API, so you cannot write correct
   PDXScript without this context. This step is **required**, and it is not a "find it when needed"
   step.
-  For exact effect, trigger, and modifier names, grep `game-scripts/vanilla/game/` and the official
-  wiki (ck3.paradoxwikis.com). The Workshop scripts are not vanilla: do not take a name from
-  `game-scripts/workshop/` as evidence that the game accepts it.
+  For exact effect, trigger, and modifier names, grep `docs/script_docs/` for existence, grep
+  `game-scripts/vanilla/game/` for the definitions, and use the official wiki for the concepts. The
+  Workshop scripts are not vanilla: do not take a name from `game-scripts/workshop/` as evidence that
+  the game accepts it.
 - **Failures.** Follow the `NEXT` line the tool gives. When the same failure repeats, resolve the
   precondition instead of retrying.
 

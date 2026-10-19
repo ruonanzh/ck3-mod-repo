@@ -5,7 +5,8 @@ rules that `validate_mod` enforces. It also explains the load-order and override
 tool cannot check on its own. This is the **knowledge layer**: read it for guidance. It runs and
 enforces nothing.
 
-- Enforcement lives in `.pi/extensions/mod-lint.ts` (the `validate_mod` tool).
+- Enforcement lives in `.pi/extensions/mod-lint.ts` (the `validate_mod` tool) for the syntax and the
+  conventions, and in `.pi/lib/mod-semantics.ts` for the name-level checks.
 - This document is the **single source of truth** for the modding rules. `AGENTS.md` and
   `.pi/skills/mod-creator/SKILL.md` reference it instead of repeating the rules.
 - The boundaries and the mandatory `validate_mod` step live in [`AGENTS.md`](../AGENTS.md). The
@@ -203,7 +204,7 @@ directory it names and read one of the examples in it.
 | `scripted_guis` | The feature needs a **custom panel** (its own buttons or widgets on the interface). | the definition in `common/scripted_guis/` and the layout under `gui/` |
 | `activities` / `schemes` | The feature is a CK3 **activity** or **scheme**. | `common/activities/`, `common/schemes/` |
 
-A mod can also add its own content to one of the game's data folders, such as scripted effects,
+A mod can also add its own content to one of the game's data directories, such as scripted effects,
 script values, traits, or modifiers. The `mod-creator` skill lists the common ones.
 
 **Decide this before you write any script: does this version need its own panel, or any new entry
@@ -215,7 +216,8 @@ write. If it does not, skip this whole page.
 ## 8. Glossary (one concept, one spelling)
 
 Check every term against this list. It is short on purpose: it holds the words where two spellings
-would change a reader's decision.
+would change a reader's decision. The list governs the text this repository writes. The pages under
+`docs/wiki/` are a transcription of the community wiki, and their own wording stays as it is.
 
 ### 8.1 Paths and locations
 
@@ -293,31 +295,38 @@ file.
    object cannot borrow a vanilla key.
    - `common/traits/`: `trait_<key>` and `trait_<key>_desc`. The wiki states both, in
      `docs/wiki/Trait_modding.md`.
-   - `common/decisions/`: `<key>` and `<key>_desc`. The wiki states four keys. The tool requires
-     the two that have no default. `_tooltip` and `_confirm` have defaults in
-     `common/decisions/_decisions.info`, so a mod may leave them out.
+   - `common/decisions/`: `<key>` and `<key>_desc`. The wiki lists four entries. The tool checks
+     these two, which are the two the player always sees. It does not require `_tooltip` or
+     `_confirm`: `common/decisions/_decisions.info` gives both of them a default, and many mods rely
+     on that default. Those two are unchecked.
    - `common/character_interactions/`: `<key>`. The name field defaults to the interaction key
      (`common/character_interactions/_character_interactions.info`). The wiki page has no
      localization section, so the tool checks no other key.
-   - A scripted effect, an on_action, and a scripted GUI need no key, and vanilla ships them without
-     one.
+   - A scripted effect, an on_action, and a scripted GUI need no key. The wiki states no key for
+     them, and vanilla ships them without one.
+   An object whose name vanilla already declares is an **override**. Vanilla supplies the key, so the
+   mod needs no new one, and the check skips it.
    A missing key is an error at load, not a cosmetic problem: `game/events/_events.info` states that
    missing localization keys are logged as errors.
 2. **An effect, trigger, or modifier name must be one the game knows.** These are code objects:
    PDXScript has no compile step, so a mod cannot add one. `docs/wiki/README.md` records the
-   measurement: with a mod enabled, `effects.log`, `triggers.log`, and `modifiers.log` stay
-   byte-identical. The check reports a name when it is one or two edits away from a dumped name, and
+   measurement: with a mod enabled, `effects.log`, `triggers.log`, and `modifiers.log` keep the same
+   set of names. The check reports a name when it is one or two edits away from a dumped name, and
    names the closest one. A name that is far from every dumped name stays silent: it can be a vanilla
-   object, a scripted name, or a name that the mod defines. A word that any vanilla script file uses
-   is also known, because a field such as `random_traits` is correct and appears in no definition
-   list. A misspelling that happens to be a vanilla field name therefore passes silently.
-3. **The check needs the mirror and the dumps.** `game-scripts/vanilla/` is generated, and
-   `docs/script_docs/` is committed. When either one is missing, the check is skipped with a NOTE
-   instead of reporting every vanilla name as unknown.
+   object, a scripted name, or a name that the mod defines. A word that the vanilla files in the twelve
+   data directories use is also known, because a field such as `random_traits` is correct and appears
+   in no definition list. A misspelling that happens to be one of those words therefore passes
+   silently. Two limits: a name shorter than 8 characters is not compared at all, and the check
+   compares dumped names only, never a scope or a type.
+3. **Both checks need the mirror.** `game-scripts/vanilla/` is generated by `sync_game_scripts`.
+   Without it, a vanilla object looks new and a vanilla name looks unknown. When it is missing, both
+   checks are skipped with one NOTE. The name check also needs `docs/script_docs/`, which is
+   committed, and it reports its own NOTE when the dumps are missing.
 
 **What it does not prove.** A `PASS` does not prove that a new name exists: the game can reject a name
-that no file uses. The check is not a scope or a type check, and it does not read a value range. Those
-belong to `mod-reviewer`, classes 4 and 5, and to the class for the questions only the game answers.
+that no file uses. The check is not a scope or a type check, and it does not read a value range. Scope
+belongs to `mod-reviewer` class 5. A value range is outside the review as well: the reviewer marks it
+`Not checked`.
 
 ## Going deeper (the semantics that no check covers)
 

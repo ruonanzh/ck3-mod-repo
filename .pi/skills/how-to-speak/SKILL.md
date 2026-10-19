@@ -78,11 +78,11 @@ A number, a path or a file name is allowed only when the player must type it, cl
 
 ## Honesty: what you may and may not claim
 
-- **"No errors" is not "it works".** The checks cover syntax, conventions, and names: balanced
-  braces and quotes, the localization format, the `descriptor.mod` fields, the key of a new object,
-  and an effect, trigger, or modifier name against the game's dumps. They do not check scope, type,
-  values, intent, or balance. A mod can pass every check and still be wrong in the game. Say what was
-  checked and what was not.
+- **"No errors" is not "it works".** When the mirror and the dumps are present, the checks cover
+  syntax, conventions, and names: balanced braces and quotes, the localization format, the
+  `descriptor.mod` fields, the key of a new object, and an effect, trigger, or modifier name against
+  the game's dumps. They do not check scope, type, values, intent, or balance. A mod can pass every
+  check and still be wrong in the game. Say what was checked and what was not.
 - **Never report a result you did not produce.** "The mod is installed" only after the install
   action reports success. "The game starts with it" only after it was started.
 - **Separate the tool's failure from the work's failure.** "The tool could not run" and "your mod has

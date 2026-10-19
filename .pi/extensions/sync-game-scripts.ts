@@ -2,7 +2,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { existsSync, lstatSync, mkdirSync, copyFileSync, statSync, readdirSync, rmSync, unlinkSync, rmdirSync } from "node:fs";
 import { join, relative, resolve, dirname, sep } from "node:path";
-import { MIRROR_DIRNAME, MIRROR_ROOT_DIRNAME, WORKSHOP_MIRROR_DIRNAME, checkGameDir, checkWorkshopDir, mirrorDirs, readModRepoConfig, readState } from "../lib/game-paths";
+import { MIRROR_DIRNAME, MIRROR_ROOT_DIRNAME, NO_WORKSHOP_MARKER, WORKSHOP_MIRROR_DIRNAME, checkGameDir, checkWorkshopDir, mirrorDirs, readModRepoConfig, readState } from "../lib/game-paths";
 
 /**
  * sync_game_scripts - it mirrors the text and definition scripts into the workspace's mirror. The
@@ -29,6 +29,15 @@ const KEEP_SUFFIXES = new Set([
   ".dep", ".profile", ".anchor",
 ]);
 const EXCLUDE_DIR_NAMES = new Set([".git", ".idea", ".vs"]);
+
+/** Whether a path is a symbolic link, or a junction. A missing path is false, and an error is false. */
+function isLink(p: string): boolean {
+  try {
+    return lstatSync(p, { throwIfNoEntry: false })?.isSymbolicLink() === true;
+  } catch {
+    return false;
+  }
+}
 
 // Generated caches and large data directories. Their suffixes are text, but the content is not a
 // mod reference script: map meshes, sound banks, terrain caches, and engine binaries.
@@ -160,8 +169,6 @@ function pruneTree(dstRoot: string): { copied: number; staleRemoved: number } {
   return { copied: 0, staleRemoved: removed };
 }
 
-const NO_WORKSHOP_MARKER = ".no-workshop";
-
 export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: "sync_game_scripts",
@@ -203,6 +210,21 @@ export default function (pi: ExtensionAPI) {
       }
 
       const destRoot = dirs.root;
+      // A link at any part of the mirror can point at the game directory. Writing through it would
+      // copy files into the game, and the sweep below could then delete the game's own scripts. Stop
+      // before any write or delete.
+      const linked = [dirs.root, dirs.vanilla, dirs.workshop].filter(isLink);
+      if (linked.length > 0) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `FAIL: ${linked.map((p) => toPosix(relative(repoRoot, p)) + "/").join(", ")} is a symbolic link. The mirror must be a real directory, because a link can point at the game directory and this tool would write into the game or delete the game's scripts.\nNEXT: delete the link, or replace it with a directory, then run sync_game_scripts again.`,
+            },
+          ],
+          details: { ok: false, errors: ["MIRROR_IS_SYMLINK"] },
+        };
+      }
       const g = syncTree(gameDir, dirs.vanilla);
       // The harness denies the Workshop content to the agent under test, so that it cannot read the
       // mods of another player. An earlier mirror is cleared too, because a copy on disk stays
@@ -240,10 +262,18 @@ export default function (pi: ExtensionAPI) {
       // failed run leaves a readable mirror behind. A symbolic link is never deleted: it can point at
       // the game directory, and that is not this tool's copy. A failed delete does not stop the run.
       const stale = [{ path: dirs.legacy }, { path: dirs.legacyDump }];
-      let staleRemoved = 0;
+      let legacyRemoved = 0;
       const staleNotes: string[] = [];
       for (const entry of stale) {
-        const stat = lstatSync(entry.path, { throwIfNoEntry: false });
+        let stat;
+        try {
+          stat = lstatSync(entry.path, { throwIfNoEntry: false });
+        } catch (e) {
+          staleNotes.push(
+            `NOTE: could not inspect the old ${toPosix(relative(repoRoot, entry.path))}/ directory (${String(e)}). It was left in place.`,
+          );
+          continue;
+        }
         if (!stat) continue;
         const rel = toPosix(relative(repoRoot, entry.path));
         if (stat.isSymbolicLink()) {
@@ -255,13 +285,13 @@ export default function (pi: ExtensionAPI) {
         const count = walkFiles(entry.path).length;
         try {
           rmSync(entry.path, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
-          staleRemoved += count;
+          legacyRemoved += count;
           staleNotes.push(
-            `deleted the old ${rel}/ mirror (${count} file(s)).${entry.path === dirs.legacy ? ` The vanilla scripts are now under ${MIRROR_DIRNAME}/.` : ""}`,
+            `deleted the old ${rel}/ directory (${count} file(s)).${entry.path === dirs.legacy ? ` The vanilla scripts are now under ${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/.` : ` The dumps live in docs/script_docs/.`}`,
           );
         } catch (e) {
           staleNotes.push(
-            `NOTE: could not delete the old ${rel}/ mirror (${String(e)}). Run sync_game_scripts again to finish the cleanup.`,
+            `NOTE: could not delete the old ${rel}/ directory (${String(e)}). Run sync_game_scripts again to finish the cleanup.`,
           );
         }
       }
@@ -291,7 +321,7 @@ export default function (pi: ExtensionAPI) {
       }
       return {
         content: [{ type: "text", text: lines.join("\n") }],
-        details: { ok: true, copied: g.copied + w.copied, staleRemoved: g.staleRemoved + w.staleRemoved + staleRemoved, workshopSourceMissing: workshopGone, workshopSkipped: skipWorkshop, workshopCleared: clearedForSkip },
+        details: { ok: true, copied: g.copied + w.copied, staleRemoved: g.staleRemoved + w.staleRemoved, legacyRemoved, workshopSourceMissing: workshopGone, workshopSkipped: skipWorkshop, workshopCleared: clearedForSkip },
       };
     },
   });

@@ -21,7 +21,7 @@
  * directory, so the vanilla scripts live at `game-scripts/vanilla/game/...`. The workshop part of
  * the mirror is `game-scripts/workshop/`, one directory per mod.
  */
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
@@ -29,6 +29,7 @@ import {
   DUMP_DIRNAME,
   MIRROR_DIRNAME,
   MIRROR_ROOT_DIRNAME,
+  NO_WORKSHOP_MARKER,
   checkGameDir,
   dumpDir,
   mirrorDirs,
@@ -42,7 +43,6 @@ import {
 /** The label column width of the report. */
 const LABEL_WIDTH = 22;
 const row = (label: string, value: string): string => `${label.padEnd(LABEL_WIDTH)}${value}`;
-const NO_WORKSHOP_MARKER = ".no-workshop";
 
 /** The number of directories under one path. A missing path reports 0. */
 function countDirs(dir: string): number {
@@ -57,17 +57,26 @@ function countDirs(dir: string): number {
 function workshopRow(cwd: string): string {
   const dirs = mirrorDirs(cwd);
   if (existsSync(join(dirs.root, NO_WORKSHOP_MARKER))) return "not mirrored (.no-workshop is present)";
-  const count = countDirs(dirs.workshop);
-  return count > 0 ? `${count} mod(s) mirrored` : "not mirrored - run sync_game_scripts";
+  if (!existsSync(dirs.workshop)) return "not mirrored - run sync_game_scripts";
+  return `${countDirs(dirs.workshop)} mod(s) mirrored`;
 }
 
 /** The dumps row. The game's own lists are repository content, so a clone has them without the game. */
 function dumpsRow(cwd: string): string {
   try {
-    const logs = readdirSync(dumpDir(cwd)).filter((n) => n.endsWith(".log"));
-    return logs.length > 0 ? `${logs.length} log file(s) in ${DUMP_DIRNAME}/` : `empty - run \`node scripts/dump-script-docs.mjs\``;
+    const dir = dumpDir(cwd);
+    const logs = readdirSync(dir).filter((n) => n.endsWith(".log"));
+    const usable = logs.includes("effects.log") || logs.includes("triggers.log");
+    if (!usable) return `missing - the maintainer can refresh them with \`node scripts/dump-script-docs.mjs\``;
+    // The dump carries no build tag, so its date is the only sign of its age.
+    const newest = logs.reduce((latest, name) => {
+      const time = statSync(join(dir, name), { throwIfNoEntry: false })?.mtimeMs ?? 0;
+      return time > latest ? time : latest;
+    }, 0);
+    const date = newest > 0 ? new Date(newest).toISOString().slice(0, 10) : "unknown date";
+    return `${logs.length} log file(s) in ${DUMP_DIRNAME}/, newest ${date} - exact for the build they were dumped from`;
   } catch {
-    return `missing - run \`node scripts/dump-script-docs.mjs\``;
+    return `missing - the maintainer can refresh them with \`node scripts/dump-script-docs.mjs\``;
   }
 }
 
@@ -121,7 +130,7 @@ export default function (pi: ExtensionAPI) {
 
       // The vanilla part of the mirror is a copy of the game directory, so the scripts sit one
       // level down, at `vanilla/game/`. This check reads one directory entry only.
-      const vanillaPresent = existsSync(join(cwd, MIRROR_ROOT_DIRNAME, MIRROR_DIRNAME, "game"));
+      const vanillaPresent = existsSync(mirrorDirs(cwd).vanillaScripts);
 
       const lines = [
         "PASS: game info",
@@ -153,7 +162,7 @@ export default function (pi: ExtensionAPI) {
       if (badPathChars.length > 0) {
         lines.push(
           `NOTE: modInstallDir has non-ASCII character(s) ${badPathChars.map((c) => `'${c}'`).join(", ")}. The game reads a mod at such a path as having no files inside, so install_mod reports a WARN and the game may load the mod empty.`,
-          "NEXT: tell the player to move the mod install directory to an ASCII path (for example relocate the Windows Documents folder), then run try_set_game_dir with no arguments.",
+          "NEXT: tell the player to move the mod install directory to an ASCII path (for example relocate the Windows Documents directory), then run try_set_game_dir with no arguments.",
         );
       }
       return {

@@ -14,7 +14,7 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   to `node` / `awk`.
 - **When you develop, read scripts only from the vanilla scripts at `game-scripts/vanilla/game/`**
   (this does not affect mod runtime). The mirror copies the game directory, so the game's own
-  `game/` folder appears once inside `vanilla/`. The real install directory
+  `game/` directory appears once inside `vanilla/`. The real install directory
   `.../Crusader Kings III/game/...` is the source that `sync_game_scripts` reads to build that copy.
   Do not `cat` / `grep` there while developing. Installing a mod is a third place: `install_mod`
   writes to the Paradox launcher mod directory,
@@ -28,9 +28,9 @@ a WARN. The field rules are in section 5 of `docs/ck3-modding-conventions.md`.
   **peer options** for locating an entry. **Prefer `entry-scout`**, because it runs in parallel, one
   per question, and its searches stay in the child session, so your context holds answers, not
   greps. Grep yourself when you already know the exact name and one or two calls settle it, or when
-  you cannot dispatch. Read its first candidate yourself. `mod-reviewer` checks the semantics that
-  `validate_mod` cannot see, before you install: it resolves effect, trigger, and modifier names and
-  their scopes against `docs/wiki/`. Neither writes, so you apply every change. When you cannot
+  you cannot dispatch. Read its first candidate yourself. `mod-reviewer` checks what `validate_mod`
+  cannot see, before you install: the override form, the placement, and the scope and type of each
+  call, resolved against `docs/wiki/`. Neither writes, so you apply every change. When you cannot
   dispatch, run the search yourself, and apply the six review classes in
   `.pi/agents/mod-reviewer.md` by hand.
 
@@ -135,8 +135,9 @@ The tool checks syntax, conventions, and names:
   game's own dumps in `docs/script_docs/`, and it reports a name that is one or two edits away from a
   real one, with the closest name.
 
-A `WARN` is advisory. A `PASS` does not prove that a new name exists. The tool is not a scope or type
-validator. Section 9 of `docs/ck3-modding-conventions.md` states the exact coverage and its limits.
+A `WARN` is advisory. A `PASS` does not prove that a new name exists. The tool is not a scope, type,
+or value validator. Section 9 of `docs/ck3-modding-conventions.md` states the exact coverage and its
+limits.
 
 `mod-reviewer` reviews what `validate_mod` cannot see: the override form, the placement, the scope and
 the type of each call, and the questions that only the game answers. Dispatch it before `install_mod`

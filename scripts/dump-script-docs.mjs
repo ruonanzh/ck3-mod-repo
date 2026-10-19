@@ -156,7 +156,7 @@ async function main() {
     .filter((p) => statSync(p).mtimeMs >= startedAt - 2000)
     .filter((p) => {
       const name = p.split(/[\\/]/).pop();
-      return DOC_LOGS.has(name) || (command === "dump_data_types" && name.startsWith("data_types"));
+      return command === "script_docs" ? DOC_LOGS.has(name) : name.startsWith("data_types");
     });
   if (fresh.length === 0) {
     console.error("FAIL: no log file was written by this run. The command reported success but wrote nothing.");

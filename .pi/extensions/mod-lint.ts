@@ -622,10 +622,20 @@ export default function (pi: ExtensionAPI) {
       const warningCount = warnings.length + semanticWarnings.length;
 
       const name = modDir.split(/[\\/]/).pop() || modDir;
+      // The PASS line must state the layers that ran. A missing mirror or a missing dump set turns a
+      // name check off, and the line must not claim it.
+      const checkedNames = semantic.checked.includes("effect, trigger, and modifier names against docs/script_docs");
+      const checkedLoc = semantic.checked.some((c) => c.startsWith("localization keys"));
+      const coverage =
+        checkedNames && checkedLoc
+          ? "syntax, conventions, and names"
+          : checkedLoc
+            ? "syntax, conventions, and localization keys. The effect, trigger, and modifier names were not checked, see the NOTE"
+            : "syntax and conventions. The name checks were skipped, see the NOTE";
       const lines: string[] = [];
       if (errors.length === 0) {
         lines.push(
-          `PASS: ${name} is valid - syntax, conventions, and names. Scope, type, and values are not checked.${warningCount > 0 ? ` (${warningCount} warning(s))` : ""}`,
+          `PASS: ${name} is valid - ${coverage}. Scope, type, and values are not checked.${warningCount > 0 ? ` (${warningCount} warning(s))` : ""}`,
         );
         for (const w of warnings.slice(0, MAX_CONTENT_LINES)) {
           lines.push(`WARN: ${w.rel}: ${w.message}`);
@@ -651,13 +661,16 @@ export default function (pi: ExtensionAPI) {
         lines.push(`NEXT: fix the errors above and re-run validate_mod.`);
       }
       for (const note of semanticNotes) lines.push(`NOTE: ${note.rel}: ${note.message}`);
+      if (semanticWarnings.length > MAX_SEMANTIC_FINDINGS) {
+        lines.push(`... ${semanticWarnings.length - MAX_SEMANTIC_FINDINGS} more semantic warning(s) omitted`);
+      }
 
       return {
         content: [{ type: "text", text: lines.join("\n") }],
         details: {
           ok: errors.length === 0,
           errors: errors.map((e) => `${e.rel}: ${e.message}`),
-          warnings: warnings.map((w) => `${w.rel}: ${w.message}`),
+          warnings: [...warnings, ...semanticWarnings].map((w) => `${w.rel}: ${w.message}`),
           semantic: {
             checked: semantic.checked,
             findings: semantic.findings,

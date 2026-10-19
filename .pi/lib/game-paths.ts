@@ -46,16 +46,18 @@ export const WORKSHOP_MIRROR_DIRNAME = "workshop";
 export const LEGACY_MIRROR_DIRNAME = "game";
 /** The dump directory that an earlier version wrote under the mirror. sync_game_scripts deletes it. */
 export const LEGACY_DUMP_DIRNAME = "script-docs";
+/** The marker file that turns the Workshop half of the mirror off. The test harness creates it. */
+export const NO_WORKSHOP_MARKER = ".no-workshop";
 /** The game's own script dumps. They are repository content, so a clone has them without the game. */
 export const DUMP_DIRNAME = "docs/script_docs";
-/** The game's own data-type dump. */
-export const DATA_TYPES_DIRNAME = "docs/data_types";
 
 export interface MirrorDirs {
   /** `game-scripts/` */
   root: string;
   /** `game-scripts/vanilla/`, a copy of the game directory */
   vanilla: string;
+  /** `game-scripts/vanilla/game/`, the game's own scripts */
+  vanillaScripts: string;
   /** `game-scripts/workshop/` */
   workshop: string;
   /** `game-scripts/game/`, the vanilla part of the earlier layout */
@@ -67,9 +69,11 @@ export interface MirrorDirs {
 /** The mirror paths under one workspace root. Call this instead of writing a mirror path. */
 export function mirrorDirs(cwd: string): MirrorDirs {
   const root = join(cwd, MIRROR_ROOT_DIRNAME);
+  const vanilla = join(root, MIRROR_DIRNAME);
   return {
     root,
-    vanilla: join(root, MIRROR_DIRNAME),
+    vanilla,
+    vanillaScripts: join(vanilla, "game"),
     workshop: join(root, WORKSHOP_MIRROR_DIRNAME),
     legacy: join(root, LEGACY_MIRROR_DIRNAME),
     legacyDump: join(root, LEGACY_DUMP_DIRNAME),
@@ -219,7 +223,7 @@ let documentsDir: string | null = null;
 
 /**
  * The player's Documents directory. Windows lets the player move it, and `os.homedir()` does not
- * follow the move. The tool therefore reads the known folder from the registry and caches the
+ * follow the move. The tool therefore reads the known directory from the registry and caches the
  * answer for the process.
  */
 export const userDocumentsDir = (): string => (documentsDir ??= resolveUserDocumentsDir());
@@ -282,7 +286,7 @@ export function supportedGameVersion(build: string | null | undefined): string |
  * The distinct non-ASCII characters in a path, in order of first appearance. Empty means ASCII only.
  *
  * Engine rule: the game reads a mod at a path with a non-ASCII character as having no files inside.
- * A Windows user profile whose name is not ASCII is the usual cause, because the Paradox mod folder
+ * A Windows user profile whose name is not ASCII is the usual cause, because the Paradox mod directory
  * sits under Documents. One copy of this rule lives here, so check_game_paths and install_mod cannot
  * disagree.
  */
@@ -326,9 +330,9 @@ export function checkModInstallDir(
     return { ok: false, path: null, code: "TARGET_NOT_FOUND", reason: "no mod install directory was given", next: `Run try_set_game_dir with no arguments. It records the game directory and the derived mod install directory. ${NEXT_SKILL}` };
   if (!isAbsolute(p))
     return { ok: false, path: p, code: "TARGET_INVALID", reason: "not an absolute path", next: `Run try_set_game_dir with no arguments to record the conventional mod install directory. ${NEXT_SKILL}` };
-  // The engine rule: a non-ASCII character anywhere in the path of the mod folder makes the game
+  // The engine rule: a non-ASCII character anywhere in the path of the mod directory makes the game
   // read the mod as having no files inside. This happens with a Windows user profile whose name is
-  // not ASCII, because the mod folder sits under Documents. Nothing in the mod can repair it, so the
+  // not ASCII, because the mod directory sits under Documents. Nothing in the mod can repair it, so the
   // check reports it and never fails it. The directory this repository names itself is
   // lower_snake_case, hence ASCII; only a parent path can carry the character.
   const badChars = nonAsciiCharsInPath(p);
@@ -337,7 +341,7 @@ export function checkModInstallDir(
       ? {
           code: "TARGET_NOT_ASCII",
           warning: `the path has non-ASCII character(s) ${badChars.map((c) => `'${c}'`).join(", ")}, and the game reads a mod at such a path as having no files inside`,
-          warningNext: `The player must move the mod install directory to a path that is pure ASCII, for example by relocating the Windows Documents folder. Then run try_set_game_dir with no arguments to record it. Do not rename or edit the mod: the character is in the path, not in the mod content. ${NEXT_SKILL}`,
+          warningNext: `The player must move the mod install directory to a path that is pure ASCII, for example by relocating the Windows Documents directory. Then run try_set_game_dir with no arguments to record it. Do not rename or edit the mod: the character is in the path, not in the mod content. ${NEXT_SKILL}`,
         }
       : null;
   // The check passes with a warning. Every ok return below carries it.

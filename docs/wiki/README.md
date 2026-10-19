@@ -168,6 +168,13 @@ says `playset: no mods enabled`, or prints a NOTE that on_actions will include t
 `modifiers.log` also varies in **line order** between runs with the same content. Compare name sets,
 not the raw file.
 
+The dump also follows the **session language**: a `Use areas:` line can read `character， province`
+with a full-width comma on a Chinese session. The `Tag:` name line stays ASCII, so a name check reads
+`Tag:` only.
+
+The dump carries **no build tag**. It is exact for the build the run used, and the committed copy can
+be older than the player's install. The only age signal is the file date in `docs/script_docs/`.
+
 **Measured on 1.20.1.1** (this workspace, 2026-10-17): the dump holds **2128** effects, **1937**
 triggers, and **761** modifier entries (152 of them templated, such as `$CULTURE$_opinion`). The
 wiki lists hold 1156, 1072, and 383. Roughly **47 %** of the dumped names are missing from the wiki,

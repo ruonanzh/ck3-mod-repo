@@ -34,7 +34,7 @@ and its bound directory gate those actions.
   | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
   | 3 | **Locate the entry in vanilla** | Two **peer** options: grep `game-scripts/vanilla/game/` yourself, or dispatch `entry-scout`. Prefer `entry-scout`: it runs in parallel and its greps stay in the child session. Add `reference/example_mod` for a whole shape. | Real object names, real field values, and the file to mirror |
   | 4 | **Read that window's own `.gui` file** | When the change mounts on an existing window or panel, read its `.gui` file under `game-scripts/vanilla/game/gui/`. Skip this step when no window changes. | The `type` and the block to hook into |
-  | 5 | **Agree with the player** | The player | One sentence: what the mod changes, its scope, and its shape |
+  | 5 | **Agree with the player** | The player. Skip only when the player says to start, for example "start now, no confirmation". | One sentence: what the mod changes, its scope, and its shape |
 
   Step 4 is a separate step on purpose. A mechanism lives in `common/`, and an attachment point lives
   in `.gui`. When the two merge, you find the `common/` directory and stop, and the UI half is
@@ -44,7 +44,7 @@ and its bound directory gate those actions.
 
   | # | Step | What you read or run | Output |
   | --- | --- | --- | --- |
-  | 6 | **Read the conventions** | `docs/ck3-modding-conventions.md`, sections 1 and 2: override form and load order | The rule list for this change |
+  | 6 | **Read the conventions** | `docs/ck3-modding-conventions.md`, sections 1 to 3: override form, load order, localization | The rule list for this change |
   | 7 | **Choose the override form** | The same file, section 1: a full-file overwrite, a single-object override, or an additive new object | The form, and the reason for it |
   | 8 | **Write the files** | `reference/example_mod/` for the shape | The mod tree under `your_mods/<ModName>/` |
   | 9 | **Validate, then review** | `validate_mod`, then `mod-reviewer` | Two verdicts, and every line handled |
@@ -58,10 +58,8 @@ and its bound directory gate those actions.
      conventions decide how the result may override vanilla. A correct block attached the wrong way
      still fails in the game.
 
-  **Agree with the player before you write.** Give a short description of the mod content: what it
-  modifies, its scope, and the shape of the mod. Then wait for the player's confirmation. Do this
-  **even when the request looks specific**. Skip it only when the player explicitly says to start,
-  for example "start now, no confirmation".
+  **Agree with the player before you write.** Give that one-sentence description, then wait for the
+  player's confirmation. Do this even when the request looks specific.
 
   **Then write.** Produce or modify a mod under `your_mods/<ModName>/`. Reuse
   `reference/example_mod/`. You may write only inside the bound mod directory. With no binding,
@@ -129,13 +127,10 @@ tags={ "Gameplay" "Balance" }
 picture="thumbnail.png"
 ```
 
-Syntax: `key="value"` for scalars, `key={ "a" "b" }` for lists, and `#` starts a single-line
-comment. A list may span several lines, and real workshop mods write `tags` that way. `install_mod`
-uses the `your_mods/` directory name as the install directory name. Keep
-`name` readable but it need not match the directory name.
-
-The rules for each field are in `docs/ck3-modding-conventions.md` section 5. Read the version value
-from `get_game_info`, and write it as a patch-level wildcard.
+`install_mod` uses the `your_mods/` directory name as the install directory name. Keep `name`
+readable, but it need not match the directory name. The syntax and the rules for each field are in
+`docs/ck3-modding-conventions.md` section 5. Read the version value from `get_game_info`, and write it
+as a patch-level wildcard.
 
 ## Localization YAML
 
@@ -155,8 +150,9 @@ The full format, the shipped languages, and the `replace/` directory are in
 
 Call `validate_mod` with `modDir = your_mods/<ModName>/`.
 
-- `PASS: <name> is valid - syntax, conventions, and names.` then one `WARN: <file>: <message>` per
-  warning. A `WARN` is advisory.
+- `PASS: <name> is valid - ...` then one `WARN: <file>: <message>` per warning. A `WARN` is
+  advisory. When a name check could not run, the `PASS` line says so and a `NOTE` line names the
+  missing input.
 - `FAIL: <name> has N error(s)` then one `ERROR: <file>: <message>` per line, in English. Use the
   `NEXT:` line to locate the problem. Fix every ERROR, and do not modify another mod.
 - A `NOTE:` line says that a check was skipped and why, for example when `docs/script_docs/` or the
@@ -169,11 +165,12 @@ The tool checks three layers:
    `localization/` is not read.
 2. **The localization key of a new object:** a trait, a decision, or a character interaction.
 3. **Effect, trigger, and modifier names, against the game's own dumps** in `docs/script_docs/`: a
-   name that is one or two edits away from a real name is reported with the closest name.
+   name that is one or two edits away from a real name is reported with the closest name. A name
+   shorter than 8 characters is not compared.
 
-It does **not** prove that a new name exists, and it is not a scope or type validator. Section 9 of
-`docs/ck3-modding-conventions.md` states the exact coverage. Use `game-scripts/vanilla/game/` and the
-wiki for scope and type. Use `how-to-speak` to report the result to the player.
+It does **not** prove that a new name exists, and it is not a scope, type, or value validator. Section
+9 of `docs/ck3-modding-conventions.md` states the exact coverage. Use `game-scripts/vanilla/game/` and
+the wiki for scope and type. Use `how-to-speak` to report the result to the player.
 
 ## Common errors
 
@@ -201,15 +198,15 @@ directory it names and read one of the examples there. Send the intent to `entry
 the candidate it returns, in two cases: when you are unsure which mechanism fits, and when you must
 survey the mechanisms that the game already has for a feature.
 
-A mod can also add its own content to one of the game's own data folders. The list is mechanical, and
-the mirror already holds it: usually one directory per data kind. On game version 1.20.1.1,
+A mod can also add its own content to one of the game's own data directories. The list is mechanical,
+and the mirror already holds it: usually one directory per data kind. On game version 1.20.1.1,
 `game-scripts/vanilla/game/common/` holds 128 directories. To list them, run
 `ls game-scripts/vanilla/game/common/`. Each directory entry names one data kind, and the count
 changes when the game adds one.
 
 These are the ones a content mod adds to most often. This is not the whole list:
 
-| Kind | Folder |
+| Kind | Directory |
 | --- | --- |
 | scripted effects | `common/scripted_effects/` |
 | scripted triggers | `common/scripted_triggers/` |
