@@ -1,14 +1,17 @@
 Printing Modifier Definitions:
-Tag: $MEN_AT_ARMS_TYPE$_max_size_add
+Tag: $MEN_AT_ARMS_TYPE$_pursuit_add
 Use areas: character
 
 Tag: dynasty_opinion
 Use areas: character
 
-Tag: $TRAIT_TRACK$_xp_degradation_mult
+Tag: $TRAIT_TRACK$_xp_gain_mult
 Use areas: character
 
-Tag: $MEN_AT_ARMS_TYPE$_siege_value_add
+Tag: $HOLDING_TYPE$_build_piety_cost
+Use areas: character， province，以及 county
+
+Tag: $MEN_AT_ARMS_TYPE$_recruitment_cost_mult
 Use areas: character
 
 Tag: legitimacy_loss_mult
@@ -23,31 +26,34 @@ Use areas: character
 Tag: max_$SCHEME_TYPE$_schemes_add
 Use areas: character
 
-Tag: $HOLDING_TYPE$_holding_build_prestige_cost
+Tag: $HOLDING_TYPE$_build_gold_cost
 Use areas: character， province，以及 county
 
 Tag: $RELIGIOUS$_opinion
 Use areas: character
 
-Tag: $HOLDING_TYPE$_build_gold_cost
+Tag: $HOLDING_TYPE$_holding_build_speed
 Use areas: character， province，以及 county
 
 Tag: $SCHEME_TYPE$_scheme_phase_duration_add
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_travel_danger
-Use areas: character， province，以及 county
+Tag: $GOVERNMENT_TYPE$_vassal_opinion
+Use areas: character
+
+Tag: $TERRAIN_TYPE$_max_combat_roll
+Use areas: character
 
 Tag: vassal_herd_contribution_add
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_fertility_growth_add
+Tag: $TERRAIN_TYPE$_holding_construction_gold_cost
 Use areas: character， province，以及 county
 
 Tag: ai_boldness
 Use areas: character
 
-Tag: $GOVERNMENT_TYPE$_levy_contribution_mult
+Tag: $GOVERNMENT_TYPE$_herd_contribution_add
 Use areas: character
 
 Tag: ai_compassion
@@ -59,7 +65,7 @@ Use areas: character
 Tag: same_faith_opinion
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_development_growth
+Tag: $TERRAIN_TYPE$_barter_goods_mult
 Use areas: character， province，以及 county
 
 Tag: $TRAIT_TRACK$_xp_loss_mult
@@ -68,19 +74,19 @@ Use areas: character
 Tag: subject_salary_expense_$SUBJECT_SALARY$_mult
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_cancel_negative_supply
+Tag: $TERRAIN_TYPE$_holding_construction_prestige_cost
+Use areas: character， province，以及 county
+
+Tag: $GOVERNMENT_TYPE$_tax_contribution_add
 Use areas: character
 
-Tag: $GOVERNMENT_TYPE$_opinion_same_faith
-Use areas: character
+Tag: stationed_$MEN_AT_ARMS_TYPE$_pursuit_mult
+Use areas: province
 
-Tag: $MEN_AT_ARMS_TYPE$_toughness_mult
+Tag: monthly_merit_mult
 Use areas: character
 
 Tag: $SCHEME_TYPE$_enemy_scheme_phase_duration_add
-Use areas: character
-
-Tag: monthly_merit_mult
 Use areas: character
 
 Tag: treasury_cardinal_budget_allocation
@@ -92,31 +98,31 @@ Use areas: character
 Tag: subject_salary_income_herd_$SUBJECT_SALARY$_add
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_construction_piety_cost
+Tag: $TERRAIN_TYPE$_fertility_decline_mult
 Use areas: character， province，以及 county
 
-Tag: $MEN_AT_ARMS_TYPE$_damage_mult
+Tag: $VASSAL_STANCE$_same_faith_opinion
 Use areas: character
 
 Tag: monthly_prestige_gain_per_legitimacy_level_add
 Use areas: character
 
-Tag: stationed_$MEN_AT_ARMS_TYPE$_damage_add
+Tag: stationed_$MEN_AT_ARMS_TYPE$_siege_value_add
 Use areas: province
 
 Tag: subject_salary_income_treasury_or_gold_$SUBJECT_SALARY$_mult
 Use areas: character
 
-Tag: $VASSAL_STANCE$_different_culture_opinion
+Tag: $VASSAL_STANCE$_tax_contribution_mult
 Use areas: character
 
-Tag: stationed_$MEN_AT_ARMS_TYPE$_pursuit_add
-Use areas: province
-
-Tag: $MEN_AT_ARMS_TYPE$_max_size_mult
+Tag: $VASSAL_STANCE$_levy_contribution_mult
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_provisions_use_mult
+Tag: $GEOGRAPHICAL_REGION$_development_growth_factor
+Use areas: character， province，以及 county
+
+Tag: $TERRAIN_TYPE$_development_growth_factor
 Use areas: character， province，以及 county
 
 Tag: owned_hostile_scheme_success_chance_add
@@ -125,62 +131,62 @@ Use areas: character
 Tag: build_piety_cost
 Use areas: character， province，以及 county
 
+Tag: $TERRAIN_TYPE$_development_growth
+Use areas: character， province，以及 county
+
 Tag: intrigue_mult
 Use areas: character
 
-Tag: monthly_$LIFESTYLE$_xp_gain_add
-Use areas: character
-
-Tag: $HOLDING_TYPE$_build_speed
-Use areas: character， province，以及 county
-
-Tag: stationed_$MEN_AT_ARMS_TYPE$_screen_mult
-Use areas: province
-
-Tag: $TERRAIN_TYPE$_construction_prestige_cost
-Use areas: character， province，以及 county
-
-Tag: subject_salary_expense_herd_$SUBJECT_SALARY$_add
-Use areas: character
-
-Tag: subject_salary_income_influence_$SUBJECT_SALARY$_add
-Use areas: character
-
-Tag: $GOVERNMENT_TYPE$_tax_contribution_mult
-Use areas: character
-
-Tag: $TERRAIN_TYPE$_holding_construction_piety_cost
-Use areas: character， province，以及 county
-
-Tag: provisions_gain_mult
-Use areas: character 以及 terrain
-
-Tag: stationed_$MEN_AT_ARMS_TYPE$_toughness_mult
+Tag: stationed_$MEN_AT_ARMS_TYPE$_screen_add
 Use areas: province
 
 Tag: $GOVERNMENT_TYPE$_levy_contribution_add
 Use areas: character
 
-Tag: $GOVERNMENT_TYPE$_herd_contribution_mult
+Tag: $HOLDING_TYPE$_build_prestige_cost
+Use areas: character， province，以及 county
+
+Tag: $TERRAIN_TYPE$_fertility_decline_add
+Use areas: character， province，以及 county
+
+Tag: subject_salary_expense_herd_$SUBJECT_SALARY$_add
 Use areas: character
 
-Tag: $GOVERNMENT_TYPE$_vassal_opinion
+Tag: $TRAIT_TRACK$_xp_degradation_mult
+Use areas: character
+
+Tag: subject_salary_income_influence_$SUBJECT_SALARY$_add
+Use areas: character
+
+Tag: $TERRAIN_TYPE$_fertility_growth_mult
+Use areas: character， province，以及 county
+
+Tag: monthly_$LIFESTYLE$_xp_gain_add
+Use areas: character
+
+Tag: provisions_gain_mult
+Use areas: character 以及 terrain
+
+Tag: $MEN_AT_ARMS_TYPE$_damage_add
+Use areas: character
+
+Tag: $GOVERNMENT_TYPE$_levy_contribution_mult
+Use areas: character
+
+Tag: $GOVERNMENT_TYPE$_prestige_contribution_add
+Use areas: character
+
+Tag: $GOVERNMENT_TYPE$_tributary_opinion
 Use areas: character
 
 Tag: owned_political_scheme_success_chance_growth_add
 Use areas: character
 
-Tag: $TRAIT_TRACK$_xp_gain_mult
-Use areas: character
-
-Tag: $SITUATION_TYPE$_supply_limit_add
-Use areas: character， province，以及 county
-
 Tag: subject_salary_income_merit_$SUBJECT_SALARY$_add
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_tax_mult
-Use areas: character， province，以及 county
+Tag: $TERRAIN_TYPE$_min_combat_roll
+Use areas: character
 
 Tag: happy_powerful_vassal_tax_contribution_add
 Use areas: character
@@ -191,11 +197,11 @@ Use areas: character
 Tag: $FAITH$_opinion
 Use areas: character
 
-Tag: stationed_maa_screen_add
-Use areas: province
-
 Tag: intrigue_per_stress_level
 Use areas: character
+
+Tag: stationed_maa_screen_add
+Use areas: province
 
 Tag: subject_salary_income_barter_goods_$SUBJECT_SALARY$_mult
 Use areas: character
@@ -212,13 +218,10 @@ Use areas: character
 Tag: subject_salary_income_merit_$SUBJECT_SALARY$_mult
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_holding_construction_prestige_cost
+Tag: $TERRAIN_TYPE$_construction_piety_cost
 Use areas: character， province，以及 county
 
-Tag: $TERRAIN_TYPE$_fertility_decline_add
-Use areas: character， province，以及 county
-
-Tag: $MEN_AT_ARMS_TYPE$_pursuit_add
+Tag: $VASSAL_STANCE$_ai_compassion
 Use areas: character
 
 Tag: knight_effectiveness_per_martial
@@ -227,7 +230,10 @@ Use areas: character
 Tag: owned_personal_scheme_success_chance_max_add
 Use areas: character
 
-Tag: $MEN_AT_ARMS_TYPE$_damage_add
+Tag: stationed_$MEN_AT_ARMS_TYPE$_damage_mult
+Use areas: province
+
+Tag: $VASSAL_STANCE$_same_culture_opinion
 Use areas: character
 
 Tag: subject_salary_income_prestige_$SUBJECT_SALARY$_mult
@@ -236,8 +242,11 @@ Use areas: character
 Tag: subject_salary_income_barter_goods_$SUBJECT_SALARY$_add
 Use areas: character
 
-Tag: stationed_$MEN_AT_ARMS_TYPE$_toughness_add
-Use areas: province
+Tag: $VASSAL_STANCE$_different_faith_opinion
+Use areas: character
+
+Tag: $MEN_AT_ARMS_TYPE$_siege_value_mult
+Use areas: character
 
 Tag: owned_personal_scheme_success_chance_growth_add
 Use areas: character
@@ -245,13 +254,7 @@ Use areas: character
 Tag: cowed_vassal_prestige_contribution_add
 Use areas: character
 
-Tag: $GOVERNMENT_TYPE$_tax_contribution_add
-Use areas: character
-
-Tag: $TERRAIN_TYPE$_levy_size
-Use areas: character， province，以及 county
-
-Tag: $VASSAL_STANCE$_prestige_contribution_add
+Tag: $VASSAL_STANCE$_ai_honor
 Use areas: character
 
 Tag: mercenary_hire_cost_add
@@ -263,20 +266,14 @@ Use areas: character
 Tag: treasury_ministry_budget_allocation
 Use areas: character
 
-Tag: $VASSAL_STANCE$_ai_greed
-Use areas: character
-
 Tag: fellow_vassal_opinion
 Use areas: character
 
 Tag: independent_primary_defender_advantage_add
 Use areas: character
 
-Tag: $LIFESTYLE$_xp_gain_add
-Use areas: character
-
-Tag: $MEN_AT_ARMS_TYPE$_maintenance_mult
-Use areas: character
+Tag: stationed_$MEN_AT_ARMS_TYPE$_siege_value_mult
+Use areas: province
 
 Tag: army_damage_mult
 Use areas: character
@@ -284,13 +281,16 @@ Use areas: character
 Tag: character_spiritual_fulfillment_loss_mult
 Use areas: character
 
-Tag: $VASSAL_STANCE$_levy_contribution_mult
-Use areas: character
+Tag: $TERRAIN_TYPE$_supply_limit
+Use areas: character， province，以及 county
 
 Tag: enemy_personal_scheme_phase_duration_add
 Use areas: character
 
 Tag: subject_salary_income_piety_$SUBJECT_SALARY$_add
+Use areas: character
+
+Tag: $TERRAIN_TYPE$_attrition_mult
 Use areas: character
 
 Tag: opinion_of_female_rulers
@@ -299,11 +299,11 @@ Use areas: character
 Tag: revolting_siege_morale_loss_mult
 Use areas: character
 
-Tag: $GOVERNMENT_TYPE$_herd_contribution_add
-Use areas: character
-
-Tag: $TERRAIN_TYPE$_supply_limit
+Tag: $TERRAIN_TYPE$_fertility_growth_add
 Use areas: character， province，以及 county
+
+Tag: $GOVERNMENT_TYPE$_herd_contribution_mult
+Use areas: character
 
 Tag: provisions_use_mult
 Use areas: character， province，以及 county
@@ -311,44 +311,41 @@ Use areas: character， province，以及 county
 Tag: revolting_siege_morale_loss_add
 Use areas: character
 
-Tag: $GOVERNMENT_TYPE$_opinion
-Use areas: character
-
-Tag: stationed_$MEN_AT_ARMS_TYPE$_siege_value_mult
-Use areas: province
-
-Tag: $TERRAIN_TYPE$_fertility_growth_mult
+Tag: $TERRAIN_TYPE$_construction_prestige_cost
 Use areas: character， province，以及 county
-
-Tag: $RELIGIOUS_FAMILY$_opinion
-Use areas: character
 
 Tag: culture_innovation_progress_chance_from_spread_add
 Use areas: culture
 
-Tag: $MEN_AT_ARMS_TYPE$_recruitment_cost_mult
+Tag: $MEN_AT_ARMS_TYPE$_max_size_add
 Use areas: character
 
 Tag: $MEN_AT_ARMS_TYPE$_screen_add
 Use areas: character
 
-Tag: $HOLDING_TYPE$_build_prestige_cost
+Tag: $TERRAIN_TYPE$_tax_mult
 Use areas: character， province，以及 county
 
-Tag: $GOVERNMENT_TYPE$_prestige_contribution_add
+Tag: $MEN_AT_ARMS_TYPE$_screen_mult
+Use areas: character
+
+Tag: $GOVERNMENT_TYPE$_prestige_contribution_mult
 Use areas: character
 
 Tag: vassal_tax_contribution_mult
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_supply_limit_mult
+Tag: $TERRAIN_TYPE$_advantage
+Use areas: character
+
+Tag: $VASSAL_STANCE$_ai_boldness
+Use areas: character
+
+Tag: $TERRAIN_TYPE$_provisions_use_mult
 Use areas: character， province，以及 county
 
 Tag: $VASSAL_STANCE$_ai_sociability
 Use areas: character
-
-Tag: $TERRAIN_TYPE$_construction_gold_cost
-Use areas: character， province，以及 county
 
 Tag: enemy_contract_scheme_success_chance_max_add
 Use areas: character
@@ -359,8 +356,17 @@ Use areas: character
 Tag: hard_casualty_modifier
 Use areas: character 以及 terrain
 
+Tag: stationed_$MEN_AT_ARMS_TYPE$_toughness_add
+Use areas: province
+
+Tag: monthly_$LIFESTYLE$_xp_gain_mult
+Use areas: character
+
 Tag: monthly_county_control_growth_factor_even_if_baron
 Use areas: character
+
+Tag: stationed_$MEN_AT_ARMS_TYPE$_pursuit_add
+Use areas: province
 
 Tag: subject_salary_income_influence_$SUBJECT_SALARY$_mult
 Use areas: character
@@ -374,26 +380,32 @@ Use areas: character
 Tag: monthly_prestige_gain_per_dread_mult
 Use areas: character
 
+Tag: $TERRAIN_TYPE$_construction_gold_cost
+Use areas: character， province，以及 county
+
 Tag: intimidated_vassal_levy_contribution_add
 Use areas: character
 
 Tag: provisions_loss_mult
 Use areas: character 以及 terrain
 
-Tag: $TERRAIN_TYPE$_min_combat_roll
-Use areas: character
+Tag: $TERRAIN_TYPE$_supply_limit_mult
+Use areas: character， province，以及 county
 
 Tag: character_max_merit_level_add
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_fertility_decline_mult
+Tag: $GOVERNMENT_TYPE$_tax_contribution_mult
+Use areas: character
+
+Tag: $SITUATION_TYPE$_supply_limit_add
 Use areas: character， province，以及 county
 
 Tag: advantage
 Use areas: character
 
-Tag: stationed_$MEN_AT_ARMS_TYPE$_pursuit_mult
-Use areas: province
+Tag: $MEN_AT_ARMS_TYPE$_toughness_add
+Use areas: character
 
 Tag: dynasty_house_opinion
 Use areas: character
@@ -401,17 +413,14 @@ Use areas: character
 Tag: prowess
 Use areas: character
 
-Tag: $VASSAL_STANCE$_tax_contribution_mult
-Use areas: character
-
 Tag: learning_per_stress_level
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_holding_construction_gold_cost
-Use areas: character， province，以及 county
-
 Tag: stationed_maa_damage_add
 Use areas: province
+
+Tag: $VASSAL_STANCE$_ai_vengefulness
+Use areas: character
 
 Tag: subject_salary_expense_gold_$SUBJECT_SALARY$_add
 Use areas: character
@@ -422,10 +431,10 @@ Use areas: character
 Tag: maa_toughness_add
 Use areas: character
 
-Tag: prowess_per_influence_level
+Tag: domain_tax_different_faith_mult
 Use areas: character
 
-Tag: domain_tax_different_faith_mult
+Tag: prowess_per_influence_level
 Use areas: character
 
 Tag: faith_conversion_piety_cost_add
@@ -440,10 +449,7 @@ Use areas: character
 Tag: piety_standalone_loss_mult
 Use areas: character
 
-Tag: $LIFESTYLE$_xp_gain_mult
-Use areas: character
-
-Tag: $GOVERNMENT_TYPE$_prestige_contribution_mult
+Tag: $GOVERNMENT_TYPE$_opinion
 Use areas: character
 
 Tag: subject_salary_expense_barter_goods_$SUBJECT_SALARY$_mult
@@ -452,7 +458,7 @@ Use areas: character
 Tag: domain_limit_min
 Use areas: character
 
-Tag: $VASSAL_STANCE$_same_faith_opinion
+Tag: $TERRAIN_TYPE$_cancel_negative_supply
 Use areas: character
 
 Tag: development_decline_factor
@@ -464,22 +470,16 @@ Use areas: character
 Tag: knight_effectiveness_per_intrigue
 Use areas: character
 
-Tag: $VASSAL_STANCE$_ai_boldness
-Use areas: character
-
 Tag: vassal_herder_contribution_mult
 Use areas: character
 
-Tag: $VASSAL_STANCE$_ai_vengefulness
+Tag: $VASSAL_STANCE$_prestige_contribution_mult
 Use areas: character
 
-Tag: scheme_phase_duration_against_$SCRIPTED_RELATION$_add
+Tag: $LIFESTYLE$_xp_gain_mult
 Use areas: character
 
 Tag: close_relative_opinion
-Use areas: character
-
-Tag: monthly_$LIFESTYLE$_xp_gain_mult
 Use areas: character
 
 Tag: same_faith_different_rite_county_opinion_add
@@ -489,9 +489,6 @@ Tag: subject_salary_income_treasury_or_gold_$SUBJECT_SALARY$_add
 Use areas: character
 
 Tag: monthly_prestige
-Use areas: character
-
-Tag: $TERRAIN_TYPE$_advantage
 Use areas: character
 
 Tag: courtier_and_guest_opinion
@@ -506,20 +503,29 @@ Use areas: character
 Tag: happy_powerful_vassal_prestige_contribution_add
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_max_combat_roll
-Use areas: character
-
 Tag: diplomacy_scheme_resistance
 Use areas: character
 
 Tag: cowed_vassal_barter_goods_contribution_mult
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_development_growth_factor
-Use areas: character， province，以及 county
+Tag: $VASSAL_STANCE$_different_culture_opinion
+Use areas: character
+
+Tag: $MEN_AT_ARMS_TYPE$_maintenance_mult
+Use areas: character
 
 Tag: negate_diplomacy_penalty_add
 Use areas: character
+
+Tag: stationed_$MEN_AT_ARMS_TYPE$_screen_mult
+Use areas: province
+
+Tag: scheme_phase_duration_against_$SCRIPTED_RELATION$_add
+Use areas: character
+
+Tag: $TERRAIN_TYPE$_holding_construction_piety_cost
+Use areas: character， province，以及 county
 
 Tag: raid_speed
 Use areas: character
@@ -527,10 +533,13 @@ Use areas: character
 Tag: levy_screen
 Use areas: character
 
+Tag: accolade_glory_gain_mult
+Use areas: character
+
 Tag: subject_salary_expense_barter_goods_$SUBJECT_SALARY$_add
 Use areas: character
 
-Tag: accolade_glory_gain_mult
+Tag: $MEN_AT_ARMS_TYPE$_max_size_mult
 Use areas: character
 
 Tag: knight_effectiveness_per_tyranny
@@ -539,16 +548,10 @@ Use areas: character
 Tag: character_travel_speed
 Use areas: character
 
-Tag: $SITUATION_TYPE$_supply_limit_mult
-Use areas: character， province，以及 county
-
 Tag: levy_reinforcement_rate
 Use areas: character， province，以及 county
 
-Tag: $MEN_AT_ARMS_TYPE$_siege_value_mult
-Use areas: character
-
-Tag: stationed_$MEN_AT_ARMS_TYPE$_damage_mult
+Tag: stationed_$MEN_AT_ARMS_TYPE$_damage_add
 Use areas: province
 
 Tag: max_combat_roll
@@ -563,6 +566,9 @@ Use areas: character
 Tag: different_faith_county_opinion_mult_even_if_baron
 Use areas: character
 
+Tag: $SITUATION_TYPE$_supply_limit_mult
+Use areas: character， province，以及 county
+
 Tag: monthly_war_piety_income_add
 Use areas: character
 
@@ -575,10 +581,10 @@ Use areas: character
 Tag: monthly_prestige_gain_per_legitimacy_level_mult
 Use areas: character
 
-Tag: stationed_$MEN_AT_ARMS_TYPE$_siege_value_add
-Use areas: province
+Tag: $TERRAIN_TYPE$_levy_size
+Use areas: character， province，以及 county
 
-Tag: $VASSAL_STANCE$_ai_zeal
+Tag: $VASSAL_STANCE$_ai_greed
 Use areas: character
 
 Tag: $GEOGRAPHICAL_REGION$_development_growth
@@ -602,9 +608,6 @@ Use areas: culture
 Tag: prestige_level_impact_mult
 Use areas: character
 
-Tag: $GOVERNMENT_TYPE$_tributary_opinion
-Use areas: character
-
 Tag: building_slot_add
 Use areas: character， province，以及 county
 
@@ -626,14 +629,11 @@ Use areas: character
 Tag: subject_salary_income_treasury_$SUBJECT_SALARY$_mult
 Use areas: character
 
-Tag: $VASSAL_STANCE$_prestige_contribution_mult
-Use areas: character
-
 Tag: winter_advantage
 Use areas: character
 
-Tag: $TERRAIN_TYPE$_barter_goods_mult
-Use areas: character， province，以及 county
+Tag: $GOVERNMENT_TYPE$_opinion_same_faith
+Use areas: character
 
 Tag: character_starting_spiritual_fulfillment_add
 Use areas: character
@@ -645,9 +645,6 @@ Tag: subject_salary_income_piety_$SUBJECT_SALARY$_mult
 Use areas: character
 
 Tag: different_faith_liege_opinion
-Use areas: character
-
-Tag: $TERRAIN_TYPE$_attrition_mult
 Use areas: character
 
 Tag: owned_hostile_scheme_success_chance_max_add
@@ -665,14 +662,14 @@ Use areas: character
 Tag: scheme_success_chance_max
 Use areas: scheme
 
-Tag: $VASSAL_STANCE$_ai_energy
-Use areas: character
-
 Tag: vassal_barter_goods_contribution_add
 Use areas: character
 
 Tag: travel_speed_mult
 Use areas: travel_plan
+
+Tag: $MEN_AT_ARMS_TYPE$_damage_mult
+Use areas: character
 
 Tag: subject_salary_expense_piety_$SUBJECT_SALARY$_mult
 Use areas: character
@@ -701,6 +698,9 @@ Use areas: character， province，以及 county
 Tag: intimidated_vassal_tax_contribution_add
 Use areas: character
 
+Tag: $TERRAIN_TYPE$_travel_danger
+Use areas: character， province，以及 county
+
 Tag: great_project_build_speed
 Use areas: character
 
@@ -713,7 +713,7 @@ Use areas: character
 Tag: character_max_piety_level_add
 Use areas: character
 
-Tag: $VASSAL_STANCE$_ai_honor
+Tag: $VASSAL_STANCE$_prestige_contribution_add
 Use areas: character
 
 Tag: levy_reinforcement_rate_same_faith_even_if_baron
@@ -740,20 +740,20 @@ Use areas: character
 Tag: monthly_prestige_gain_per_happy_powerful_vassal_add
 Use areas: character
 
+Tag: $VASSAL_STANCE$_levy_contribution_add
+Use areas: character
+
 Tag: fellow_tributary_opinion
 Use areas: character
 
-Tag: $MEN_AT_ARMS_TYPE$_toughness_add
-Use areas: character
+Tag: stationed_$MEN_AT_ARMS_TYPE$_toughness_mult
+Use areas: province
 
 Tag: hostage_income_mult
 Use areas: character
 
 Tag: blood_brother_piety_mult
 Use areas: character
-
-Tag: $GEOGRAPHICAL_REGION$_development_growth_factor
-Use areas: character， province，以及 county
 
 Tag: subject_salary_income_gold_$SUBJECT_SALARY$_mult
 Use areas: character
@@ -768,9 +768,6 @@ Tag: monthly_prestige_gain_per_knight_add
 Use areas: character
 
 Tag: no_prowess_loss_from_age
-Use areas: character
-
-Tag: $VASSAL_STANCE$_same_culture_opinion
 Use areas: character
 
 Tag: character_spiritual_fulfillment_gain_mult
@@ -789,9 +786,6 @@ Tag: domicile_build_speed
 Use areas: character
 
 Tag: subject_salary_expense_prestige_$SUBJECT_SALARY$_add
-Use areas: character
-
-Tag: $VASSAL_STANCE$_levy_contribution_add
 Use areas: character
 
 Tag: player_heir_opinion
@@ -833,17 +827,17 @@ Use areas: character
 Tag: character_travel_safety_mult
 Use areas: character
 
-Tag: $HOLDING_TYPE$_holding_build_speed
+Tag: $HOLDING_TYPE$_holding_build_prestige_cost
 Use areas: character， province，以及 county
 
 Tag: tax_per_piety_level
 Use areas: province
 
-Tag: $HOLDING_TYPE$_holding_build_piety_cost
-Use areas: character， province，以及 county
-
-Tag: $MEN_AT_ARMS_TYPE$_screen_mult
+Tag: $MEN_AT_ARMS_TYPE$_siege_value_add
 Use areas: character
+
+Tag: $HOLDING_TYPE$_build_speed
+Use areas: character， province，以及 county
 
 Tag: character_max_prestige_level_add
 Use areas: character
@@ -872,6 +866,9 @@ Use areas: character
 Tag: subject_salary_expense_herd_$SUBJECT_SALARY$_mult
 Use areas: character
 
+Tag: $MEN_AT_ARMS_TYPE$_toughness_mult
+Use areas: character
+
 Tag: defender_advantage
 Use areas: character
 
@@ -879,9 +876,6 @@ Tag: monthly_piety_gain_per_happy_powerful_vassal_add
 Use areas: character
 
 Tag: prowess_per_prestige_level
-Use areas: character
-
-Tag: $VASSAL_STANCE$_opinion
 Use areas: character
 
 Tag: maa_screen_mult
@@ -920,16 +914,10 @@ Use areas: character
 Tag: dread_per_tyranny_mult
 Use areas: character
 
-Tag: $VASSAL_STANCE$_ai_compassion
-Use areas: character
-
 Tag: same_rite_opinion
 Use areas: character
 
 Tag: stewardship_per_influence_level
-Use areas: character
-
-Tag: $VASSAL_STANCE$_different_faith_opinion
 Use areas: character
 
 Tag: general_opinion
@@ -950,11 +938,17 @@ Use areas: character
 Tag: prowess_scheme_resistance
 Use areas: character
 
-Tag: $VASSAL_STANCE$_tax_contribution_add
+Tag: $VASSAL_STANCE$_opinion
 Use areas: character
 
 Tag: negate_prowess_penalty_add
 Use areas: character
+
+Tag: $VASSAL_STANCE$_ai_energy
+Use areas: character
+
+Tag: $HOLDING_TYPE$_holding_build_gold_cost
+Use areas: character， province，以及 county
 
 Tag: army_pursuit_mult
 Use areas: character
@@ -962,17 +956,8 @@ Use areas: character
 Tag: subject_salary_income_renown_$SUBJECT_SALARY$_mult
 Use areas: character
 
-Tag: $HOLDING_TYPE$_build_piety_cost
-Use areas: character， province，以及 county
-
 Tag: elderly_health
 Use areas: character
-
-Tag: $HOLDING_TYPE$_holding_build_gold_cost
-Use areas: character， province，以及 county
-
-Tag: stationed_$MEN_AT_ARMS_TYPE$_screen_add
-Use areas: province
 
 Tag: monthly_county_control_decline_add_even_if_baron
 Use areas: character
@@ -1004,11 +989,11 @@ Use areas: province
 Tag: character_max_influence_level_add
 Use areas: character
 
-Tag: county_fertility_growth_mult
-Use areas: character， province，以及 county
-
 Tag: vassal_herd_contribution_mult
 Use areas: character
+
+Tag: county_fertility_growth_mult
+Use areas: character， province，以及 county
 
 Tag: monthly_treasury_from_cardinal_budget_base
 Use areas: character
@@ -1016,13 +1001,13 @@ Use areas: character
 Tag: tyranny_gain_mult
 Use areas: character
 
+Tag: different_faith_opinion
+Use areas: character
+
 Tag: intrigue_per_piety_level
 Use areas: character
 
 Tag: levy_reinforcement_rate_different_faith_even_if_baron
-Use areas: character
-
-Tag: different_faith_opinion
 Use areas: character
 
 Tag: subject_salary_expense_influence_$SUBJECT_SALARY$_add
@@ -1055,6 +1040,9 @@ Use areas: character
 Tag: mercenary_count_mult
 Use areas: culture
 
+Tag: $VASSAL_STANCE$_ai_zeal
+Use areas: character
+
 Tag: intrigue_per_influence_level
 Use areas: character
 
@@ -1083,6 +1071,9 @@ Tag: monthly_treasury_from_military_budget_mult
 Use areas: character
 
 Tag: vassal_barter_goods_contribution_mult
+Use areas: character
+
+Tag: $LIFESTYLE$_xp_gain_add
 Use areas: character
 
 Tag: supply_limit
@@ -1133,6 +1124,9 @@ Use areas: character
 Tag: herd_conversion
 Use areas: character
 
+Tag: $HOLDING_TYPE$_holding_build_piety_cost
+Use areas: character， province，以及 county
+
 Tag: monthly_piety_gain_per_dread_mult
 Use areas: character
 
@@ -1157,13 +1151,13 @@ Use areas: character
 Tag: maa_damage_add
 Use areas: character
 
+Tag: $VASSAL_STANCE$_ai_rationality
+Use areas: character
+
 Tag: scheme_success_chance
 Use areas: scheme
 
 Tag: stewardship_mult
-Use areas: character
-
-Tag: $VASSAL_STANCE$_ai_rationality
 Use areas: character
 
 Tag: learning_per_influence_level
@@ -1242,6 +1236,9 @@ Tag: tributary_piety_contribution_mult
 Use areas: character
 
 Tag: vassal_limit
+Use areas: character
+
+Tag: $VASSAL_STANCE$_tax_contribution_add
 Use areas: character
 
 Tag: supply_duration
@@ -1378,9 +1375,6 @@ Use areas: travel_plan
 
 Tag: tax_mult
 Use areas: character， province，以及 county
-
-Tag: $TAX_SLOT_TYPE$_add
-Use areas: character
 
 Tag: county_opinion_add
 Use areas: character， province，以及 county
@@ -1835,13 +1829,16 @@ Use areas: province
 Tag: rite_creation_piety_cost_add
 Use areas: character
 
+Tag: $TAX_SLOT_TYPE$_add
+Use areas: character
+
 Tag: ai_sociability
 Use areas: character
 
-Tag: men_at_arms_title_limit
+Tag: title_creation_cost
 Use areas: character
 
-Tag: title_creation_cost
+Tag: men_at_arms_title_limit
 Use areas: character
 
 Tag: monthly_treasury_from_salary_budget_mult
@@ -1858,6 +1855,9 @@ Use areas: character
 
 Tag: county_fertility_growth_add
 Use areas: character， province，以及 county
+
+Tag: $RELIGIOUS_FAMILY$_opinion
+Use areas: character
 
 Tag: same_culture_opinion
 Use areas: character
@@ -2232,11 +2232,11 @@ Use areas: character
 Tag: prowess_mult
 Use areas: character
 
-Tag: stationed_maa_screen_mult
-Use areas: province
-
 Tag: character_capital_county_monthly_development_growth_add
 Use areas: character
+
+Tag: stationed_maa_screen_mult
+Use areas: province
 
 Tag: men_at_arms_maintenance_per_dread_mult
 Use areas: character

@@ -83,7 +83,7 @@ whether the miss matters:
 | `Map_modding`, `Terrain_modding`, `Coat_of_arms_modding`, `3D_models`, `Sound_modding`, `Music_modding`, `Fonts`, `Graphical_assets` | The graphics and audio pipeline. Needed only for an asset mod. Fetch the one page, then |
 | `Console_commands`, `Commands` | Console and debug commands. Not part of writing a mod |
 | `Defines`, `Lists`, `List_of_baronies`, `Exporters` | Data tables and tools. `common/defines/` in the vanilla scripts answers the first |
-| `Data_types` | `scripts/dump-script-docs.mjs --command=dump_data_types` regenerates it for the installed build. The result is not committed |
+| `Data_types` | `node scripts/dump-script-docs.mjs --command=dump_data_types` regenerates it for the installed build, into `docs/data_types/`, which is committed |
 | `Modding_tools` | Tooling advice for humans, not for the agent |
 
 ## Source and license
@@ -111,7 +111,8 @@ The wiki pages are a **transcription**, and their own header says they are outda
 produces the same data for the exact installed version. Run:
 
 ```bash
-node scripts/dump-script-docs.mjs          # writes the logs into docs/script_docs/
+node scripts/dump-script-docs.mjs                      # writes the name lists into docs/script_docs/
+node scripts/dump-script-docs.mjs --command=dump_data_types   # writes the GUI data types into docs/data_types/
 ```
 
 The script runs the game headless and copies the result. It relies on three options, two of them in
@@ -119,17 +120,22 @@ The script runs the game headless and copies the result. It relies on three opti
 
 ```
 ck3.exe -nographics -debug_mode -run_console_action=script_docs
+ck3.exe -nographics -debug_mode -run_console_action=dump_data_types
 ```
 
-| Command | Writes |
-| --- | --- |
-| `script_docs` | `effects.log`, `triggers.log`, `modifiers.log`, `event_scopes.log`, `event_targets.log`, `on_actions.log` |
-| `dump_data_types` (`--command=dump_data_types`) | the GUI data types, promotes, and functions |
+| Command | Writes | Output directory |
+| --- | --- | --- |
+| `script_docs` | `effects.log`, `triggers.log`, `modifiers.log`, `event_scopes.log`, `event_targets.log`, `on_actions.log` | `<Documents>/Paradox Interactive/Crusader Kings III/logs/` |
+| `dump_data_types` | `data_types_common.txt`, `data_types_gui.txt`, `data_types_internalclausewitzgui.txt`, `data_types_script.txt`, `data_types_uncategorized.txt` | `<Documents>/Paradox Interactive/Crusader Kings III/logs/data_types/` |
 
-They land under `<Documents>/Paradox Interactive/Crusader Kings III/logs/`. `Documents` can be moved.
-The script asks the registry, then checks the file times to prove the run wrote them. It copies the
-fresh logs into `docs/script_docs/`, which **is committed**: the dumps are repository content, so a
-clone has them without the game. `validate_mod` reads them for its name-level checks.
+The two commands write into different directories. `dump_data_types` also prints the path it used:
+`Data types dumped into '<path>'`. Measured on 1.20.1.1: 5 files, 145 900 lines, 2.6 MB.
+
+`Documents` can be moved. The script asks the registry, then checks the file times in the output
+directory to prove the run wrote them. It copies the fresh files into `docs/script_docs/` and `docs/data_types/`, which **are committed**: the
+dumps are repository content, so a clone has them without the game. `validate_mod` reads
+`docs/script_docs/` for its name-level checks, and nothing reads `docs/data_types/` automatically: it
+is the reference for GUI work.
 
 **No game session is needed.** The command runs at the `application initialized` stage, before any
 menu or save is loaded, and the lists are complete there. Measured on 1.20.1.1:

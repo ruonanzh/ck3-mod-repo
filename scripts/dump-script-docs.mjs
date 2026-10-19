@@ -89,6 +89,9 @@ async function main() {
   }
   const exe = join(gameDir, "binaries", "ck3.exe");
   const logsDir = join(userDocuments(), "Paradox Interactive", "Crusader Kings III", "logs");
+  // `script_docs` writes into logs/ itself, and `dump_data_types` writes into logs/data_types/.
+  // The wiki states the second path twice: `docs/wiki/Interface.md` line 88 and line 251.
+  const sourceDir = command === "dump_data_types" ? join(logsDir, "data_types") : logsDir;
   const dlcLoadPath = join(userDocuments(), "Paradox Interactive", "Crusader Kings III", "dlc_load.json");
   console.log(`game:  ${gameDir}`);
   console.log(`logs:  ${logsDir}`);
@@ -135,8 +138,13 @@ async function main() {
   // is not the verdict. The freshness check below is: the files prove the command ran.
   if (code !== 0) console.log(`  (the game exited with code ${code}; the log check below decides)`);
 
-  if (!existsSync(logsDir)) {
-    console.error(`FAIL: the log directory does not exist: ${logsDir}`);
+  if (!existsSync(sourceDir)) {
+    console.error(`FAIL: the output directory does not exist: ${sourceDir}`);
+    console.error(
+      command === "dump_data_types"
+        ? "NEXT: confirm that dump_data_types is a console command in this build (open the console and run `help`), then run this again."
+        : "NEXT: launch the game once through the launcher to finish first-run setup, then run this again.",
+    );
     process.exitCode = 1;
     return;
   }
@@ -151,16 +159,13 @@ async function main() {
     "event_targets.log",
     "on_actions.log",
   ]);
-  const fresh = readdirSync(logsDir)
-    .filter((name) => name.endsWith(".log"))
-    .map((name) => join(logsDir, name))
+  const fresh = readdirSync(sourceDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => join(sourceDir, entry.name))
     .filter((p) => statSync(p).mtimeMs >= startedAt - 2000)
-    .filter((p) => {
-      const name = p.split(/[\\/]/).pop();
-      return command === "script_docs" ? DOC_LOGS.has(name) : name.startsWith("data_types");
-    });
+    .filter((p) => (command === "script_docs" ? DOC_LOGS.has(p.split(/[\\/]/).pop()) : true));
   if (fresh.length === 0) {
-    console.error("FAIL: no log file was written by this run. The command reported success but wrote nothing.");
+    console.error(`FAIL: no file was written to ${sourceDir} by this run. The command reported success but wrote nothing.`);
     console.error("NEXT: launch the game once through the launcher to finish first-run setup, then run this again.");
     process.exitCode = 1;
     return;
@@ -175,8 +180,11 @@ async function main() {
   }
   console.log(`\nPASS: ${copied} log file(s) written to ${relative(root, outDir).split("\\").join("/")}/`);
   console.log(`  ${fresh.map((p) => p.split(/[\\/]/).pop()).sort().join(", ")}`);
-  console.log("  These are version-exact for the installed game and beat the docs/wiki snapshot.");
-  console.log("  Commit them: they are repository content, and validate_mod reads them.");
+  console.log(
+    command === "script_docs"
+      ? "  These are exact for the installed build. validate_mod reads them, so commit them."
+      : "  These are exact for the installed build. They are the reference for GUI work, and nothing reads them automatically: commit them when a change touches the interface.",
+  );
 }
 
 await main();
