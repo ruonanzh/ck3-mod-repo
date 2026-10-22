@@ -66,7 +66,7 @@ decides two files at the same relative path, so the later name wins.
 
 ## 3. Localization (BOM, filename, header, and the `replace/` directory)
 
-Write the files under `your_mods/<name>/localization/<lang>/...`. The format is in `Modding`,
+Write the files under `your_mods/<name>/localization/<lang>/...`. A `.yml` outside `localization/` is not read. The format is in `Modding`,
 the localization section: BOM, filename, and header. The `replace/` directory is in `Localization`.
 
 - **Encoding (mandatory):** UTF-8 **with BOM** (`EF BB BF`). The wiki lists it first among the
@@ -298,8 +298,6 @@ CK3 has no `metadata.id`. The directory name is the identity that this repositor
 the game's own dumps in `docs/script_docs/`. These two name checks report WARN or NOTE only, never
 FAIL, and every finding names the file. The syntax and localization checks in section 3 still report
 ERROR.
-
-The syntax check reads `.txt`, `.gui`, `.gfx`, and `.asset`. The localization check reads a `.yml` under `localization/`. The tool skips a file with any other suffix without a finding.
 
 1. **A new object needs its localization key.** The key is derived from the object name, so a new
    object cannot borrow a vanilla key.
