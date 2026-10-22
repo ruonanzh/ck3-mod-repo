@@ -26,7 +26,7 @@ and its bound directory gate those actions.
   vanilla scripts, and the call form is in the lists. Merging the stages produces a plausible file
   that fails in the game.
 
-  **Stage 1: settle what the player wants and where it hangs.** Do not write a file in this stage.
+  **Stage 1: settle what the player wants and where it hangs.** Do not write the mod in this stage. Do not start stage 2 until the player settles the shape in step 5. An answer that leaves a design question open is not a settlement. The page under `.preview/` is not the mod.
 
   | # | Step | What you read or run | Output |
   | --- | --- | --- | --- |
@@ -35,7 +35,7 @@ and its bound directory gate those actions.
   | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
   | 3 | **Research the vanilla code** | `grep -rln <keyword> game-scripts/vanilla/game/`, which lists files rather than lines. Open the first, then search inside it with `grep -n`. A name or a scope is a `docs/script_docs/` question. | Real object names, real field values, and the file to mirror |
   | 4 | **Read that window's own `.gui` file** | When the change mounts on an existing window or panel, read its `.gui` file under `game-scripts/vanilla/game/gui/`. The window's data types and functions are in `docs/data_types/`. Skip this step when no window changes. | The `type` and the block to hook into |
-  | 5 | **Give one example shape, then settle it** | The player. Describe what the mod changes, its scope, and its shape, as one concrete example the player can change. Then wait. | One sentence: the shape the player settled |
+  | 5 | **Give one example shape, then settle it** | The player. Describe what the mod changes, its scope, and its shape, as one concrete example the player can change. Then wait. | One sentence: what the mod changes, its scope, and the shape the player settled |
 
   Step 4 is a separate step on purpose. A mechanism lives in `common/`, and an attachment point lives
   in `.gui`. When the two merge, you find the `common/` directory and stop, and the UI half is
@@ -65,7 +65,7 @@ and its bound directory gate those actions.
   | 8b | **Check the UI side** | The same file, section 3 for a label or a localization key, and section 7 when the change needs a menu entry, a column, a filter, or a panel. Reuse an existing in-game icon or asset when one fits. | The extra files, or a sentence that the change needs none |
   | 9 | **Validate, then review** | `validate_mod`, then `mod-reviewer` | Two verdicts, and every line handled |
 
-  When you cannot dispatch, work through the last section of `docs/ck3-modding-conventions.md` by hand.
+  When you cannot dispatch, work through the six review classes in `.pi/agents/mod-reviewer.md` by hand.
 
   Step 8b sits before step 9 on purpose. An icon or a localization key added after a clean receipt is
   covered by no check, and a localization file without a BOM fails in silence. When step 8b adds any
