@@ -21,9 +21,10 @@
  *      A scripted effect, an on_action, and a scripted GUI need no loc key, so they are not mapped:
  *      vanilla itself ships them with no key.
  *
- *   2. An effect, trigger, or modifier name must be a name the game knows. These names are code
- *      objects: PDXScript has no compile step, so a mod cannot add one
- *      (docs/wiki/README.md records the measurement). The game's own dumps list them all
+ *   2. An effect, trigger, or modifier type must be one the game knows. These are code objects:
+ *      PDXScript has no compile step, so a mod cannot add one (docs/wiki/README.md records the
+ *      measurement). A mod can add a static modifier in common/modifiers/, which bundles those
+ *      types (docs/wiki/Modifier_list.md). The game's own dumps list them all
  *      (`docs/script_docs/`). A name that is not in the dumps but is one or two characters away from
  *      a name that is gets a WARN with the closest name. A name that is far from every dumped name
  *      stays silent: it can be a vanilla object, a scripted name, or a mod-defined name, and none of

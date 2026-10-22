@@ -109,7 +109,7 @@ Call `validate_mod` with `modDir = your_mods/<ModName>/`.
 - `FAIL: <name> has N error(s), M warning(s)` then one `ERROR: <file>: <message>` per line, in English. The `WARN:` lines follow the `ERROR:` lines, then any `NOTE:` line, and the output ends with `NEXT: read the ERROR lines above, fix each file, and run validate_mod again.` Read the `ERROR:` lines to locate the file. Fix every ERROR, and do not modify another mod.
 - A `NOTE:` line says that a check was skipped and why, for example when `docs/script_docs/` or the mirror is absent.
 
-Section 9 of `docs/ck3-modding-conventions.md` states what the tool checks and what it does not. It does not prove that a new name exists, and it is not a scope, type, or value validator.
+Sections 3, 4, 5, and 9 of `docs/ck3-modding-conventions.md` state what the tool checks, and section 9 states what it does not. It does not prove that a new name exists, and it is not a scope, type, or value validator.
 
 Use `docs/script_docs/` for scope, and `game-scripts/vanilla/game/` for the type and the field values. Use `how-to-speak` to report the result to the player.
 
