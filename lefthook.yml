@@ -1,5 +1,15 @@
-# mod repo 维护者 hooks：只校验环境自身，绝不引用 your_mods/
+# Maintainer hooks for this repository. They cover the environment only, never your_mods/.
 #
-# 注意：mod 校验逻辑已迁到 .pi/extensions/mod-lint.ts（validate_mod 工具，agent 用）。
-# 维护者校验 reference/example_mod 的方式：在 pi agent 里调 validate_mod 工具。
-# 如需恢复自动 pre-commit 校验，后续设计维护者脚本（复用校验核心，避免两套逻辑）。
+# lefthook is not installed here yet, so these hooks do not run. Until it is, run the two commands
+# by hand before a documentation commit: both are fast and neither needs the game.
+#
+# The mod checks live in .pi/extensions/mod-lint.ts and the agent runs them through the validate_mod
+# tool. A maintainer checks reference/example_mod/ the same way: open the repository in pi and call
+# validate_mod. A hook must reuse that check, so the repository never holds two versions of it.
+#
+# pre-commit:
+#   commands:
+#     doc-refs:
+#       run: node scripts/check-doc-refs.mjs
+#     md-lines:
+#       run: node scripts/check-md-lines.mjs
