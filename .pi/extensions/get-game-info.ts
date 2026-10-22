@@ -33,6 +33,7 @@ import {
   checkGameDir,
   dumpDir,
   mirrorDirs,
+  mirrorState,
   nonAsciiCharsInPath,
   pathsFor,
   readModRepoConfig,
@@ -130,7 +131,7 @@ export default function (pi: ExtensionAPI) {
 
       // The vanilla part of the modding context is a copy of the game directory, so the scripts sit one
       // level down, at `vanilla/game/`. This check reads one directory entry only.
-      const vanillaPresent = existsSync(mirrorDirs(cwd).vanillaScripts);
+      const mirror = mirrorState(cwd);
 
       const lines = [
         "PASS: game info",
@@ -145,7 +146,14 @@ export default function (pi: ExtensionAPI) {
         ),
         row("layout", `install: ${gameDir}/game/...`),
         row("", `vanilla:  ${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/game/...   (a copy of the game directory)`),
-        row("vanilla", vanillaPresent ? "present" : "missing - run sync_game_scripts"),
+        row(
+          "vanilla",
+          mirror === "ready"
+            ? "ready"
+            : mirror === "partial"
+              ? "incomplete - the vanilla copy has no game/common/ directory. Run sync_game_scripts again"
+              : "missing - run sync_game_scripts",
+        ),
         row("workshop", workshopRow(cwd)),
         row("dumps", dumpsRow(cwd)),
         row("entry points", "see docs/ck3-modding-conventions.md section 7"),

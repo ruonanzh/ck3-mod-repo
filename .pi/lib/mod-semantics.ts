@@ -45,7 +45,7 @@
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
-import { MIRROR_DIRNAME, MIRROR_ROOT_DIRNAME, dumpDir, mirrorDirs } from "./game-paths";
+import { MIRROR_DIRNAME, MIRROR_ROOT_DIRNAME, dumpDir, mirrorDirs, mirrorState } from "./game-paths";
 
 export interface SemanticFinding {
   code: string;
@@ -597,13 +597,7 @@ export function analyzeSemantics(modDir: string, cwd: string): SemanticResult {
 
   const dirs = mirrorDirs(cwd);
   const vanilla = dirs.vanillaScripts;
-  let mirrorPresent = false;
-  try {
-    mirrorPresent = statSync(join(vanilla, "common"), { throwIfNoEntry: false })?.isDirectory() === true;
-  } catch {
-    mirrorPresent = false;
-  }
-  if (!mirrorPresent) {
+  if (mirrorState(cwd) === "missing") {
     findings.push({
       code: "mirror-missing",
       rel: `${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/game`,

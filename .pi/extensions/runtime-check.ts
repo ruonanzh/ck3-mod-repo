@@ -35,7 +35,7 @@ export default function (pi: ExtensionAPI) {
         content: [
           {
             type: "text",
-            text: "PASS: no runtime dependencies for CK3 (pure PDXScript). There is no SDK, no compile step, and nothing to install. The player must install the game itself.\nNEXT: run try_set_game_dir with no arguments to record the game directory, the mod install directory, and the Workshop directory.",
+            text: "PASS: no runtime dependencies for CK3 (pure PDXScript). There is no SDK, no compile step, and nothing to install. The player must install the game itself.",
           },
         ],
         details: { ok: true },

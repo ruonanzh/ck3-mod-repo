@@ -80,6 +80,13 @@ export function mirrorDirs(cwd: string): MirrorDirs {
   };
 }
 
+/** One definition of "the modding context is ready": the vanilla copy exists and its common/ is a directory. */
+export function mirrorState(root: string): "ready" | "partial" | "missing" {
+  const vanilla = mirrorDirs(root).vanillaScripts;
+  if (!existsSync(vanilla)) return "missing";
+  return statSync(join(vanilla, "common"), { throwIfNoEntry: false })?.isDirectory() ? "ready" : "partial";
+}
+
 /** The directory that holds the game's own script dumps under one workspace root. */
 export const dumpDir = (cwd: string): string => resolve(cwd, DUMP_DIRNAME);
 
