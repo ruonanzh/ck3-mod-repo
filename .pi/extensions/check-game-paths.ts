@@ -108,7 +108,7 @@ export default function (pi: ExtensionAPI) {
             content: [
               {
                 type: "text",
-                text: "PASS: nothing to check - this game type declares no Steam Workshop (mod-repo.json: workshop.supported = false), so workshopDir was ignored.\nNEXT: pass gameDir or modInstallDir to check them.",
+                text: "PASS: nothing to check - this game type declares no Steam Workshop (mod-repo.json: workshop.supported = false), so workshopDir was ignored.",
               },
             ],
             details: { ok: true, checked: {}, failed: [], warnings: [], ignored: ["workshopDir"], wroteState: false },

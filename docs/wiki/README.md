@@ -132,7 +132,7 @@ The graphical path is not recommended: on this machine it wrote the logs and the
 | `effects.log`, `triggers.log`, `modifiers.log`, `event_scopes.log`, `event_targets.log` | **byte-identical in content** (same names) |
 | `on_actions.log` | **+60 entries** — the mod's own `timurid_invasion_on_action`, `fatimid_invasion_on_action`, … |
 
-The split is not arbitrary. Effects, triggers, and modifiers are **code** objects, and PDXScript has no compile step, so a mod cannot add one. Its `scripted_effects` and `scripted_triggers` never enter those logs (verified: a vanilla scripted effect is absent too). `on_actions` are **script** objects, so anything a mod declares appears. **Dump with an empty playset** for a vanilla baseline. The script says `playset: no mods enabled`, or prints a NOTE that on_actions will include the mods' entries.
+The split is not arbitrary. Effects, triggers, and modifier **types** are **code** objects, and PDXScript has no compile step, so a mod cannot add one. A mod can add a static modifier in `common/modifiers/`, which bundles those types (`Modifier_list.md`). Its `scripted_effects` and `scripted_triggers` never enter those logs (verified: a vanilla scripted effect is absent too). `on_actions` are **script** objects, so anything a mod declares appears. **Dump with an empty playset** for a vanilla baseline. The script says `playset: no mods enabled`, or prints a NOTE that on_actions will include the mods' entries.
 
 `modifiers.log` also varies in **line order** between runs with the same content. Compare name sets, not the raw file.
 

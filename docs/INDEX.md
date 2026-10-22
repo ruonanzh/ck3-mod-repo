@@ -25,7 +25,7 @@ The two stages and their steps are in `.pi/skills/mod-creator/SKILL.md`. Stage 1
 
 Choosing the mechanism is a decision, and the search locates a name. The form and the parameters of a call come from the reference lists in [`wiki/`](wiki/README.md). The exact scope comes from `docs/script_docs/`.
 
-`validate_mod` checks syntax, conventions, and names. Section 9 of [`ck3-modding-conventions.md`](ck3-modding-conventions.md) is the single list of what it checks and what it does not.
+`validate_mod` checks syntax, conventions, and names. Sections 3, 4, 5, and 9 of [`ck3-modding-conventions.md`](ck3-modding-conventions.md) state what it checks, and section 9 states what it does not.
 
 ## Other pages in `docs/`
 

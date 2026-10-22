@@ -36,7 +36,7 @@ A page can answer a game question instead of describing a mod: how game mechanic
 
 `your_mods/<ModName>/.preview/<topic>.modpage.html`
 
-A page needs a directory under `your_mods/`. When no mod directory is bound, call `create_mod_folder` first, then write the page.
+A page needs a directory under `your_mods/`. Whether this session may create it is decided by the session role: `how-to-speak` states the rule, and the Q&A role creates no files.
 
 - The name ends in `.modpage.html`. Another name opens in the plain viewer.
 - `.preview/` is not part of the mod. `install_mod` skips it, and git ignores it.

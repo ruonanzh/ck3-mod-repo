@@ -1,6 +1,6 @@
 ---
 name: mod-creator
-description: The guide for writing and modifying CK3 (pdx-script) mods. Always read it first, before you search the vanilla scripts, before you read the reference mods, and before your first write. Covers the two-stage order of work, the mod structure, the `descriptor.mod` fields, localization YAML, the entry mechanisms, `validate_mod` and its name-level checks, and the override and load-order rules that live in the conventions file.
+description: The guide for writing and modifying CK3 (pdx-script) mods. Always read it first, before you search the vanilla scripts, before you read the reference mods, and before your first write. Covers the two-stage order of work, the mod structure, the `descriptor.mod` fields, localization YAML, the entry mechanisms, and `validate_mod` with its name-level checks.
 ---
 
 # Writing CK3 mods (pdx-script)
@@ -111,7 +111,7 @@ Call `validate_mod` with `modDir = your_mods/<ModName>/`.
 
 Section 9 of `docs/ck3-modding-conventions.md` states what the tool checks and what it does not. It does not prove that a new name exists, and it is not a scope, type, or value validator.
 
-Use `game-scripts/vanilla/game/` and the wiki for scope and type. Use `how-to-speak` to report the result to the player.
+Use `docs/script_docs/` for scope, and `game-scripts/vanilla/game/` for the type and the field values. Use `how-to-speak` to report the result to the player.
 
 ## Common errors
 

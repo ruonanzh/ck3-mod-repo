@@ -33,7 +33,7 @@ Write so that your reply has exactly one reading, and the answer is visible in t
 
 ## The page
 
-To compare options, or to explain game mechanics and game content that would take more than a short paragraph, write a page. The file and the marks are in `mod-page`. A page needs a writable mod directory, so answer in text when none is bound.
+To compare options, or to explain game mechanics and game content that would take more than a short paragraph, write a page. The file and the marks are in `mod-page`. A page needs a writable mod directory. In a mod session with no directory bound yet, call `create_mod_folder` first. In the Q&A role the session creates no files, so answer in text there.
 
 ## Vocabulary: say the game, not the file
 

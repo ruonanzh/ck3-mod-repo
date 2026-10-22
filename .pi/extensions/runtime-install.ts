@@ -25,7 +25,7 @@ export default function (pi: ExtensionAPI) {
         content: [
           {
             type: "text",
-            text: "SKIP: no runtime dependencies, and no installation was performed. The player must install the game itself.\nNEXT: run try_set_game_dir to record the game directory, the mod install directory, and the Workshop directory. Run sync_game_scripts before you write a mod.",
+            text: "SKIP: no runtime dependencies, and no installation was performed. The player must install the game itself. The setup steps are in the setup-workspace skill.",
           },
         ],
         details: { ok: true },

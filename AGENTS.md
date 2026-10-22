@@ -40,10 +40,9 @@ The repository owner maintains everything else (`docs/`, `.pi/`, `reference/`, `
 
 ## Boundaries before you write a mod
 
-The rules and the reason for each one are in `docs/ck3-modding-conventions.md`. Sections 1 to 4 hold the override forms, the load order, the localization format, and the brace and quote rules.
+The rules and the reason for each one are in `docs/ck3-modding-conventions.md`. Sections 1 to 4 hold the override forms, the load order, the localization format, and the brace and quote rules, and section 6 holds the housekeeping rules.
 
-- Write under `your_mods/<ModName>/`.
-- Do not leave `temp_*`, `_tmp_*`, or editor backups in the mod directory.
+- Write under `your_mods/<ModName>/`. Scratch files and editor backups are covered in section 6.
 
 ## Who decides
 
@@ -52,6 +51,6 @@ The rules and the reason for each one are in `docs/ck3-modding-conventions.md`. 
 
 ## Validation
 
-Run `validate_mod` on `your_mods/<ModName>/` after you finish or change a mod, and clear every ERROR before you end the turn. Sections 4, 5, and 9 of `docs/ck3-modding-conventions.md` state what the tool checks and what it does not.
+Run `validate_mod` on `your_mods/<ModName>/` after you finish or change a mod, and clear every ERROR before you end the turn. Sections 3, 4, 5, and 9 of `docs/ck3-modding-conventions.md` state what the tool checks and what it does not.
 
 `mod-reviewer` reviews what `validate_mod` cannot see: the override form, the placement, the scope and type of each call, and the questions no file can settle. The caller dispatches it before `install_mod` and before reporting a mod as finished. It reads the receipt, so it does not repeat those checks.

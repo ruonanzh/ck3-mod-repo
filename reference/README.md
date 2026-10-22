@@ -24,5 +24,5 @@ What it demonstrates:
 - **Bilingual localization.** Both files carry the UTF-8 BOM (`EF BB BF`) and the `l_<lang>:`
   header, and name the language with the `_l_<lang>.yml` filename suffix.
 
-To run it: copy the directory to `your_mods/`, run `validate_mod`, then `install_mod`. See
+To run it: copy the directory to `your_mods/`, run `validate_mod`, dispatch `mod-reviewer`, then `install_mod`. See
 `docs/ck3-modding-conventions.md` for the override rules (LIOS/FIOS) and the entry mechanisms.

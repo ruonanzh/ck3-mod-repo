@@ -9,7 +9,7 @@ import { MAX_SEMANTIC_FINDINGS, analyzeSemantics } from "../lib/mod-semantics";
  * validate_mod - the CK3 mod validation tool for the pdx-script mod type.
  * It was ported from lint_mod.py in eu5-starry-night-project. It checks three layers: the syntax
  * and the conventions in this file, and the name-level semantics in ../lib/mod-semantics.
- *   - descriptor.mod: presence, a key=value shape, a non-empty name, and a semver version.
+ *   - descriptor.mod: presence, a key=value shape, a non-empty name, and a non-empty version.
  *   - Localization YAML: the UTF-8 BOM, the encoding, the `_l_<lang>` filename, the `l_<lang>:`
  *     header, the key line format, the double-quoted value, the quote balance, duplicate keys, and
  *     a mojibake warning.
