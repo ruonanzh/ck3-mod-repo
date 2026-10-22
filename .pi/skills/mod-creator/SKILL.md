@@ -59,7 +59,7 @@ and its bound directory gate those actions.
 
   | # | Step | What you read or run | Output |
   | --- | --- | --- | --- |
-  | 6 | **Read the conventions** | `docs/ck3-modding-conventions.md`, sections 1 to 3: override form, load order, localization | The rule list for this change |
+  | 6 | **Read the conventions** | `docs/ck3-modding-conventions.md`, sections 1 to 4: override form, load order, localization, brace and quote balance | The rule list for this change |
   | 7 | **Choose the override form** | The same file, section 1: a full-file overwrite, a single-object override, or an additive new object | The form, and the reason for it |
   | 8 | **Write the files** | `reference/example_mod/` for the shape | The mod tree under `your_mods/<ModName>/` |
   | 8b | **Check the UI side** | The same file, section 3 for a label or a localization key, and section 7 when the change needs a menu entry, a column, a filter, or a panel. Reuse an existing in-game icon or asset when one fits. | The extra files, or a sentence that the change needs none |

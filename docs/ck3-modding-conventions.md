@@ -128,7 +128,7 @@ Keys table (per `Mod_structure`):
 | --- | --- | --- |
 | `version` | yes | The mod version, a string. |
 | `name` | yes | The launcher display name. |
-| `supported_version` | in `<name>.mod` | Latest game version the mod supports. The game uses semantic versioning `MAJOR.MINOR.PATCH`, and `*` wildcards define a range, e.g. `1.20.*`. |
+| `supported_version` | in `<name>.mod` | Latest game version the mod supports. The game uses semantic versioning `MAJOR.MINOR.PATCH`, and `*` wildcards define a range, e.g. `1.20.*`. A wildcard above the patch level (`1.*`, `*`) is a WARN, because it goes stale. |
 | `path` | in `<name>.mod` | Where the mod directory lives. Relative to the CK3 user folder (`…/Paradox Interactive/Crusader Kings III/`, so `path="mod/my_mod"`) **or an absolute path** (`path="C:/Mods/my_mod"`). |
 | `tags` | no | A list of quoted strings, `tags={ "a" "b" }`. A list may span several lines. |
 | `picture` | no | The thumbnail image file, e.g. `"thumbnail.png"`. Steam ignores this key and always looks for `thumbnail.png` in the mod root. |

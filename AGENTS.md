@@ -38,14 +38,9 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   you cannot write a correct override without it.
 - `docs/script_docs/` — the game's own name dumps: `effects.log`, `triggers.log`, `modifiers.log`,
   `event_scopes.log`, `event_targets.log`, and `on_actions.log`. They are committed and exact for the
-  build they were dumped from, so they beat the wiki snapshot on the question "does this name exist",
-  and a game patch can make them stale. `validate_mod` reads the first three. The other three are the
-  reviewer's evidence: `on_actions.log` holds the on_action names, and the event scope files describe
-  the scopes. `node scripts/dump-script-docs.mjs` refreshes them.
+  build they were dumped from, so they beat the wiki snapshot on the question "does this name exist". A game patch can make them stale. `node scripts/dump-script-docs.mjs` refreshes them. `mod-creator` and `mod-reviewer` say which file answers which question.
 - `docs/data_types/` — the game's own GUI data types, promotes, and functions, five `data_types_*.txt`
-  files. They are committed and exact for the build they were dumped from. Read the file that matches
-  the window before you write a `.gui` override. `node scripts/dump-script-docs.mjs
-  --command=dump_data_types` refreshes them.
+  files. They are committed and exact for the build they were dumped from. `node scripts/dump-script-docs.mjs --command=dump_data_types` refreshes them.
 - `.pi/skills/` — the step guidance: role skills `setup-workspace`, `mod-creator`, and `mod-installer`,
   plus `how-to-speak` (how to write anything the player reads) and `mod-page` (how to write a mod
   page, revise it from the player's marks, and when to answer a game mechanics or game content
@@ -104,10 +99,10 @@ The rules and the reason for each one are in `docs/ck3-modding-conventions.md`. 
 ## Who decides
 
 - **The agent proposes.** When a direction or a player choice is still open, state one concrete example and what it changes in the game.
-- **The player decides.** The design and its numbers go into the mod after the player settles them, in the way `mod-page` and `mod-creator` set out.
+- **The player decides.** The design and its numbers go into the mod after the player agrees to them, in the way `mod-page` and `mod-creator` set out.
 
 ## Validation
 
-Run `validate_mod` on `your_mods/<ModName>/` after you finish or change a mod, and clear every ERROR before you end the turn. Section 9 of `docs/ck3-modding-conventions.md` states what the tool checks and what it does not.
+Run `validate_mod` on `your_mods/<ModName>/` after you finish or change a mod, and clear every ERROR before you end the turn. Sections 4, 5, and 9 of `docs/ck3-modding-conventions.md` state what the tool checks and what it does not.
 
-`mod-reviewer` reviews what `validate_mod` cannot see: the override form, the placement, and the scope and type of each call. The caller dispatches it before `install_mod` and before reporting a mod as finished. It reads the receipt, so it does not repeat those checks.
+`mod-reviewer` reviews what `validate_mod` cannot see: the override form, the placement, the scope and type of each call, and the questions no file can settle. The caller dispatches it before `install_mod` and before reporting a mod as finished. It reads the receipt, so it does not repeat those checks.
