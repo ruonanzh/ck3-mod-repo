@@ -25,13 +25,7 @@ creates it.
   `<directory name>_pimod` instead. If that name is taken too, it adds a number: `_pimod2`, then
   `_pimod3`. It does not modify that copy's `descriptor.mod`. Tell the player the directory name that
   the tool used. The in-game title `name` stays the same.
-- **The install path should be ASCII.** The engine reads a mod at a path with a non-ASCII character
-  as having no files inside. `install_mod` does **not** refuse such a path: it installs, then returns a
-  `WARN` that says the game may load the mod with no files. Report that warning to the player exactly
-  as written. If the mod shows up but does nothing in the game, the fix is to move the mod install
-  directory to an ASCII path (for example by relocating the Windows `Documents` directory), then run
-  `try_set_game_dir` with no arguments and install again. Do not rename the mod. The rule is in
-  `docs/ck3-modding-conventions.md` section 6.
+- **The install path must be ASCII.** `install_mod` installs anyway and returns a `WARN`. Report that warning as written. The rule and the player's fix are in section 6 of `docs/ck3-modding-conventions.md`.
 - **The replace is transactional.** The tool moves the old copy aside instead of deleting it, and it
   deletes that copy only after the new copy lands. If the new copy fails, the old version is still
   there.

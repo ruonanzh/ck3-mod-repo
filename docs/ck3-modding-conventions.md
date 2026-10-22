@@ -25,9 +25,7 @@ enforces nothing.
 ## 1. Overriding vanilla: file overwrite, LIOS, and FIOS
 
 CK3 loads the mod files on top of the vanilla files. There is **no** `INJECT:`/`REPLACE:` keyword
-system. Those are Victoria 3 / EU5 keywords, and they do not appear anywhere in CK3's docs or vanilla
-scripts. Those are Victoria 3 / EU5 keywords, and they do not appear anywhere in CK3's docs or vanilla
-scripts. Override is file- and object-based, per `Modding`, section "Override rules".
+system. Those are Victoria 3 / EU5 keywords, and they do not appear anywhere in CK3's docs or vanilla scripts. Override is file- and object-based, per `Modding`, section "Override rules".
 
 - **Full file override:** a mod file with the *same path and filename* as a vanilla/DLC file
   replaces it entirely. Anything you omit is lost — brittle across patches.
@@ -49,7 +47,7 @@ scripts. Override is file- and object-based, per `Modding`, section "Override ru
 object override, and reserve full-file overwrite for when you must change most of a file. There is
 no keyword to prefix. The filename order is the mechanism.
 
-## 2. Load order (ASCII order, and a subdirectory after its parent — the subdirectory rule is unverified)
+## 2. Load order (ASCII order, plus an unverified subdirectory rule)
 
 Per `Modding`, sections "Mod load order" and "Override rules":
 
@@ -200,7 +198,7 @@ to a screen is a scripted GUI, and a feature that adds a player action is a deci
 interaction. Most mods need one of them at most, and many need none.
 
 Pick the entry **before** you write script. Read the row that matches your feature, then open the
-directory it names and read one of the examples in it. Every path in the table exists in 1.20.1.1.
+directory it names and read one of the examples in it. Every path in the table exists in the installed build.
 
 | Entry point | Use it when | Defined in / read this example |
 | --- | --- | --- |
