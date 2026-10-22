@@ -7,18 +7,18 @@
  * `git diff` touches two lines for one word. This checker and fixer joins every block back into one
  * line and leaves it there.
  *
- * Applies to hand-written markdown that an agent reads: `AGENTS.md`, `README.md`, `docs/*.md`, the
- * skills, the agents, and `scripts/README.md`.
- *
  * Usage:
  *   node scripts/check-md-lines.mjs            check the default set, exit 1 on a violation
  *   node scripts/check-md-lines.mjs --list     list every violation as file:line: text
  *   node scripts/check-md-lines.mjs --fix      rewrite in place
  *   node scripts/check-md-lines.mjs FILE...    check only these files
  *
+ * Applies to hand-written markdown that an agent reads: `AGENTS.md`, `README.md`, `docs/*.md`, the
+ * skills, the agents, `.pi/prompts/*.md`, `scripts/README.md`, and `docs/wiki/INDEX.md`.
+ *
  * Not applied to: fenced code, the YAML header, tables, headings, html blocks, and blockquotes.
  * Vendored snapshots (docs/wiki, docs/script_docs, docs/data_types, reference, .pi/vendor) are
- * never rewritten. The hand-written `docs/wiki/INDEX.md` is the one exception.
+ * never rewritten. The hand-written files inside `docs/wiki/` are the exception.
  */
 
 import fs from "node:fs";
@@ -38,7 +38,7 @@ const SKIP_DIRS = [
   "your_mods",
 ];
 /** Hand-written files inside a vendored snapshot still follow this rule. */
-const KEEP = new Set(["docs/wiki/INDEX.md"]);
+const KEEP = new Set(["docs/wiki/INDEX.md", "docs/wiki/README.md"]);
 
 const isBlank = (line) => line.trim() === "";
 const isFence = (line) => /^\s*(```|~~~)/.test(line);
@@ -127,7 +127,7 @@ function rewrite(text) {
     if (!block) return;
     const first = block[0];
     const marker = LIST_ITEM.exec(first);
-    // Prefix of the first line, and the indent that hanging lines line up under.
+    // Prefix of the first line: the list marker, or the leading indentation.
     const firstPrefix = marker ? `${marker[1]}${marker[2]} ` : /^\s*/.exec(first)[0];
     const bodyStart = marker ? first.slice(marker[0].length) : first.trimStart();
     let joined = bodyStart;
@@ -182,7 +182,7 @@ files.sort();
 let total = 0;
 let changed = 0;
 for (const rel of files) {
-  const full = path.join(ROOT, rel);
+  const full = path.isAbsolute(rel) ? rel : path.join(ROOT, rel);
   const raw = fs.readFileSync(full, "utf8");
   // Keep the file's own newline style: the repo checks out CRLF on Windows.
   const crlf = raw.includes("\r\n");

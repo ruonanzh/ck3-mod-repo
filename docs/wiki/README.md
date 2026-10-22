@@ -2,24 +2,18 @@
 
 Two indexes, on purpose:
 
-- **[`INDEX.md`](INDEX.md)** — every page in the wiki mirror, all **57**, one row each: title,
-  whether it is shipped locally, and a one-line description. The file is written by hand. Use it to
-  answer "does a page for X exist".
+- **[`INDEX.md`](INDEX.md)** — every page in the wiki mirror, all **57**, one row each: title, whether it is shipped locally, and a one-line description. The file is written by hand. Use it to answer "does a page for X exist".
 - **This file** — what is shipped (36 pages), what is not (21), and why.
 
 ---
 
-Reference pages from the CK3 wiki, shipped as a **snapshot** so the agent can answer questions the
-mod scripts cannot: the exact name, parameters, and scope of an effect, trigger, modifier, or scope.
+Reference pages from the CK3 wiki, shipped as a **snapshot** so the agent can answer questions the mod scripts cannot: the exact name, parameters, and scope of an effect, trigger, modifier, or scope.
 
-The live wiki (`ck3.paradoxwikis.com`) sits behind a JavaScript challenge, and a subagent cannot
-fetch it. This copy is the offline substitute. It does not replace `game-scripts/vanilla/game/`: the vanilla
-scripts show **usage**, and these pages show **fields and scope**.
+The live wiki (`ck3.paradoxwikis.com`) sits behind a JavaScript challenge, and a subagent cannot fetch it. This copy is the offline substitute. It does not replace `game-scripts/vanilla/game/`: the vanilla scripts show **usage**, and these pages show **fields and scope**.
 
 ## What is here
 
-Two groups. **Both are needed**: the first answers "what is the exact form of this call", the second
-answers "how do I add X" before the player asks.
+Two groups. **Both are needed**: the first answers "what is the exact form of this call", the second answers "how do I add X" before the player asks.
 
 ### Reference (the form of a call)
 
@@ -69,13 +63,9 @@ answers "how do I add X" before the player asks.
 
 ### The selection rule
 
-**Cover the questions, not the pages.** A player question arrives without warning, and a subagent
-cannot fetch, so every "how do I add X" that the game supports needs one page here. That is why the
-feature guides are in, even though some restate what a vanilla file shows: the vanilla file shows
-*one example*, the guide explains *every field*.
+**Cover the questions, not the pages.** A player question arrives without warning, and a subagent cannot fetch, so every "how do I add X" that the game supports needs one page here. That is why the feature guides are in, even though some restate what a vanilla file shows: the vanilla file shows *one example*, the guide explains *every field*.
 
-Excluded on purpose, and fetched on demand. Each entry names the reason, so a reader can decide
-whether the miss matters:
+Excluded on purpose, and fetched on demand. Each entry names the reason, so a reader can decide whether the miss matters:
 
 | Page | Why it is not here |
 | --- | --- |
@@ -88,12 +78,9 @@ whether the miss matters:
 
 ## Source and license
 
-- Source: [`jesec/ck3-modding-wiki`](https://github.com/jesec/ck3-modding-wiki), an automated mirror
-  of the official CK3 wiki. Checked against mirror `master` (57 pages).
-- License: **CC BY-SA 3.0**. See [`LICENSE`](LICENSE). Each page keeps its original `Source:` line
-  and gains a provenance header.
-- Every page says how old it is: `Effects_list.md` and `Triggers_list.md` state that they are
-  transcribed and may miss effects added after launch.
+- Source: [`jesec/ck3-modding-wiki`](https://github.com/jesec/ck3-modding-wiki), an automated mirror of the official CK3 wiki. Checked against mirror `master` (57 pages).
+- License: **CC BY-SA 3.0**. See [`LICENSE`](LICENSE). Each page keeps its original `Source:` line and gains a provenance header.
+- Every page says how old it is: `Effects_list.md` and `Triggers_list.md` state that they are transcribed and may miss effects added after launch.
 
 ## Refreshing
 
@@ -102,21 +89,18 @@ node scripts/sync-wiki.mjs          # fetch and rewrite the pages, and check IND
 node scripts/sync-wiki.mjs --check  # report drift; exit 1 when a page or an INDEX row differs
 ```
 
-The script drops `../assets/` image references (8 MB of icons the text does not need) and rewrites a
-link to a page outside this set into the absolute wiki URL, so the internal link check stays green.
+The script drops `../assets/` image references (8 MB of icons the text does not need) and rewrites a link to a page outside this set into the absolute wiki URL, so the internal link check stays green.
 
 ## The authoritative alternative
 
-The wiki pages are a **transcription**, and their own header says they are outdated. The game itself
-produces the same data for the exact installed version. Run:
+The wiki pages are a **transcription**, and their own header says they are outdated. The game itself produces the same data for the exact installed version. Run:
 
 ```bash
 node scripts/dump-script-docs.mjs                      # writes the name lists into docs/script_docs/
 node scripts/dump-script-docs.mjs --command=dump_data_types   # writes the GUI data types into docs/data_types/
 ```
 
-The script runs the game headless and copies the result. It relies on three options, two of them in
-`game/_commandline_options.info` (the wiki does not document the console action):
+The script runs the game headless and copies the result. It relies on three options, two of them in `game/_commandline_options.info` (the wiki does not document the console action):
 
 ```
 ck3.exe -nographics -debug_mode -run_console_action=script_docs
@@ -128,66 +112,34 @@ ck3.exe -nographics -debug_mode -run_console_action=dump_data_types
 | `script_docs` | `effects.log`, `triggers.log`, `modifiers.log`, `event_scopes.log`, `event_targets.log`, `on_actions.log` | `<Documents>/Paradox Interactive/Crusader Kings III/logs/` |
 | `dump_data_types` | `data_types_common.txt`, `data_types_gui.txt`, `data_types_internalclausewitzgui.txt`, `data_types_script.txt`, `data_types_uncategorized.txt` | `<Documents>/Paradox Interactive/Crusader Kings III/logs/data_types/` |
 
-The two commands write into different directories. `dump_data_types` also prints the path it used:
-`Data types dumped into '<path>'`. Measured on 1.20.1.1: 5 files, 145 900 lines, 2.6 MB.
+The two commands write into different directories. `dump_data_types` also prints the path it used: `Data types dumped into '<path>'`. Measured on 1.20.1.1: 5 files, 145 900 lines, 2.6 MB.
 
-`Documents` can be moved. The script asks the registry, then checks the file times in the output
-directory to prove the run wrote them. It copies the fresh files into `docs/script_docs/` and `docs/data_types/`, which **are committed**: the
-dumps are repository content, so a clone has them without the game. `validate_mod` reads
-`docs/script_docs/` for its name-level checks, and nothing reads `docs/data_types/` automatically: it
-is the reference for GUI work.
+`Documents` can be moved. The script asks the registry, then checks the file times in the output directory to prove the run wrote them. It copies the fresh files into `docs/script_docs/` and `docs/data_types/`, which **are committed**: the dumps are repository content, so a clone has them without the game. `validate_mod` reads `docs/script_docs/` for its name-level checks, and nothing reads `docs/data_types/` automatically: it is the reference for GUI work.
 
-**No game session is needed.** The command runs at the `application initialized` stage, before any
-menu or save is loaded, and the lists are complete there. Measured on 1.20.1.1:
+**No game session is needed.** The command runs at the `application initialized` stage, before any menu or save is loaded, and the lists are complete there. Measured on 1.20.1.1:
 
-- A **headless** run and a **graphical** run of the same command produced logs that are
-  **byte-identical** for `effects`, `triggers`, `event_scopes`, `event_targets`, `on_actions`, and an
-  identical name set for `modifiers` (that file only varies in line order). Rendering and session
-  state do not feed the lists.
-- DLC-gated names are present (`add_amenity_level`, `add_barter_goods`,
-  `add_animate_domicile_building`, `accolade_*`), so the dump is not a vanilla-only subset.
-- The **wrong** init stage fails loudly: `-run_console_action_clausewitz` returns
-  `Project does not have modifier documentation function pointer set`. That error is the CK3 analogue
-  of "the docs are incomplete because the game has not started". The fix is the documented stage, not
-  starting a session.
-- A name used in vanilla but absent from a list is a **script object**, not a missing entry:
-  `can_be_knight` lives in `common/scripted_rules`, and `scripted_effects`/`scripted_triggers` names
-  never appear either.
+- A **headless** run and a **graphical** run of the same command produced logs that are **byte-identical** for `effects`, `triggers`, `event_scopes`, `event_targets`, `on_actions`, and an identical name set for `modifiers` (that file only varies in line order). Rendering and session state do not feed the lists.
+- DLC-gated names are present (`add_amenity_level`, `add_barter_goods`, `add_animate_domicile_building`, `accolade_*`), so the dump is not a vanilla-only subset.
+- The **wrong** init stage fails loudly: `-run_console_action_clausewitz` returns `Project does not have modifier documentation function pointer set`. That error is the CK3 analogue of "the docs are incomplete because the game has not started". The fix is the documented stage, not starting a session.
+- A name used in vanilla but absent from a list is a **script object**, not a missing entry: `can_be_knight` lives in `common/scripted_rules`, and `scripted_effects`/`scripted_triggers` names never appear either.
 
-The graphical path is not recommended: on this machine it wrote the logs and then crashed in the
-renderer, while the headless path exits cleanly.
+The graphical path is not recommended: on this machine it wrote the logs and then crashed in the renderer, while the headless path exits cleanly.
 
-**Mods show up in one log, not the rest.** Measured on 1.20.1.1, with one workshop mod enabled
-(`enabled_mods: ["mod/ugc_2837398670.mod"]`) and the same command:
+**Mods show up in one log, not the rest.** Measured on 1.20.1.1, with one workshop mod enabled (`enabled_mods: ["mod/ugc_2837398670.mod"]`) and the same command:
 
 | Log | With the mod |
 | --- | --- |
 | `effects.log`, `triggers.log`, `modifiers.log`, `event_scopes.log`, `event_targets.log` | **byte-identical in content** (same names) |
 | `on_actions.log` | **+60 entries** — the mod's own `timurid_invasion_on_action`, `fatimid_invasion_on_action`, … |
 
-The split is not arbitrary. Effects, triggers, and modifiers are **code** objects, and PDXScript has
-no compile step, so a mod cannot add one. Its `scripted_effects` and `scripted_triggers` never enter
-those logs (verified: a vanilla scripted effect is absent too). `on_actions` are **script** objects,
-so anything a mod declares appears. **Dump with an empty playset** for a vanilla baseline. The script
-says `playset: no mods enabled`, or prints a NOTE that on_actions will include the mods' entries.
+The split is not arbitrary. Effects, triggers, and modifiers are **code** objects, and PDXScript has no compile step, so a mod cannot add one. Its `scripted_effects` and `scripted_triggers` never enter those logs (verified: a vanilla scripted effect is absent too). `on_actions` are **script** objects, so anything a mod declares appears. **Dump with an empty playset** for a vanilla baseline. The script says `playset: no mods enabled`, or prints a NOTE that on_actions will include the mods' entries.
 
-`modifiers.log` also varies in **line order** between runs with the same content. Compare name sets,
-not the raw file.
+`modifiers.log` also varies in **line order** between runs with the same content. Compare name sets, not the raw file.
 
-The dump also follows the **session language**: a `Use areas:` line can read `character， province`
-with a full-width comma on a Chinese session. The `Tag:` name line stays ASCII, so a name check reads
-`Tag:` only.
+The dump also follows the **session language**: a `Use areas:` line can read `character， province` with a full-width comma on a Chinese session. The `Tag:` name line stays ASCII, so a name check reads `Tag:` only.
 
-The dump carries **no build tag**, and git keeps no file date. The recorded build is the one in the
-measurement note below, so refresh the dump after a game patch.
+The dump carries **no build tag**, and git keeps no file date. The recorded build is the one in the measurement note below, so refresh the dump after a game patch.
 
-**Measured on 1.20.1.1** (this workspace, 2026-10-17): the dump holds **2128** effects, **1937**
-triggers, and **761** modifier entries (152 of them templated, such as `$CULTURE$_opinion`). The
-wiki lists hold 1156, 1072, and 383. Roughly **47 %** of the dumped names are missing from the wiki,
-and **85** wiki names no longer exist — `every_participant` became `every_memory_participant`, and
-`complete_activity` became `invalidate_activity`. Treat the dump as the truth and the wiki page as a
-explanation with examples.
+**Measured on 1.20.1.1** (this workspace, 2026-10-17): the dump holds **2128** effects, **1937** triggers, and **761** modifier entries (152 of them templated, such as `$CULTURE$_opinion`). The wiki lists hold 1156, 1072, and 383. Roughly **47 %** of the dumped names are missing from the wiki, and **85** wiki names no longer exist — `every_participant` became `every_memory_participant`, and `complete_activity` became `invalidate_activity`. Treat the dump as the truth and the wiki page as a explanation with examples.
 
-This also settles the reviewer's two remaining blind spots: with `docs/script_docs/` present, a name
-that is absent from the wiki can be checked against the dump, and a call that fails there is
-genuinely wrong rather than "not in the snapshot".
+This also settles the reviewer's two remaining blind spots: with `docs/script_docs/` present, a name that is absent from the wiki can be checked against the dump, and a call that fails there is genuinely wrong rather than "not in the snapshot".

@@ -12,8 +12,8 @@
  *     `scripts/check-doc-refs.mjs` stays green and a reader can still reach it.
  *   - Adds a two-line provenance header under the title.
  *
- * It also writes `docs/wiki/INDEX.md`, one row per wiki page: title, whether it is shipped, and a
- * one-line description. That answers "does a page for X exist" without reading 659 section links.
+ * It also checks `docs/wiki/INDEX.md`, one row per wiki page: title, whether it is shipped, and a
+ * one-line description. That file is written by hand, so the check only reports drift.
  *
  * Usage: node scripts/sync-wiki.mjs [--check]
  *   (no flag)  fetch and write docs/wiki/
