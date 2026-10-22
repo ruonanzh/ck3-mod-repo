@@ -40,6 +40,8 @@ content means. Same styles. Path: `your_mods/<ModName>/.preview/ref-<topic>.modp
 
 `your_mods/<ModName>/.preview/<topic>.modpage.html`
 
+A page needs a directory under `your_mods/`. When no mod directory is bound, call `create_mod_folder` first, then write the page.
+
 - The name ends in `.modpage.html`. Another name opens in the plain viewer.
 - `.preview/` is not part of the mod. `install_mod` skips it, and git ignores it.
 

@@ -34,12 +34,18 @@ and its bound directory gate those actions.
   | 1 | **Map the request to a page** | `docs/wiki/INDEX.md` — one row per wiki page, with `Local yes/no` | The one page that covers "how do I add X" (`Holdings_modding` for a building, `Event_modding` for an event, …) |
   | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
   | 3 | **Research the vanilla code** | `grep -rln <keyword> game-scripts/vanilla/game/`, which lists files rather than lines. Open the first, then search inside it with `grep -n`. A name or a scope is a `docs/script_docs/` question. | Real object names, real field values, and the file to mirror |
-  | 4 | **Read that window's own `.gui` file** | When the change mounts on an existing window or panel, read its `.gui` file under `game-scripts/vanilla/game/gui/`. Skip this step when no window changes. | The `type` and the block to hook into |
-  | 5 | **Agree with the player** | The player. Skip only when the player says to start, for example "start now, no confirmation". Do this even when the request looks specific. | One sentence: what the mod changes, its scope, and its shape |
+  | 4 | **Read that window's own `.gui` file** | When the change mounts on an existing window or panel, read its `.gui` file under `game-scripts/vanilla/game/gui/`. The window's data types and functions are in `docs/data_types/`. Skip this step when no window changes. | The `type` and the block to hook into |
+  | 5 | **Give one example shape, then settle it** | The player. Describe what the mod changes, its scope, and its shape, as one concrete example the player can change. Then wait. | One sentence: the shape the player settled |
 
   Step 4 is a separate step on purpose. A mechanism lives in `common/`, and an attachment point lives
   in `.gui`. When the two merge, you find the `common/` directory and stop, and the UI half is
   missing.
+
+  Step 5 holds even when the request looks specific. Ask one question per open choice. A partial answer settles just the choice it names. List the rest in one short round, then wait. Do not pick a value for an open choice.
+
+  Put the shape on a page, following `mod-page`. Name the subject, not the option you suggest. A directory is not a decision: step 8 still writes the mod.
+
+  Skip step 5 when the player says to start, in words, for example "start now, no confirmation". A choice between two options is not a waiver.
 
   **Do not start step 3 without the modding context.** `game-scripts/` is not committed, so a fresh workspace
   has no vanilla scripts. A grep of an empty directory returns nothing, and an empty answer is not
@@ -65,8 +71,7 @@ and its bound directory gate those actions.
   covered by no check, and a localization file without a BOM fails in silence. When step 8b adds any
   file, run step 9 again after it.
 
-  One ordering rule:
-  1. Steps 6 and 7 are a gate, not a suggestion. A stage-2 wiki page explains a mechanism, and the conventions decide how the result may override vanilla. A correct block attached the wrong way still fails in the game.
+  Steps 6 and 7 are a gate, not a suggestion. A stage-2 wiki page explains a mechanism, and the conventions decide how the result may override vanilla. A correct block attached the wrong way still fails in the game.
 - **Directory name** (this repository's rule, checked by the product's `create_mod_folder`). The name is
   `lower_snake_case`: it starts with a lowercase letter, then holds only lowercase letters, digits,
   and underscores, at most 40 characters. Do **not** use hyphens: `fix_inheritance`, not
@@ -82,6 +87,7 @@ A search that lists files is cheaper than one that lists every matching line.
 - **Read the shape from a sample.** `reference/example_mod/` holds a whole working mod. Never read `your_mods/` for an example.
 - **The Workshop scripts are not vanilla.** A hit under `game-scripts/workshop/` proves what another player's mod does, not what the game accepts.
 - **Values are not names.** A name or a scope comes from `docs/script_docs/`. A field value comes from the vanilla scripts.
+- **A GUI data type is a separate question.** `docs/data_types/` holds the data types, their promotes and their functions.
 - **A mod mirrors `game/` at its own root.** A data kind under `game-scripts/vanilla/game/common/` becomes a `common/` directory at the mod root.
 
 Skip this section when the change sets values inside an existing block.
