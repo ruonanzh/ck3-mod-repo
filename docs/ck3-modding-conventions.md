@@ -299,6 +299,8 @@ the game's own dumps in `docs/script_docs/`. These two name checks report WARN o
 FAIL, and every finding names the file. The syntax and localization checks in section 3 still report
 ERROR.
 
+The syntax check reads `.txt`, `.gui`, `.gfx`, and `.asset`. The localization check reads a `.yml` under `localization/`. The tool skips a file with any other suffix without a finding.
+
 1. **A new object needs its localization key.** The key is derived from the object name, so a new
    object cannot borrow a vanilla key.
    - `common/traits/`: `trait_<key>` and `trait_<key>_desc`. The wiki states both, in

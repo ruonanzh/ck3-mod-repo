@@ -133,16 +133,15 @@ The files are `localization/<lang>/*.yml` at the mod root. The format, the shipp
 
 - **Write the BOM when you create the file.** A rewrite drops it, and the game then ignores the file in silence. To re-add it:
   `printf '\xEF\xBB\xBF' | cat - <file> > tmp && mv tmp <file>`.
-- **The filename ends with `_l_<language>`.** It matches the language directory.
 
 ## The validate_mod tool
 
 Call `validate_mod` with `modDir = your_mods/<ModName>/`.
 
-- `PASS: <name> is valid - ...` then one `WARN: <file>: <message>` per warning. A `WARN` is
+- `PASS: <name> is valid - ...` then one `WARN: <file>: <message>` per warning. A `(N warning(s))` suffix follows the `PASS` line when warnings exist. A `WARN` is
   advisory. When a name check could not run, the `PASS` line says so and a `NOTE` line names the
   missing input.
-- `FAIL: <name> has N error(s), M warning(s)` then one `ERROR: <file>: <message>` per line, in English. The `NEXT:` line is fixed text, so read the `ERROR:` lines to locate the file. Fix every ERROR, and do not modify another mod.
+- `FAIL: <name> has N error(s), M warning(s)` then one `ERROR: <file>: <message>` per line, in English. The `WARN:` detail lines follow the `ERROR:` lines. The `NEXT:` line is the same on every run, so read the `ERROR:` lines to locate the file. Fix every ERROR, and do not modify another mod.
 - A `NOTE:` line says that a check was skipped and why, for example when `docs/script_docs/` or the
   mirror is absent.
 
@@ -175,7 +174,7 @@ Pick the entry mechanism from the table in `docs/ck3-modding-conventions.md` sec
 
 A mod can also add its own content to one of the game's own data directories. The list is mechanical, and the modding context already holds it: usually one directory per data kind.
 
-Run `ls game-scripts/vanilla/game/common/`. Each directory entry names one data kind, and the count changes when the game adds one.
+After `sync_game_scripts`, run `ls game-scripts/vanilla/game/common/`. Each directory entry names one data kind, and the count changes when the game adds one.
 
 These are the ones a content mod adds to most often. This is not the whole list:
 
