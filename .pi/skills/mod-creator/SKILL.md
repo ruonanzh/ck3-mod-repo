@@ -33,7 +33,7 @@ and its bound directory gate those actions.
   | 0 | **Prepare the paths** | `get_game_info`. When it reports the vanilla scripts missing, run `sync_game_scripts`. The `setup-workspace` skill has the cases. | A mirror that steps 3 and 4 can read |
   | 1 | **Map the request to a page** | `docs/wiki/INDEX.md` — one row per wiki page, with `Local yes/no` | The one page that covers "how do I add X" (`Holdings_modding` for a building, `Event_modding` for an event, …) |
   | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
-  | 3 | **Locate the entry in vanilla** | Two **peer** options: grep `game-scripts/vanilla/game/` yourself, or dispatch `entry-scout`. Prefer `entry-scout`: it runs in parallel and its greps stay in the child session. Add `reference/example_mod` for a whole shape. | Real object names, real field values, and the file to mirror |
+  | 3 | **Research the vanilla code** | `grep -rln <keyword> game-scripts/vanilla/game/`, which lists files rather than lines. Open the first, then search inside it with `grep -n`. A name or a scope is a `docs/script_docs/` question. | Real object names, real field values, and the file to mirror |
   | 4 | **Read that window's own `.gui` file** | When the change mounts on an existing window or panel, read its `.gui` file under `game-scripts/vanilla/game/gui/`. Skip this step when no window changes. | The `type` and the block to hook into |
   | 5 | **Agree with the player** | The player. Skip only when the player says to start, for example "start now, no confirmation". Do this even when the request looks specific. | One sentence: what the mod changes, its scope, and its shape |
 
@@ -59,43 +59,32 @@ and its bound directory gate those actions.
   | 8b | **Check the UI side** | The same file, section 3 for a label or a localization key, and section 7 when the change needs a menu entry, a column, a filter, or a panel. Reuse an existing in-game icon or asset when one fits. | The extra files, or a sentence that the change needs none |
   | 9 | **Validate, then review** | `validate_mod`, then `mod-reviewer` | Two verdicts, and every line handled |
 
+  When you cannot dispatch, work through the last section of `docs/ck3-modding-conventions.md` by hand.
+
   Step 8b sits before step 9 on purpose. An icon or a localization key added after a clean receipt is
   covered by no check, and a localization file without a BOM fails in silence. When step 8b adds any
   file, run step 9 again after it.
 
-  Two ordering rules:
-  1. Stage 1 belongs to you, not to the scout: choosing the mechanism is a decision, and
-     `entry-scout` answers "where is this name" only. When the request spans two kinds (a decision
-     plus its event), run steps 1–2 once per kind and step 3 once for all of them: send all the
-     scouts at once.
-  2. Steps 6 and 7 are a gate, not a suggestion: a stage-2 wiki page explains a mechanism, and the
-     conventions decide how the result may override vanilla. A correct block attached the wrong way
-     still fails in the game.
+  One ordering rule:
+  1. Steps 6 and 7 are a gate, not a suggestion. A stage-2 wiki page explains a mechanism, and the conventions decide how the result may override vanilla. A correct block attached the wrong way still fails in the game.
 - **Directory name** (this repository's rule, checked by the product's `create_mod_folder`). The name is
   `lower_snake_case`: it starts with a lowercase letter, then holds only lowercase letters, digits,
   and underscores, at most 40 characters. Do **not** use hyphens: `fix_inheritance`, not
   `fix-inheritance`. It must not be a Windows reserved device name: `con`, `prn`, `aux`,
   `nul`, `com1` to `com9`, and `lpt1` to `lpt9`.
 
-## Locate the entry: scout or grep
+## Searching the vanilla scripts
 
-Step 3 asks one question: where does vanilla already do this? Two tools answer it, and they are
-peers.
+A search that lists files is cheaper than one that lists every matching line.
 
-**Prefer `entry-scout`.** It runs in parallel, one per question, and its greps stay in the child
-session, so your context holds the answers, not the searches. Its answer is a candidate list, not a
-decision: read its first candidate yourself before you write.
+- **List files first.** Run `grep -rln <keyword> game-scripts/vanilla/game/`. Open the first file, then search inside it with `grep -n`.
+- **Cap every listing.** One `head -20` per search. A long result means the keyword is too broad, so narrow it instead of raising the cap.
+- **Read the shape from a sample.** `reference/example_mod/` holds a whole working mod. Never read `your_mods/` for an example.
+- **The Workshop scripts are not vanilla.** A hit under `game-scripts/workshop/` proves what another player's mod does, not what the game accepts.
+- **Values are not names.** A name or a scope comes from `docs/script_docs/`. A field value comes from the vanilla scripts.
+- **A mod mirrors `game/` at its own root.** A data kind under `game-scripts/vanilla/game/common/` becomes a `common/` directory at the mod root.
 
-**Grep yourself** when you already know the exact name and one or two calls settle it:
-`grep -rln <keyword> game-scripts/vanilla/game/`. Also grep yourself when you cannot dispatch, for
-example when the subagent tool is unavailable.
-
-Grep only the vanilla part of the modding context. `game-scripts/workshop/` holds another player's mods: a hit
-there proves what that mod does, not what the game accepts.
-
-When the change has two or three independent parts, send all the scouts at once, one per part.
-
-Skip this step when the task only changes values inside an existing block.
+Skip this section when the change sets values inside an existing block.
 
 ## Mod structure
 
@@ -193,10 +182,7 @@ Each `ERROR` line reads `ERROR: <file>: <message>`. The common ones, and the fix
 
 ## Entry mechanisms and data kinds (what to add, and where it lives)
 
-Pick the entry mechanism from the table in `docs/ck3-modding-conventions.md` section 7, then open the
-directory it names and read one of the examples there. Send the intent to `entry-scout` first and read
-the candidate it returns, in two cases: when you are unsure which mechanism fits, and when you must
-survey the mechanisms that the game already has for a feature.
+Pick the entry mechanism from the table in `docs/ck3-modding-conventions.md` section 7, then open the directory it names and read one of the examples there.
 
 A mod can also add its own content to one of the game's own data directories. The list is mechanical,
 and the modding context already holds it: usually one directory per data kind. On game version 1.20.1.1,

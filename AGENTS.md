@@ -22,17 +22,7 @@ These are fixed facts about this machine and this workspace. They prevent wasted
 - **`supported_version` must point at the installed game.** Read it from `get_game_info` and write
   the patch-level wildcard that the tool returns. An exact version goes stale, and a loose wildcard
   is a WARN. The field rules are in section 5 of `docs/ck3-modding-conventions.md`.
-- **Two read-only subagents ship with this repository.** `.pi/settings.json` declares the vendored
-  `pi-subagents` package at `.pi/vendor/pi-subagents/`, so the `subagent` tool is available in a
-  trusted project. Grepping `game-scripts/vanilla/game/` yourself and dispatching `entry-scout` are
-  **peer options** for locating an entry. **Prefer `entry-scout`**, because it runs in parallel, one
-  per question, and its searches stay in the child session, so your context holds answers, not
-  greps. Grep yourself when you already know the exact name and one or two calls settle it, or when
-  you cannot dispatch. Read its first candidate yourself. `mod-reviewer` checks what `validate_mod`
-  cannot see, before you install: the override form, the placement, and the scope and type of each
-  call, resolved against `docs/wiki/`. Neither writes, so you apply every change. When you cannot
-  dispatch, run the search yourself, and apply the six review classes in
-  `.pi/agents/mod-reviewer.md` by hand.
+- **One read-only subagent ships here:** `mod-reviewer`, under `.pi/agents/`. It does not write, so you apply every change. `mod-creator` says when to dispatch it.
 
 ## Directory map
 
@@ -108,9 +98,6 @@ The session sets one of two roles. The agent does not choose the role.
   whether writing is allowed and which mod directory is writable. This file does not decide that.
   Two tools write outside it by design: `sync_game_scripts` writes the modding context, and
   `install_mod` writes the mod install directory.
-- **The subagents never write.** `entry-scout` and `mod-reviewer` hold `read` and `grep` only.
-  Their results are advice. They are not session roles. Any session may
-  dispatch them.
 
 The repository owner maintains everything else (`docs/`, `.pi/`, `reference/`, `mod-repo.json`).
 Do not write there.

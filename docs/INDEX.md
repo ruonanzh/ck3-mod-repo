@@ -34,9 +34,7 @@ the full step list is in the `mod-creator` skill.
 | 1. Settle the request and the mount point | The paths, the page, the mechanism, the vanilla entry, and the window's own `.gui` file | `mod-creator`, Stage 1 |
 | 2. Write and check | The override form, the files, the UI side, `validate_mod`, and `mod-reviewer` | `mod-creator`, Stage 2 |
 
-Choosing the mechanism is a decision, and `entry-scout` only locates a name. The form and the
-parameters of a call come from the reference lists in [`wiki/`](wiki/README.md). The exact scope comes
-from `docs/script_docs/`.
+Choosing the mechanism is a decision, and the search only locates a name. The form and the parameters of a call come from the reference lists in [`wiki/`](wiki/README.md). The exact scope comes from `docs/script_docs/`.
 
 `validate_mod` checks syntax, conventions, and names. Section 9 of
 [`ck3-modding-conventions.md`](ck3-modding-conventions.md) is the single list of what it checks and

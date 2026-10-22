@@ -195,9 +195,7 @@ PI_CODING_AGENT_DIR=<a temp agent directory with auth.json and settings.json> \
 The probe profile lives in a scratch `.pi/agents/` directory outside this repository. Its reply must
 carry a value that the calling prompt does not contain, so an echo cannot pass as a spawn.
 
-**In the product.** Open a session in this repository, and check three things: the `subagent` tool
-appears, `entry-scout` and `mod-reviewer` both appear as spawnable profiles, and one dispatch
-succeeds.
+**In the product.** Open a session in this repository. Check three things: the `subagent` tool appears, `mod-reviewer` appears as a spawnable profile, and one dispatch succeeds.
 
 ## The host package root
 
