@@ -27,7 +27,7 @@ CK3 loads the mod files on top of the vanilla files. There is **no** `INJECT:`/`
 - **`on_actions`:** `events`, `random_events`, and `on_actions` **append**. A `trigger` or `effect` **overwrites** (and produces errors). See `Modding`, section "Override rules".
 - **Only a top-level declaration can be overridden.** The declaration starts at the beginning of a line, and it is not inside a block. A nested field is not an override target.
 - **A single-object override can change an object, but it cannot delete one.** To remove an object, replace its whole file, or leave it in place and disable its use.
-- **Some entities cannot be single-object-overridden** — a single event, faith, or building has no per-object override, so the whole file must be replaced.
+- **Some entities cannot be single-object-overridden** — a single event or faith has no per-object override, so the whole file must be replaced.
 
 **Rule of thumb:** prefer additive new objects. Use a later ASCIIbetical filename for a surgical object override, and reserve full-file overwrite for when you must change most of a file. There is no keyword to prefix. The filename order is the mechanism.
 
@@ -46,9 +46,9 @@ Per `Modding`, sections "Mod load order" and "Override rules":
 
 Write the files under `your_mods/<name>/localization/<lang>/...`. A `.yml` outside `localization/` is not read. The BOM is stated in `docs/wiki/Mod_troubleshooting.md`, and the `_l_<lang>` filename appears in `docs/wiki/Decisions_modding.md`. The header and the `replace/` directory are in the wiki `Localization` page, which is not in the local mirror.
 
-- **Encoding (mandatory):** UTF-8 **with BOM** (`EF BB BF`). `docs/wiki/Mod_troubleshooting.md` says to save the file as UTF-8 with BOM, and `_l_<lang>` files with a missing BOM are the usual cause of an unreadable file. The linter reports a missing BOM as an ERROR. In a `simp_chinese` localization file it also warns on possible mojibake: a euro sign, or three code points in U+20000–U+323AF.
+- **Encoding (mandatory):** the linter requires UTF-8 **with BOM** (`EF BB BF`), and reports a missing BOM as an ERROR. `docs/wiki/Mod_troubleshooting.md` says to save the file as UTF-8 with BOM and that the game reports a wrong encoding. In a `simp_chinese` localization file the linter also warns on possible mojibake: a euro sign, or three code points in U+20000–U+323AF.
 - **Filename:** the wiki requires the name to include `l_<language>` (`Localization`: "must include `l_<language>` in their name", for example `my_locs_l_english.yml`). This repository requires the token at the **end**, as `_l_<language>`, because the linter reads the language from the end. The leading part is free-form. The linter anchors `<language>` to the directory.
-- **Header:** the first content line is `l_<lang>:`, and it must match the language **directory** (`.../localization/english/...` gives `l_english:`).
+- **Header:** the first content line is `l_<lang>:`, and it repeats the language in the filename. When the directory is a language name, the header must match it too (`.../localization/english/...` gives `l_english:`). When the directory is a group name, such as `jomini`, the filename decides: `jomini/script_system/trigger_system_l_french.yml` opens with `l_french:`.
 - **Entry format:** an indented `  key: "value"`, or `  key:0 "value"` with an explicit version number (the `:0` version is deprecated/no-op for modders). The value starts at the first `"` and ends at the last unescaped `"` on the same line. Placeholders such as `[Scope.GetName]`, escapes such as `\n`, and nested calls such as `[Localize('other_key')]` all live inside the quoted value.
 - **Overriding vanilla loc keys:** the mechanism is a `replace` **subdirectory**. Both `localization/replace/<lang>/` and `localization/<lang>/replace/` work, and, per the wiki, `localization/replace/<lang>/` **takes precedence**. Prefer `localization/replace/<lang>/`.
 - **No duplicate keys** within one file. They are ambiguous and easy to miss, and the linter flags them.

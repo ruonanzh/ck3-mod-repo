@@ -18,7 +18,8 @@
  *
  * Not applied to: fenced code, the YAML header, tables, headings, html blocks, and blockquotes.
  * Vendored snapshots (docs/wiki, docs/script_docs, docs/data_types, reference, .pi/vendor) are
- * never rewritten. The hand-written files inside `docs/wiki/` are the exception.
+ * never rewritten. Hand-written files inside them are the exception: `docs/wiki/INDEX.md`,
+ * `docs/wiki/README.md`, and `reference/README.md`.
  */
 
 import fs from "node:fs";
@@ -38,7 +39,7 @@ const SKIP_DIRS = [
   "your_mods",
 ];
 /** Hand-written files inside a vendored snapshot still follow this rule. */
-const KEEP = new Set(["docs/wiki/INDEX.md", "docs/wiki/README.md"]);
+const KEEP = new Set(["docs/wiki/INDEX.md", "docs/wiki/README.md", "reference/README.md"]);
 
 const isBlank = (line) => line.trim() === "";
 const isFence = (line) => /^\s*(```|~~~)/.test(line);

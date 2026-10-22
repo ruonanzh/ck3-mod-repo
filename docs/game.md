@@ -16,7 +16,7 @@ CK3 (Paradox, Clausewitz/Jomini engine) is a grand-strategy game. A mod is a set
 2. Open **Playsets**, select the active playset, and add the mod to it. The mod appears by its `name` key from `descriptor.mod`.
 3. Start the game from the launcher with that playset active. The launcher writes `dlc_load.json`, and the game reads the mod from it.
 
-A mod that is installed but not in the active playset does not load. Report the two states separately: copied into the mod directory, and active in the game.
+A mod that is installed but not in the active playset does not load. Report the three states separately: copied into the mod directory, visible in the launcher, and active in the game.
 
 ## Where to find the reference
 

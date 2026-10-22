@@ -20,7 +20,7 @@ This skill provides domain method only, and it **grants no permissions**. Readin
   | --- | --- | --- | --- |
   | 0 | **Prepare the paths** | `get_game_info`. When it reports the vanilla scripts missing, run `sync_game_scripts`. The `setup-workspace` skill has the cases. | A mirror that steps 3 and 4 can read |
   | 1 | **Map the request to a page** | `docs/wiki/INDEX.md` — one row per wiki page, with `Local yes/no` | The one page that covers "how do I add X" (`Holdings_modding` for a building, `Event_modding` for an event, …) |
-  | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs | The required block, its fields, and where the file goes |
+  | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs. Match the change against the rows of section 7 in `docs/ck3-modding-conventions.md`. | The entry mechanism, the directory it lives in, the required block, and its fields |
   | 3 | **Research the vanilla code** | `grep -rln <keyword> game-scripts/vanilla/game/`, which lists files rather than lines. Open the first, then search inside it with `grep -n`. A name or a scope is a `docs/script_docs/` question. | Real object names, real field values, and the file to mirror |
   | 4 | **Read that window's own `.gui` file** | When the change mounts on an existing window or panel, read its `.gui` file under `game-scripts/vanilla/game/gui/`. The window's data types and functions are in `docs/data_types/`. Skip this step when no window changes. | The `type` and the block to hook into |
   | 5 | **Give one example shape, then settle it** | The player. Describe what the mod changes, its scope, and its shape, as one concrete example the player can change. Then wait. | One sentence: what the mod changes, its scope, and the shape the player settled |
@@ -47,7 +47,7 @@ This skill provides domain method only, and it **grants no permissions**. Readin
 
   When you cannot dispatch, work through the six review classes in `.pi/agents/mod-reviewer.md` by hand.
 
-  Step 8b sits before step 9 on purpose. An icon or a localization key added after a clean receipt is covered by no check, and a localization file without a BOM fails in silence. When step 8b adds any file, run step 9 again after it.
+  Step 8b sits before step 9 on purpose. An icon or a localization key added after a clean receipt is covered by no check, and the game reports an encoding error for a localization file without a BOM. When step 8b adds any file, run step 9 again after it.
 
   Steps 6 and 7 are a gate, not a suggestion. A stage-2 wiki page explains a mechanism, and the conventions decide how the result may override vanilla. A correct block attached the wrong way still fails in the game.
 - **Directory name** (this repository's rule, checked by the product's `create_mod_folder`). The name is `lower_snake_case`: it starts with a lowercase letter, then holds only lowercase letters, digits, and underscores, at most 40 characters. Do **not** use hyphens: `fix_inheritance`, not `fix-inheritance`. It must not be a Windows reserved device name: `con`, `prn`, `aux`, `nul`, `com1` to `com9`, and `lpt1` to `lpt9`.
@@ -99,7 +99,7 @@ picture="thumbnail.png"
 
 The files are `localization/<lang>/*.yml` at the mod root. The format, the shipped languages, and the `replace/` directory are in `docs/ck3-modding-conventions.md` section 3.
 
-- **Write the BOM when you create the file.** A rewrite drops it, and the game then ignores the file in silence. To re-add it: `printf '\xEF\xBB\xBF' | cat - <file> > tmp && mv tmp <file>`.
+- **Write the BOM when you create the file.** A rewrite drops it, and the game then reports an encoding error. To re-add it: `printf '\xEF\xBB\xBF' | cat - <file> > tmp && mv tmp <file>`.
 
 ## The validate_mod tool
 
