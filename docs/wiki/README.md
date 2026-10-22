@@ -2,8 +2,8 @@
 
 Two indexes, on purpose:
 
-- **[`INDEX.md`](INDEX.md)** — every page in the wiki mirror, all **57**, one row each: title, whether it is shipped locally, and a one-line description. The file is written by hand. Use it to answer "does a page for X exist".
-- **This file** — what is shipped (36 pages), what is not (21), and why.
+- **[`INDEX.md`](INDEX.md)** — every page in the wiki mirror, all **57**, one row each: title, whether it is shipped locally, and a one-line description. A maintainer writes this file by hand. Use it to answer "does a page for X exist".
+- **This file** — what is shipped (36 pages), what is not (21), and why. Two files in this directory are written by hand: `INDEX.md` and this README. The other 36 pages are transcriptions that carry a provenance header.
 
 ---
 

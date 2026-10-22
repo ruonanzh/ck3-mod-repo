@@ -8,7 +8,7 @@ These scripts are run by the repository maintainer, not by the agent during a mo
 | `check-doc-refs.mjs` | Checks every relative markdown link. Exit 1 when one is broken. | No | Nothing |
 | `check-md-lines.mjs` | Checks that every paragraph and list item is one line. | No | Nothing by default. With `--fix`, the markdown files it joins. |
 | `dump-script-docs.mjs` | Asks the installed game for its name lists (`script_docs`) or its GUI data types (`dump_data_types`), then copies the fresh files into `docs/`. | Yes | `docs/script_docs/` or `docs/data_types/` |
-| `sync-wiki.mjs` | Fetches the wiki pages and rewrites `docs/wiki/`. `--check` reports drift and writes nothing. | No (needs network) | `docs/wiki/` |
+| `sync-wiki.mjs` | Fetches the wiki pages, rewrites them, and checks the hand-written `docs/wiki/INDEX.md` rows. `--check` reports drift and writes nothing. | No (needs network) | The `docs/wiki/` pages |
 
 ## The mod-semantics case matrix
 

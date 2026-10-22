@@ -17,7 +17,7 @@
  *
  * Usage: node scripts/sync-wiki.mjs [--check]
  *   (no flag)  fetch and write docs/wiki/
- *   --check    fetch and report what would change; exit 1 when a file differs
+ *   --check    fetch and report what would change; exit 1 when a page or an INDEX row differs
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -142,10 +142,13 @@ async function fetchRaw(path) {
   throw new Error(`${path}: ${last instanceof Error ? last.message : String(last)}`);
 }
 
+/** Compares without regard to the line ending the checkout used. */
+const normalizeEol = (text) => text.replaceAll("\r\n", "\n");
+
 /** Writes one file when its content changed. Returns true when it wrote. */
 function writeIfChanged(target, content, label, check) {
   const current = existsSync(target) ? readFileSync(target, "utf8") : null;
-  if (current === content) return false;
+  if (current !== null && normalizeEol(current) === normalizeEol(content)) return false;
   if (check) {
     console.log(`  DIFF: ${label}`);
     return true;
@@ -177,7 +180,7 @@ async function checkIndex() {
       title,
       description: DESCRIPTION_OVERRIDES[page] ?? descriptions.get(page) ?? FALLBACK_DESCRIPTIONS[page] ?? "",
     }))
-    .sort((a, b) => a.title.localeCompare(b.title))
+    .sort((a, b) => a.title.localeCompare(b.title, "en"))
     .map(({ page, title, description }) => {
       const local = SHIPPED.has(page);
       const link = local
@@ -185,26 +188,26 @@ async function checkIndex() {
         : `[${title}](https://ck3.paradoxwikis.com/${page.replace(/\.md$/, "")})`;
       return `| ${link} | ${local ? "yes" : "no"} | ${description} |`;
     });
-  const content =
-    "# Wiki page index\n\n" +
-    "Every page in the wiki mirror (`jesec/ck3-modding-wiki`), one row each. **Local = yes** means the\n" +
-    "page is shipped under `docs/wiki/`; **no** means it exists upstream and is fetched on demand.\n\n" +
-    "Use this to answer \"does a page for X exist?\". What is shipped, and why, is in `README.md`.\n\n" +
-    "| Page | Local | Covers |\n| --- | --- | --- |\n" +
-    rows.join("\n") +
-    "\n";
+  const expected = rows.map((row) => row.trim()).join("\n");
   const file = join(outDir, "INDEX.md");
-  const rowsOf = (text) => text.split("\n").filter((line) => line.startsWith("| [")).join("\n");
-  const current = existsSync(file) ? readFileSync(file, "utf8").replaceAll("\r\n", "\n") : "";
-  if (rowsOf(current) === rowsOf(content)) return false;
+  const rowsOf = (text) =>
+    text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.startsWith("| ["))
+      .join("\n");
+  const current = existsSync(file) ? normalizeEol(readFileSync(file, "utf8")) : "";
+  if (rowsOf(current) === expected) return false;
   console.error("  FAIL: docs/wiki/INDEX.md rows are out of date. Update them by hand from the list below.");
-  console.error(rowsOf(content));
+  console.error(expected);
   return true;
 }
+
 async function main() {
   const check = process.argv.includes("--check");
   if (!check) mkdirSync(outDir, { recursive: true });
-  let changed = 0;
+  let written = 0;
+  let drifted = 0;
   for (const page of PAGES) {
     let text;
     try {
@@ -215,20 +218,27 @@ async function main() {
       continue;
     }
     const body = addHeader(rewriteLinks(text.replace(imageRe, "")).replace(/\n{3,}/g, "\n\n"), page);
-    if (writeIfChanged(join(outDir, page), body, `docs/wiki/${page}`, check)) changed += 1;
+    if (writeIfChanged(join(outDir, page), body, `docs/wiki/${page}`, check)) {
+      if (check) drifted += 1;
+      else written += 1;
+    }
   }
   try {
-    if (await checkIndex()) changed += 1;
+    if (await checkIndex()) drifted += 1;
   } catch (error) {
     console.error(`  FAIL: docs/wiki/INDEX.md: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
   }
+  if (process.exitCode === 1) {
+    console.log("  skip: the snapshot could not be fully fetched, so there is no ok line");
+    return;
+  }
   if (check) {
-    if (changed > 0) process.exit(1);
+    if (drifted > 0) process.exit(1);
     console.log(`  ok: ${PAGES.length + 1} file(s) match the snapshot`);
     return;
   }
-  console.log(`  done: ${changed} file(s) updated, ${PAGES.length + 1 - changed} unchanged`);
+  console.log(`  done: ${written} file(s) written, ${PAGES.length + 1 - written} unchanged`);
 }
 
 await main();
