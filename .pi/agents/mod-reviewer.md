@@ -33,7 +33,7 @@ Read `docs/ck3-modding-conventions.md`, section 9 and the section
 
 1. **Reference closure.** Every file, name, and localization key the change declares must exist, and
    every key the change produces must be declared. Example: an event script points at a localization
-   key that no file declares. `validate_mod` covers the localization key of a new trait, decision, or
+   key that no file declares, or a `.gfx` entry points at a `.dds` the mod does not ship. `validate_mod` covers the localization key of a new trait, decision, or
    character interaction, so review the kinds it does not map: an event, a scripted GUI, and a
    localization key that a script file points at.
 2. **Override form.** The choice between a full-file override and a single-object override (later
@@ -56,7 +56,7 @@ missing is a `WARN`, not a `FAIL`: the lists are transcriptions and state their 
 the shipped snapshot" and let the caller check the game.
 5. **Scope match.** The dump is the exact source: an effect or trigger entry carries
    `Supported Scopes:`, and a modifier entry in `modifiers.log` carries `Use areas:`. Read those first.
-   The wiki lists are a fallback for the description and the example, and they state their own age
+   The wiki lists are a fallback for the description and the example, and they state their own age. A row may be deprecated, so quote it when it says so
    (`Modifier_list.md` says 1.12). Compare the scope with the block the change puts the call in. A
    character-only effect inside a county-scoped block is a `FAIL`, with the dump line as the citation.
    Scope transitions (`scope:x`, `event_target:`) are checked the same way against
@@ -66,14 +66,6 @@ the shipped snapshot" and let the caller check the game.
 
 **Value domain and units** stay out of scope: the lists give the form of a value, not its legal
 range. Mark such a finding `Not checked`.
-
-## The limit of the wiki snapshot
-
-The evidence order is in `docs/ck3-modding-conventions.md`, in `Going deeper (the semantics that no check covers)`.
-
-- A name the snapshot does not list is not proven absent. Report the miss as a `WARN` and name the file you grepped.
-- A name it does list may be deprecated. Quote the row when it says so.
-- The effect and trigger dumps carry one line of description per entry. The modifier and on_action dumps do not.
 
 ## How to answer
 

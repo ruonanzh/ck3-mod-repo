@@ -9,8 +9,8 @@ task needs, instead of pulling the whole `docs/` directory into context.
 | You need | Source |
 |---|---|
 | Exact vanilla object definitions, field values, and loc keys | `game-scripts/vanilla/game/` — the modding context that `sync_game_scripts` generates (a copy of the game directory, so the scripts sit one level down). Never grep the install directory instead |
-| The parameters of one effect, trigger, modifier, or scope | [`wiki/`](wiki/README.md), the shipped snapshot of the wiki reference lists |
-| The **exact scope** of an effect, trigger, or modifier in the dumped build | `docs/script_docs/`: each effect and trigger entry carries `Supported Scopes:`, and each modifier entry carries `Use areas:`. The wiki lists are older (some state 1.12), so the dump wins on scope |
+| The parameters of one effect, trigger, modifier, or scope, and the categories and cross-references the dump does not carry | [`wiki/`](wiki/README.md), the shipped snapshot of the wiki reference lists |
+| The **exact scope** of an effect, trigger, or modifier in the dumped build | `docs/script_docs/`: each effect and trigger entry carries `Supported Scopes:`, and each modifier entry carries `Use areas:`. The wiki lists are older (some state 1.12), so the dump wins on scope. An effect or trigger entry also carries a description, often on several lines. A modifier or on_action entry carries no description. |
 | The GUI data types, promotes, and functions | `docs/data_types/`, from `node scripts/dump-script-docs.mjs --command=dump_data_types` |
 | "How do I add a building / trait / decision / …" | [`wiki/`](wiki/README.md): one page per content kind. There is no building page. [`wiki/Holdings_modding.md`](wiki/Holdings_modding.md) covers it |
 | Whether a wiki page exists at all (including the pages not shipped) | [`wiki/INDEX.md`](wiki/INDEX.md) — one row per page, with `Local = yes/no` |
