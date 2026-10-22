@@ -23,8 +23,7 @@ applies every change.
 fields. It also checks names: the localization key of a new trait, decision, or character interaction,
 and an effect, trigger, or modifier name that is one or two edits away from a name in the game's
 dumps. The `PASS` line names the layers that ran, and it states `Scope, type, and values are not
-checked.` Do not repeat those checks. Read the receipt the caller passed you, and add only what it
-does not cover.
+checked.` Do not repeat those checks. Read the receipt the caller passed you, and add what it does not cover.
 
 ## What you check
 

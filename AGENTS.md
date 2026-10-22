@@ -19,9 +19,7 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   Do not `cat` / `grep` there while developing. Installing a mod is a third place: `install_mod`
   writes to the Paradox launcher mod directory,
   `<user documents>/Paradox Interactive/Crusader Kings III/mod/`.
-- **`supported_version` must point at the installed game.** Read it from `get_game_info` and write
-  the patch-level wildcard that the tool returns. An exact version goes stale, and a loose wildcard
-  is a WARN. The field rules are in section 5 of `docs/ck3-modding-conventions.md`.
+- **`supported_version` comes from `get_game_info`.** The field rules are section 5 of `docs/ck3-modding-conventions.md`.
 - **One read-only subagent ships here:** `mod-reviewer`, under `.pi/agents/`. It does not write, so you apply every change. `mod-creator` says when to dispatch it.
 
 ## Directory map
@@ -64,15 +62,9 @@ These are fixed facts about this machine and this workspace. They prevent wasted
 - `reference/` — read-only mod samples. `reference/example_mod/` is a runnable sample that passes
   `validate_mod`. `reference/README.md` describes it.
 - `editors/` — the mod-page and descriptor editors. Each subdirectory is one editor, opened by the
-  product UI. `editors/ck3_mod_descriptor/` edits `descriptor.mod`. `editors/ck3_mod_page/` edits
-  the Steam Workshop page.
-- `scripts/` — maintenance scripts, run by the maintainer, never by the agent during a mod task:
-  `sync-wiki.mjs` refreshes `docs/wiki/`, `dump-script-docs.mjs` asks the installed game for its name
-  lists and its GUI data types, and writes them into `docs/script_docs/` and `docs/data_types/`, and
-  `check-doc-refs.mjs` checks every markdown link.
-- `mod-repo.json` — the machine-readable game and environment declaration. `workshop.supported`
-  declares whether this game has a Steam Workshop. `workshopDir` is a read-only reference and is
-  not used for installing. The rule is in the `setup-workspace` skill.
+  product UI. `editors/ck3_mod_descriptor/` edits `descriptor.mod`. `editors/ck3_mod_page/` opens a page under `your_mods/*/.preview/`, lets the player mark it, and saves the marks.
+- `scripts/` — maintenance scripts, run by the maintainer, never by the agent during a mod task. `sync-wiki.mjs` refreshes `docs/wiki/`, and `dump-script-docs.mjs` asks the installed game for its name lists and its GUI data types. `check-doc-refs.mjs` checks every markdown link, and `test-mod-semantics.mjs` holds the semantic test cases. `scripts/README.md` lists the commands.
+- `mod-repo.json` — the machine-readable game and environment declaration. `workshop.supported` declares whether this game has a Steam Workshop. The Workshop directory is not declared here: `try_set_game_dir` records it in `.gamer-agent.local.json`.
 - `your_mods/` — the mod output area. Write mods only here, as `your_mods/<ModName>/`.
 
 ## Runtime path record (`.gamer-agent.local.json`)
@@ -104,40 +96,18 @@ Do not write there.
 
 ## Boundaries before you write a mod
 
-These are the boundaries. The rule and the reason for each one are in
-`docs/ck3-modding-conventions.md`. Read sections 1 to 3 before the first write.
+The rules and the reason for each one are in `docs/ck3-modding-conventions.md`. Sections 1 to 4 hold the override forms, the load order, the localization format, and the brace and quote rules.
 
-- Write under `your_mods/<ModName>/` only.
-- Only a top-level declaration can be overridden, and a single-object override changes an object. It
-  cannot delete one. Section 1 has the override forms and the GUI first-in-wins exception.
-- Load order is ASCIIbetical. Section 2 has the prefix idioms.
-- Localization is UTF-8 with BOM under `localization/`, and the filename carries the language.
-  Section 3 has the format and the shipped languages.
-- Keep `{` and `}` balanced, and keep `"` balanced. A `#` starts a line comment, and `#` is literal
-  inside a string.
-- Do not leave `temp_*` or `_tmp_*` scratch files, or editor backups, in the mod directory.
+- Write under `your_mods/<ModName>/`.
+- Do not leave `temp_*`, `_tmp_*`, or editor backups in the mod directory.
+
+## Who decides
+
+- **The agent proposes.** When a direction or a player choice is still open, state one concrete example and what it changes in the game.
+- **The player decides.** The design and its numbers go into the mod after the player settles them, in the way `mod-page` and `mod-creator` set out.
 
 ## Validation
 
-After you finish or change a mod, run `validate_mod` on `your_mods/<ModName>/`.
-Clear every ERROR before you end the turn.
+Run `validate_mod` on `your_mods/<ModName>/` after you finish or change a mod, and clear every ERROR before you end the turn. Section 9 of `docs/ck3-modding-conventions.md` states what the tool checks and what it does not.
 
-The tool checks syntax, conventions, and names, when the modding context and the dumps are present:
-
-- **Syntax and conventions:** balanced braces and quotes, the localization format, and the
-  `descriptor.mod` fields.
-- **A new object needs its localization key:** a trait, a decision, or a character interaction that
-  the mod adds.
-- **An effect, trigger, or modifier name must be one the game knows.** The check compares against the
-  game's own dumps in `docs/script_docs/`, and it reports a name that is one or two edits away from a
-  real one, with the closest name.
-
-A `WARN` is advisory. A `PASS` does not prove that a new name exists. The tool is not a scope, type,
-or value validator. Section 9 of `docs/ck3-modding-conventions.md` states the exact coverage and its
-limits.
-
-`mod-reviewer` reviews what `validate_mod` cannot see: the override form, the placement, the scope and
-the type of each call, and the questions that only the game answers. Dispatch it before `install_mod`
-and before you report a mod as finished. It reads the `validate_mod` receipt, so it does not repeat
-those checks.
-
+`mod-reviewer` reviews what `validate_mod` cannot see: the override form, the placement, and the scope and type of each call. The caller dispatches it before `install_mod` and before reporting a mod as finished. It reads the receipt, so it does not repeat those checks.
