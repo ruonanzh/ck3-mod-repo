@@ -17,7 +17,7 @@ description: Install a CK3 mod into the Paradox mod directory with the `install_
 
 ## Review before the install
 
-Run `validate_mod` first, and clear every ERROR. Then dispatch `mod-reviewer` with the planned files and the `validate_mod` receipt. It reports the semantics that `validate_mod` does not check: the override form, the placement, and the scope and type of each call, which it resolves against the dumps first, with the wiki as a fallback.
+Run `validate_mod` first, and clear every ERROR. Then dispatch `mod-reviewer` with the planned files and the `validate_mod` receipt. It reports the semantics that `validate_mod` does not check: the override form, the placement, and the scope and type of each call. `.pi/agents/mod-reviewer.md` states where it reads them.
 
 - `PASS`: install.
 - `WARN`: tell the player the risk, then install.

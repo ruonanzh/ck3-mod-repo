@@ -9,9 +9,9 @@
  *          (the wiki states both: docs/wiki/Trait_modding.md, the *localization* section)
  *        - a decision in `common/decisions/`: `<key>` and `<key>_desc`, unless the block sets `title`
  *          or `desc` itself (the wiki states the four keys and both overrides:
- *          docs/wiki/Decisions_modding.md). `common/decisions/_decisions.info` gives `desc`,
- *          `selection_tooltip`, and `confirm_text` a default key built from the description key, so
- *          `_tooltip` and `_confirm` stay unchecked.
+ *          docs/wiki/Decisions_modding.md). `common/decisions/_decisions.info` gives each of `desc`,
+ *          `selection_tooltip`, and `confirm_text` its own default key, so `_tooltip` and `_confirm`
+ *          stay unchecked.
  *        - a trait or a character interaction may set `name`; a decision may set `title`. Either
  *          field replaces the derived key.
  *        - a character interaction in `common/character_interactions/`: `<key>`, which the `name`
