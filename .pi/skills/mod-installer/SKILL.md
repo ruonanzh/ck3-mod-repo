@@ -5,56 +5,31 @@ description: Install a CK3 mod into the Paradox mod directory with the `install_
 
 # Install a mod into the game (CK3)
 
-`install_mod` copies a mod into the **Paradox mod directory**
-(`<userDocuments>/Paradox Interactive/Crusader Kings III/mod`).
-The target comes from the `.gamer-agent.local.json` file that `try_set_game_dir` recorded. The tool
-does not locate the game itself. If no path is recorded, run `try_set_game_dir` with no arguments
-first.
-A missing target directory is not an error. It is the normal state on a new machine, and the tool
-creates it.
+`install_mod` copies a mod into the **Paradox mod directory** (`<userDocuments>/Paradox Interactive/Crusader Kings III/mod`). The target comes from the `.gamer-agent.local.json` file that `try_set_game_dir` recorded. The tool does not locate the game itself. If no path is recorded, run `try_set_game_dir` with no arguments first. A missing target directory is not an error. It is the normal state on a new machine, and the tool creates it.
 
 ## Rules
 
-- **The installed directory name equals the `your_mods/` directory name.** The `name` key in
-  `descriptor.mod` is the display title and need not match the directory name. The directory name is
-  therefore always a single path segment, so the tool cannot write outside the mod install directory.
-  The player sees the same directory name in the launcher as in the workspace.
-- **A re-install updates in place.** The tool identifies its own previous install through the
-  workspace-side record `your_mods/<mod name>/.pi-mod.json`, which holds `name` and `installedDir`.
-- **Another mod owns the target directory.** The tool does not overwrite it. It installs as
-  `<directory name>_pimod` instead. If that name is taken too, it adds a number: `_pimod2`, then
-  `_pimod3`. It does not modify that copy's `descriptor.mod`. Tell the player the directory name that
-  the tool used. The in-game title `name` stays the same.
+- **The installed directory name equals the `your_mods/` directory name.** The `name` key in `descriptor.mod` is the display title and need not match the directory name. The directory name is therefore always a single path segment, so the tool cannot write outside the mod install directory. The player sees the same directory name in the launcher as in the workspace.
+- **A re-install updates in place.** The tool identifies its own previous install through the workspace-side record `your_mods/<mod name>/.pi-mod.json`, which holds `name` and `installedDir`.
+- **Another mod owns the target directory.** The tool does not overwrite it. It installs as `<directory name>_pimod` instead. If that name is taken too, it adds a number: `_pimod2`, then `_pimod3`. It does not modify that copy's `descriptor.mod`. Tell the player the directory name that the tool used. The in-game title `name` stays the same.
 - **The install path must be ASCII.** `install_mod` installs anyway and returns a `WARN`. Report that warning as written. The rule and the player's fix are in section 6 of `docs/ck3-modding-conventions.md`.
-- **The replace is transactional.** The tool moves the old copy aside instead of deleting it, and it
-  deletes that copy only after the new copy lands. If the new copy fails, the old version is still
-  there.
+- **The replace is transactional.** The tool moves the old copy aside instead of deleting it, and it deletes that copy only after the new copy lands. If the new copy fails, the old version is still there.
 
 ## Review before the install
 
-Run `validate_mod` first, and clear every ERROR. Then dispatch `mod-reviewer` with the planned files
-and the `validate_mod` receipt. It reports the semantics that `validate_mod` does not check: the
-override form, the placement, and the scope and type of each call, which it resolves against
-`docs/wiki/`.
+Run `validate_mod` first, and clear every ERROR. Then dispatch `mod-reviewer` with the planned files and the `validate_mod` receipt. It reports the semantics that `validate_mod` does not check: the override form, the placement, and the scope and type of each call, which it resolves against `docs/wiki/`.
 
 - `PASS`: install.
 - `WARN`: tell the player the risk, then install.
-- `FAIL`: correct the mod and run `validate_mod` again. The verdict does not block the install, so
-  install only when the player agrees.
+- `FAIL`: correct the mod and run `validate_mod` again. The verdict does not block the install, so install only when the player agrees.
 
-Skip this step when you write no script file.
-When the `subagent` tool is not available, apply the six review classes in
-`.pi/agents/mod-reviewer.md` by hand.
+Skip this step when you write no script file. When the `subagent` tool is not available, apply the six review classes in `.pi/agents/mod-reviewer.md` by hand.
 
 ## After the install
 
-An `install_mod` success does not mean the game loaded or enabled the mod. Report the three states
-separately: copied into the mod directory, visible in the launcher, and active in the game.
-The player must enable the mod in the launcher **playset**. The three steps are in
-`docs/game.md`, section "How the player enables a mod".
+An `install_mod` success does not mean the game loaded or enabled the mod. Report the three states separately: copied into the mod directory, visible in the launcher, and active in the game. The player must enable the mod in the launcher **playset**. The three steps are in `docs/game.md`, section "How the player enables a mod".
 
 ## Related skills
 
-- The paths are not ready. Use `setup-workspace`. `try_set_game_dir` ensures the paths, and
-  `check_game_paths` checks them without recording.
+- The paths are not ready. Use `setup-workspace`. `try_set_game_dir` ensures the paths, and `check_game_paths` checks them without recording.
 - The mod content itself: `descriptor.mod`, localization, and PDXScript. Use `mod-creator`.

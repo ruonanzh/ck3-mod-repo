@@ -1,8 +1,6 @@
 # CK3 modding docs index
 
-A curated map of the knowledge layer under `docs/`.
-**Load selectively.** Read this index first. Then open only the one or two pages that the current
-task needs, instead of pulling the whole `docs/` directory into context.
+A curated map of the knowledge layer under `docs/`. **Load selectively.** Read this index first. Then open only the one or two pages that the current task needs, instead of pulling the whole `docs/` directory into context.
 
 ## Lookup hierarchy (which source is authoritative for what)
 
@@ -19,10 +17,7 @@ task needs, instead of pulling the whole `docs/` directory into context.
 | Mechanics concepts and how-to method (mod API) | the official wiki (ck3.paradoxwikis.com). When it is unreachable, the snapshot under `wiki/` is the offline substitute |
 | The modding conventions and the reason behind them | [`ck3-modding-conventions.md`](ck3-modding-conventions.md) |
 
-- **Start here:** [`ck3-modding-conventions.md`](ck3-modding-conventions.md). This cheat-sheet
-  covers override (LIOS/FIOS), load order, localization, the `descriptor.mod`/`.mod` metadata, and
-  the entry mechanisms. It answers most modding questions on its own. Read the pages below only when
-  you need more depth.
+- **Start here:** [`ck3-modding-conventions.md`](ck3-modding-conventions.md). This cheat-sheet covers override (LIOS/FIOS), load order, localization, the `descriptor.mod`/`.mod` metadata, and the entry mechanisms. It answers most modding questions on its own. Read the pages below only when you need more depth.
 
 ## How a player request becomes a mod
 
@@ -30,9 +25,7 @@ The two stages and their steps are in `.pi/skills/mod-creator/SKILL.md`. Stage 1
 
 Choosing the mechanism is a decision, and the search locates a name. The form and the parameters of a call come from the reference lists in [`wiki/`](wiki/README.md). The exact scope comes from `docs/script_docs/`.
 
-`validate_mod` checks syntax, conventions, and names. Section 9 of
-[`ck3-modding-conventions.md`](ck3-modding-conventions.md) is the single list of what it checks and
-what it does not.
+`validate_mod` checks syntax, conventions, and names. Section 9 of [`ck3-modding-conventions.md`](ck3-modding-conventions.md) is the single list of what it checks and what it does not.
 
 ## Other pages in `docs/`
 
