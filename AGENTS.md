@@ -58,7 +58,7 @@ These are fixed facts about this machine and this workspace. They prevent wasted
   `validate_mod`. `reference/README.md` describes it.
 - `editors/` — the mod-page and descriptor editors. Each subdirectory is one editor, opened by the
   product UI. `editors/ck3_mod_descriptor/` edits `descriptor.mod`. `editors/ck3_mod_page/` opens a page under `your_mods/*/.preview/`, lets the player mark it, and saves the marks.
-- `scripts/` — maintenance scripts, run by the maintainer, never by the agent during a mod task. `sync-wiki.mjs` refreshes `docs/wiki/`, and `dump-script-docs.mjs` asks the installed game for its name lists and its GUI data types. `check-doc-refs.mjs` checks every markdown link, and `test-mod-semantics.mjs` holds the semantic test cases. `scripts/README.md` lists the commands.
+- `scripts/` — maintenance scripts, run by the maintainer, never by the agent during a mod task. `sync-wiki.mjs` refreshes the `docs/wiki/` pages and checks the hand-written `docs/wiki/INDEX.md`, and `dump-script-docs.mjs` asks the installed game for its name lists and its GUI data types. `check-doc-refs.mjs` checks every markdown link, and `test-mod-semantics.mjs` holds the semantic test cases. `scripts/README.md` lists the commands.
 - `mod-repo.json` — the machine-readable game and environment declaration. `workshop.supported` declares whether this game has a Steam Workshop. The Workshop directory is not declared here: `try_set_game_dir` records it in `.gamer-agent.local.json`.
 - `your_mods/` — the mod output area. Write mods only here, as `your_mods/<ModName>/`.
 

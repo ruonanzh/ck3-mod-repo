@@ -160,7 +160,7 @@ function writeIfChanged(target, content, label, check) {
  * 659 section links are a map of the wiki; each page already carries its own section list, and an
  * agent should not read 659 lines to learn whether a page exists.
  */
-async function buildIndex(check) {
+async function checkIndex() {
   const toc = await fetchRaw("TABLE_OF_CONTENTS.md");
   const readme = await fetchRaw("README.md");
   const titles = new Map();
@@ -193,9 +193,14 @@ async function buildIndex(check) {
     "| Page | Local | Covers |\n| --- | --- | --- |\n" +
     rows.join("\n") +
     "\n";
-  return writeIfChanged(join(outDir, "INDEX.md"), content, "docs/wiki/INDEX.md", check);
+  const file = join(outDir, "INDEX.md");
+  const rowsOf = (text) => text.split("\n").filter((line) => line.startsWith("| [")).join("\n");
+  const current = existsSync(file) ? readFileSync(file, "utf8").replaceAll("\r\n", "\n") : "";
+  if (rowsOf(current) === rowsOf(content)) return false;
+  console.error("  FAIL: docs/wiki/INDEX.md rows are out of date. Update them by hand from the list below.");
+  console.error(rowsOf(content));
+  return true;
 }
-
 async function main() {
   const check = process.argv.includes("--check");
   if (!check) mkdirSync(outDir, { recursive: true });
@@ -213,7 +218,7 @@ async function main() {
     if (writeIfChanged(join(outDir, page), body, `docs/wiki/${page}`, check)) changed += 1;
   }
   try {
-    if (await buildIndex(check)) changed += 1;
+    if (await checkIndex()) changed += 1;
   } catch (error) {
     console.error(`  FAIL: docs/wiki/INDEX.md: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;

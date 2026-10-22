@@ -3,8 +3,8 @@
 Two indexes, on purpose:
 
 - **[`INDEX.md`](INDEX.md)** — every page in the wiki mirror, all **57**, one row each: title,
-  whether it is shipped locally, and a one-line description. Use it to answer "does a page for X
-  exist".
+  whether it is shipped locally, and a one-line description. The file is written by hand. Use it to
+  answer "does a page for X exist".
 - **This file** — what is shipped (36 pages), what is not (21), and why.
 
 ---
@@ -98,8 +98,8 @@ whether the miss matters:
 ## Refreshing
 
 ```bash
-node scripts/sync-wiki.mjs          # fetch and rewrite the pages, and rebuild INDEX.md
-node scripts/sync-wiki.mjs --check  # report drift; exit 1 when a file differs
+node scripts/sync-wiki.mjs          # fetch and rewrite the pages, and check INDEX.md rows
+node scripts/sync-wiki.mjs --check  # report drift; exit 1 when a page or an INDEX row differs
 ```
 
 The script drops `../assets/` image references (8 MB of icons the text does not need) and rewrites a

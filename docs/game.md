@@ -41,4 +41,4 @@ This page describes the game mechanics only.
 
 ## Key reminders
 
-The rules are not repeated here. Sections 1, 3, and 5 of [`ck3-modding-conventions.md`](ck3-modding-conventions.md) hold the override forms, the localization format, and the mod identity files.
+The rule and the reason for each one are in [`ck3-modding-conventions.md`](ck3-modding-conventions.md). Sections 1, 2, 3, and 5 hold the override forms, the load order, the localization format, and the mod identity files.

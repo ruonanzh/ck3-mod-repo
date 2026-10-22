@@ -198,7 +198,7 @@ to a screen is a scripted GUI, and a feature that adds a player action is a deci
 interaction. Most mods need one of them at most, and many need none.
 
 Pick the entry **before** you write script. Read the row that matches your feature, then open the
-directory it names and read one of the examples in it. Every path in the table exists in the installed build.
+directory it names and read one of the examples in it. Every path in the table exists in the build that [`wiki/README.md`](wiki/README.md) records.
 
 | Entry point | Use it when | Defined in / read this example |
 | --- | --- | --- |

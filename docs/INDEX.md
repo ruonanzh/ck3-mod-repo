@@ -26,7 +26,7 @@ task needs, instead of pulling the whole `docs/` directory into context.
 
 ## How a player request becomes a mod
 
-The two stages and their steps are in `mod-creator`. Stage 1 settles the request and the mount point. Stage 2 writes the mod and checks it.
+The two stages and their steps are in `.pi/skills/mod-creator/SKILL.md`. Stage 1 settles the request and the mount point. Stage 2 writes the mod and checks it.
 
 Choosing the mechanism is a decision, and the search locates a name. The form and the parameters of a call come from the reference lists in [`wiki/`](wiki/README.md). The exact scope comes from `docs/script_docs/`.
 

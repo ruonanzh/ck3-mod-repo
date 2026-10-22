@@ -1,7 +1,6 @@
 # Wiki page index
 
-Every page in the wiki mirror (`jesec/ck3-modding-wiki`), one row each. **Local = yes** means the
-page is shipped under `docs/wiki/`; **no** means it exists upstream and is fetched on demand.
+Every page in the wiki mirror (`jesec/ck3-modding-wiki`), one row each. **Local = yes** means the page is shipped under `docs/wiki/`. **No** means it exists upstream and is fetched on demand. This file is written by hand, and `scripts/sync-wiki.mjs --check` reports drift.
 
 Use this to answer "does a page for X exist?". What is shipped, and why, is in `README.md`.
 
