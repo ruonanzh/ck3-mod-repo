@@ -19,10 +19,11 @@ const files = [];
     const p = join(dir, e.name);
     if (e.isDirectory()) walk(p);
     else if (e.name.endsWith(".md")) files.push(p);
+    // scripts/wiki-readme.md is a template: its links resolve inside docs/wiki/, not here.
   }
 })(root);
 
-for (const f of files) {
+for (const f of files.filter((p) => !p.endsWith("wiki-readme.md"))) {
   const text = readFileSync(f, "utf8");
   for (const m of text.matchAll(/\[[^\]]*\]\(([^)\s]+\.md)(#[^)]*)?\)/g)) {
     const target = m[1];

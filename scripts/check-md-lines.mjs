@@ -18,8 +18,8 @@
  *
  * Not applied to: fenced code, the YAML header, tables, headings, html blocks, and blockquotes.
  * Vendored snapshots (docs/wiki, docs/script_docs, docs/data_types, reference, .pi/vendor) are
- * never rewritten. Hand-written files inside them are the exception: `docs/wiki/INDEX.md`,
- * `docs/wiki/README.md`, and `reference/README.md`.
+ * never rewritten. Three files inside them are the exception: the hand-written `docs/wiki/INDEX.md`
+ * and `reference/README.md`, and the generated `docs/wiki/README.md`.
  */
 
 import fs from "node:fs";

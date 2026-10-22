@@ -205,7 +205,7 @@ function checkLocalization(modRoot: string): Finding[] {
         severity: "error",
         rel,
         message:
-          "missing UTF-8 BOM (game ignores localization files without a BOM)",
+          "missing UTF-8 BOM (the game reports a wrong encoding)",
       });
     }
     const { text, err } = decodeUtf8(raw);

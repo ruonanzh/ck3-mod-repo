@@ -203,6 +203,37 @@ async function checkIndex() {
   return true;
 }
 
+
+/**
+ * docs/wiki/README.md is generated from `scripts/wiki-readme.md`: the template holds the prose and the
+ * page rows, and this file fills the three counts and checks that the rows still match PAGES. The
+ * template is not shipped, so the snapshot keeps one hand-written file, INDEX.md.
+ */
+function writeReadme(check) {
+  const template = readFileSync(join(root, "scripts", "wiki-readme.md"), "utf8");
+  const listed = new Set();
+  const excluded = new Set();
+  let inExcluded = false;
+  for (const line of template.split("\n")) {
+    if (line.startsWith("Excluded on purpose")) inExcluded = true;
+    if (line.startsWith("## ")) inExcluded = false;
+    if (!line.startsWith("| `")) continue;
+    if (inExcluded) {
+      for (const match of line.matchAll(/`([A-Za-z0-9_]+)`/g)) excluded.add(match[1]);
+    } else {
+      for (const match of line.matchAll(/`([A-Za-z0-9_]+)\.md`/g)) listed.add(`${match[1]}.md`);
+    }
+  }
+  const shipped = new Set(PAGES);
+  const missing = PAGES.filter((page) => !listed.has(page));
+  if (missing.length > 0) throw new Error(`the template does not list ${missing.join(", ")}`);
+  const all = listed.size + excluded.size;
+  const body = template
+    .replaceAll("{{ALL}}", String(all))
+    .replaceAll("{{LOCAL}}", String(PAGES.length))
+    .replaceAll("{{EXTERNAL}}", String(excluded.size));
+  return writeIfChanged(join(outDir, "README.md"), body, "docs/wiki/README.md", check);
+}
 async function main() {
   const check = process.argv.includes("--check");
   if (!check) mkdirSync(outDir, { recursive: true });
@@ -227,6 +258,15 @@ async function main() {
     if (await checkIndex()) drifted += 1;
   } catch (error) {
     console.error(`  FAIL: docs/wiki/INDEX.md: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+  try {
+    if (writeReadme(check)) {
+      if (check) drifted += 1;
+      else written += 1;
+    }
+  } catch (error) {
+    console.error(`  FAIL: docs/wiki/README.md: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
   }
   if (process.exitCode === 1) {
