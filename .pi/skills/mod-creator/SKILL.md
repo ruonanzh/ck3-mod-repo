@@ -129,17 +129,11 @@ as a patch-level wildcard.
 
 ## Localization YAML
 
-The files are `localization/<lang>/*.yml` at the mod root. Three things matter while you write:
+The files are `localization/<lang>/*.yml` at the mod root. The format, the shipped languages, and the `replace/` directory are in `docs/ck3-modding-conventions.md` section 3.
 
-- **Start the file with the BOM in the call that creates it.** A later rewrite drops the BOM, and the
-  game then ignores the whole file in silence. That failure is fatal, not cosmetic. To add the BOM to
-  a file that already exists:
+- **Write the BOM when you create the file.** A rewrite drops it, and the game then ignores the file in silence. To re-add it:
   `printf '\xEF\xBB\xBF' | cat - <file> > tmp && mv tmp <file>`.
-- **The filename ends with `_l_<language>`**, and it matches the language directory.
-- **The first content line is `l_<lang>:`.** Each entry is `  key: "value"`.
-
-The full format, the shipped languages, and the `replace/` directory are in
-`docs/ck3-modding-conventions.md` section 3.
+- **The filename ends with `_l_<language>`.** It matches the language directory.
 
 ## The validate_mod tool
 
@@ -148,24 +142,13 @@ Call `validate_mod` with `modDir = your_mods/<ModName>/`.
 - `PASS: <name> is valid - ...` then one `WARN: <file>: <message>` per warning. A `WARN` is
   advisory. When a name check could not run, the `PASS` line says so and a `NOTE` line names the
   missing input.
-- `FAIL: <name> has N error(s)` then one `ERROR: <file>: <message>` per line, in English. Use the
-  `NEXT:` line to locate the problem. Fix every ERROR, and do not modify another mod.
+- `FAIL: <name> has N error(s), M warning(s)` then one `ERROR: <file>: <message>` per line, in English. The `NEXT:` line is fixed text, so read the `ERROR:` lines to locate the file. Fix every ERROR, and do not modify another mod.
 - A `NOTE:` line says that a check was skipped and why, for example when `docs/script_docs/` or the
   mirror is absent.
 
-The tool checks three layers:
+Section 9 of `docs/ck3-modding-conventions.md` states what the tool checks and what it does not. It does not prove that a new name exists, and it is not a scope, type, or value validator.
 
-1. **Syntax and conventions:** balanced braces and quotes, the localization format, and the
-   `descriptor.mod` fields. Files with any other suffix are skipped silently, and a `.yml` outside
-   `localization/` is not read.
-2. **The localization key of a new object:** a trait, a decision, or a character interaction.
-3. **Effect, trigger, and modifier names, against the game's own dumps** in `docs/script_docs/`: a
-   name that is one or two edits away from a real name is reported with the closest name. A name
-   shorter than 8 characters is not compared.
-
-It does **not** prove that a new name exists, and it is not a scope, type, or value validator. Section
-9 of `docs/ck3-modding-conventions.md` states the exact coverage. Use `game-scripts/vanilla/game/` and
-the wiki for scope and type. Use `how-to-speak` to report the result to the player.
+Use `game-scripts/vanilla/game/` and the wiki for scope and type. Use `how-to-speak` to report the result to the player.
 
 ## Common errors
 
@@ -190,11 +173,9 @@ Each `ERROR` line reads `ERROR: <file>: <message>`. The common ones, and the fix
 
 Pick the entry mechanism from the table in `docs/ck3-modding-conventions.md` section 7, then open the directory it names and read one of the examples there.
 
-A mod can also add its own content to one of the game's own data directories. The list is mechanical,
-and the modding context already holds it: usually one directory per data kind. On game version 1.20.1.1,
-`game-scripts/vanilla/game/common/` holds 128 directories. To list them, run
-`ls game-scripts/vanilla/game/common/`. Each directory entry names one data kind, and the count
-changes when the game adds one.
+A mod can also add its own content to one of the game's own data directories. The list is mechanical, and the modding context already holds it: usually one directory per data kind.
+
+Run `ls game-scripts/vanilla/game/common/`. Each directory entry names one data kind, and the count changes when the game adds one.
 
 These are the ones a content mod adds to most often. This is not the whole list:
 
