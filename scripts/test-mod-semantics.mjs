@@ -367,14 +367,14 @@ add(
   "partial-mirror",
   partial,
   makeMod(partial, "d_partial", { "common/traits/o.txt": "brave = {\n\tdiplomacy = 3\n}\n" }),
-  [finding("note", "mirror-incomplete", "has no data directory")],
+  [finding("note", "mirror-incomplete", "have no common/ directory")],
   0,
 );
 add(
   "partial-mirror-one-dir",
   partialone,
   makeMod(partialone, "d_partialone", { "common/traits/o.txt": "brave = {\n\tdiplomacy = 3\n}\n" }),
-  [finding("note", "mirror-partial", "modding context has no")],
+  [finding("note", "mirror-missing-dirs", "modding context has no")],
   2,
 );
 add(

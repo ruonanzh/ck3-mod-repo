@@ -613,7 +613,7 @@ export function analyzeSemantics(modDir: string, cwd: string): SemanticResult {
       code: "mirror-incomplete",
       rel: `${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/game`,
       level: "note",
-      message: `semantic: the vanilla mirror has no data directory, so the name checks were skipped. Run sync_game_scripts, then validate again.`,
+      message: `semantic: the vanilla scripts have no common/ directory, so the name checks were skipped. Run sync_game_scripts, then validate again.`,
     });
     return { checked, findings };
   }
@@ -621,7 +621,7 @@ export function analyzeSemantics(modDir: string, cwd: string): SemanticResult {
     const shown = vanillaNames.missingDirs.slice(0, 3).join(", ");
     const more = vanillaNames.missingDirs.length - 3;
     findings.push({
-      code: "mirror-partial",
+      code: "mirror-missing-dirs",
       rel: `${MIRROR_ROOT_DIRNAME}/${MIRROR_DIRNAME}/game`,
       level: "note",
       message: `semantic: the modding context has no ${shown}${more > 0 ? ` and ${more} more` : ""}. A name that vanilla declares in a missing directory can be reported as new, and its words are not in the known set. Run sync_game_scripts, then validate again.`,

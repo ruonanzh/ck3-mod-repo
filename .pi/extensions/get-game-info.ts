@@ -5,7 +5,7 @@
  * The facts:
  *   - the three paths: gameDir, modInstallDir, and workshopDir;
  *   - supportedGameVersion: the version value for the mod metadata;
- *   - the script layout, whether the vanilla scripts are present, how many Workshop mods the
+ *   - the script layout, the state of the vanilla scripts (ready, incomplete, or missing), how many Workshop mods the
  *     mirror holds, whether the game's dumps are present, and where the entry points are.
  *
  * The version rule: the tool derives supportedGameVersion from the build tag in the runtime state
@@ -86,10 +86,10 @@ export default function (pi: ExtensionAPI) {
     name: "get_game_info",
     label: "Get Game Info",
     description:
-      "Reports the recorded game environment facts for Crusader Kings III in one call: the game directory, the mod install directory, the Workshop directory, the supported game version, the script layout, whether the vanilla scripts are present, how many Workshop mods the modding context holds, whether the game's dumps are present, and where the entry points are. It takes no arguments, it reads the runtime state only, and it writes nothing.",
+      "Reports the recorded game environment facts for Crusader Kings III in one call: the game directory, the mod install directory, the Workshop directory, the supported game version, the script layout, whether the vanilla scripts are ready, incomplete, or missing, how many Workshop mods the modding context holds, whether the game's dumps are present, and where the entry points are. It takes no arguments, it reads the runtime state only, and it writes nothing.",
     promptSnippet: "Report the game paths, the supported version, the modding context, and whether the dumps are present",
     promptGuidelines: [
-      "Use get_game_info when you need the game paths, the script layout, whether the vanilla scripts are present, or the version value for the mod metadata. It answers all of them in one call.",
+      "Use get_game_info when you need the game paths, the script layout, the state of the vanilla scripts, or the version value for the mod metadata. It answers all of them in one call.",
       "Use get_game_info instead of gathering the game version yourself. Write the returned `supportedGameVersion` into `supported_version`. Do not read `ck3.exe`, and do not use its `VersionInfo`.",
       "get_game_info takes no arguments, and it writes nothing. If it returns FAIL, run try_set_game_dir first, which locates the game and records the paths.",
     ],
@@ -150,7 +150,7 @@ export default function (pi: ExtensionAPI) {
           "vanilla",
           mirror === "ready"
             ? "ready"
-            : mirror === "partial"
+            : mirror === "incomplete"
               ? "incomplete - the vanilla copy has no game/common/ directory. Run sync_game_scripts again"
               : "missing - run sync_game_scripts",
         ),

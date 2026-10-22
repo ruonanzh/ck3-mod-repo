@@ -106,7 +106,7 @@ The files are `localization/<lang>/*.yml` at the mod root. The format, the shipp
 Call `validate_mod` with `modDir = your_mods/<ModName>/`.
 
 - `PASS: <name> is valid - ...` then one `WARN: <file>: <message>` per warning. A `(N warning(s))` suffix follows the `PASS` line when warnings exist. A `WARN` is advisory. When a name check could not run, the `PASS` line says so and a `NOTE` line names the missing input.
-- `FAIL: <name> has N error(s), M warning(s)` then one `ERROR: <file>: <message>` per line, in English. The `WARN:` detail lines follow the `ERROR:` lines. The `NEXT:` line is the same on every run, so read the `ERROR:` lines to locate the file. Fix every ERROR, and do not modify another mod.
+- `FAIL: <name> has N error(s), M warning(s)` then one `ERROR: <file>: <message>` per line, in English. The `WARN:` lines follow the `ERROR:` lines, then any `NOTE:` line, and the output ends with `NEXT: read the ERROR lines above, fix each file, and run validate_mod again.` Read the `ERROR:` lines to locate the file. Fix every ERROR, and do not modify another mod.
 - A `NOTE:` line says that a check was skipped and why, for example when `docs/script_docs/` or the mirror is absent.
 
 Section 9 of `docs/ck3-modding-conventions.md` states what the tool checks and what it does not. It does not prove that a new name exists, and it is not a scope, type, or value validator.

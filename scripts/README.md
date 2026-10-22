@@ -49,7 +49,7 @@ The fixtures build a small vanilla mirror and a set of mods. The name check read
 | `mirror-without-dumps` | A modding context, and no `docs/script_docs/`. | The loc WARN and one `dump-missing` NOTE, and one check runs. |
 | `empty-dumps` | A modding context, and `effects.log` and `triggers.log` are empty. | The loc WARN and one `dump-missing` NOTE, and one check runs. |
 | `partial-mirror` | `game-scripts/vanilla/game/common/` exists, but none of the twelve data directories. | One `mirror-incomplete` NOTE, and no check runs. |
-| `partial-mirror-one-dir` | Only `common/traits/` exists. | One `mirror-partial` NOTE, and both checks run against what is present. |
+| `partial-mirror-one-dir` | Only `common/traits/` exists. | One `mirror-missing-dirs` NOTE, and both checks run against what is present. |
 | `partial-dumps` | `effects.log` is empty. `triggers.log` and `modifiers.log` exist. | One `dump-partial` NOTE, and both checks run. |
 
 The default run must print `24 cases: 24 passed, 0 failed`. A known defect would be marked with a `known` flag in the script and reported as `KNOWN`. This matrix currently has none. The four defects that the review found in the first version (the decision `title` override, a nested `desc` that hid a missing key, indented/BOM definitions, and the partial mirror) are fixed in `.pi/lib/mod-semantics.ts`, and these cases are their regression net. If one of them regresses, the run exits with code 1.

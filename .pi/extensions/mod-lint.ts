@@ -661,9 +661,11 @@ export default function (pi: ExtensionAPI) {
         for (const w of semanticWarnings.slice(0, MAX_SEMANTIC_FINDINGS)) {
           lines.push(`WARN: ${w.rel}: ${w.message}`);
         }
-        lines.push(`NEXT: read the ERROR lines above, fix each file, and run validate_mod again.`);
       }
       for (const note of semanticNotes) lines.push(`NOTE: ${note.rel}: ${note.message}`);
+      if (errors.length > 0) {
+        lines.push(`NEXT: read the ERROR lines above, fix each file, and run validate_mod again.`);
+      }
 
       return {
         content: [{ type: "text", text: lines.join("\n") }],

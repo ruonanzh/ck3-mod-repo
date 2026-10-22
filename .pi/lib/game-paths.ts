@@ -81,10 +81,14 @@ export function mirrorDirs(cwd: string): MirrorDirs {
 }
 
 /** One definition of "the modding context is ready": the vanilla copy exists and its common/ is a directory. */
-export function mirrorState(root: string): "ready" | "partial" | "missing" {
+export function mirrorState(root: string): "ready" | "incomplete" | "missing" {
   const vanilla = mirrorDirs(root).vanillaScripts;
   if (!existsSync(vanilla)) return "missing";
-  return statSync(join(vanilla, "common"), { throwIfNoEntry: false })?.isDirectory() ? "ready" : "partial";
+  try {
+    return statSync(join(vanilla, "common"), { throwIfNoEntry: false })?.isDirectory() ? "ready" : "incomplete";
+  } catch {
+    return "incomplete";
+  }
 }
 
 /** The directory that holds the game's own script dumps under one workspace root. */
