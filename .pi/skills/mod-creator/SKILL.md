@@ -21,7 +21,7 @@ This skill provides domain method only, and it **grants no permissions**. Readin
   | 0 | **Prepare the paths** | `get_game_info`. When it reports the vanilla scripts missing, run `sync_game_scripts`. The `setup-workspace` skill has the cases. | A mirror that steps 3 and 4 can read |
   | 1 | **Map the request to a page** | `docs/wiki/INDEX.md` — one row per wiki page, with `Local yes/no` | The one page that covers "how do I add X" (`Holdings_modding` for a building, `Event_modding` for an event, …) |
   | 2 | **Read the mechanism** | That page's own table of contents, then only the section the request needs. Match the change against the rows of section 7 in `docs/ck3-modding-conventions.md`. | The entry mechanism, the directory it lives in, the required block, and its fields |
-  | 3 | **Research the vanilla code** | `grep -rln <keyword> game-scripts/vanilla/game/`, which lists files rather than lines. Open the first, then search inside it with `grep -n`. A name or a scope is a `docs/script_docs/` question. | Real object names, real field values, and the file to mirror |
+  | 3 | **Research the vanilla code** | `grep -rln <keyword> game-scripts/vanilla/game/`, which lists files rather than lines. Put the independent searches of this step in one turn. Open the first, then search inside it with `grep -n`. A name or a scope is a `docs/script_docs/` question. | Real object names, real field values, and the file to mirror |
   | 4 | **Read that window's own `.gui` file** | When the change mounts on an existing window or panel, read its `.gui` file under `game-scripts/vanilla/game/gui/`. The window's data types and functions are in `docs/data_types/`. Skip this step when no window changes. | The `type` and the block to hook into |
   | 5 | **Give one example shape, then settle it** | The player. Describe what the mod changes, its scope, and its shape, as one concrete example the player can change. Then wait. | One sentence: what the mod changes, its scope, and the shape the player settled |
 
@@ -57,7 +57,8 @@ This skill provides domain method only, and it **grants no permissions**. Readin
 A search that lists files is cheaper than one that lists every matching line.
 
 - **List files first.** Run `grep -rln <keyword> game-scripts/vanilla/game/`. Open the first file, then search inside it with `grep -n`.
-- **Cap every listing.** One `head -20` per search. A long result means the keyword is too broad, so narrow it instead of raising the cap.
+- **One request, several searches.** Independent searches belong in one message: several tool calls cost one request, and every request re-reads the whole context. Join the keywords of one question into one command, for example `grep -niE "<keyword01>|<keyword02>" <file> | head -60`. Do not merge a dependent step: find the file first, then read a range in it.
+- **Cap every listing.** One `head -20` per search, and `head -60` for a merged one. A long result means the keyword is too broad, so narrow it instead of raising the cap.
 - **Read the shape from a sample.** `reference/example_mod/` holds a whole working mod. Never read `your_mods/` for an example.
 - **The Workshop scripts are not vanilla.** A hit under `game-scripts/workshop/` proves what another player's mod does, not what the game accepts.
 - **Values are not names.** A name or a scope comes from `docs/script_docs/`. A field value comes from the vanilla scripts.
